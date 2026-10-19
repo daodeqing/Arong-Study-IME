@@ -10,7 +10,7 @@
 namespace
 {
 constexpr std::string_view kPrefix = "dpapi:";
-constexpr char kEntropy[] = "MetasequoiaIME.config.credential.v1";
+constexpr char kEntropy[] = "ArongStudyIme.config.credential.v1";
 constexpr DWORD kBase64Flags = CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF;
 
 DATA_BLOB EntropyBlob()

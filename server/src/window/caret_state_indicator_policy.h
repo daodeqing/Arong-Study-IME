@@ -116,6 +116,12 @@ inline int CaretStateBadgeWidthDip(const CaretStateBadge &badge)
 {
     if (badge.HasModeSlot())
         return kCaretStatePunctuationBadgeWidthDip;
+    if (badge.text == L"英文输出")
+        return 96;
+    if (badge.text == L"中文输出")
+        return 96;
+    if (badge.text == L"译文未就绪，已回退中文")
+        return 240;
     const int extra = badge.text.size() > 1 ? static_cast<int>(badge.text.size()) - 1 : 0;
     return CaretStateIndicatorTextWidth(kCaretStateBadgeHeightDip, kCaretStateAdditionalCharacterWidthDip, extra);
 }
@@ -171,6 +177,16 @@ inline bool ShouldShowInputModeEvent(InputModeTrigger trigger, bool focusAnnounc
 inline CaretStateBadge InputModeBadge(bool imeEnabled, bool japaneseMode, bool capsLockEnabled)
 {
     return {std::wstring(1, EffectiveInputModeGlyph(imeEnabled, japaneseMode, capsLockEnabled))};
+}
+
+inline CaretStateBadge OutputLanguageBadge(bool english)
+{
+    return {english ? L"英文输出" : L"中文输出"};
+}
+
+inline CaretStateBadge OutputTranslationFallbackBadge()
+{
+    return {L"译文未就绪，已回退中文"};
 }
 
 inline CaretStateBadge PunctuationBadge(bool punctuationEnabled, bool imeEnabled, bool japaneseMode)

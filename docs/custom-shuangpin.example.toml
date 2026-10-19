@@ -13,7 +13,7 @@
 #
 #        <数据目录>\shuangpin\custom\
 #
-#    默认的数据目录是 %LOCALAPPDATA%\metasequoiaime；安装时改过数据目录的，
+#    默认的数据目录是 %LOCALAPPDATA%\ArongStudyIme；安装时改过数据目录的，
 #    以设置页上显示的路径为准。
 #
 # 2. 把本文件复制进去，改个名字，比如「我的双拼.toml」。

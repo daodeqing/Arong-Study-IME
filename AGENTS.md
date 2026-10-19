@@ -80,7 +80,7 @@ cmake -S ui      -B ui/build -A x64                # GUI 框架
 
 ## 正式发布（CI）
 
-本地测试打包见 [windows/AGENTS.md](windows/AGENTS.md) 的构建与验证。对外发布走 `.github/workflows/release.yml`，产出的就是历来挂在本仓 Release 上的 `MetasequoiaIME_Setup_v<版本>.exe`。
+本地测试打包见 [windows/AGENTS.md](windows/AGENTS.md) 的构建与验证。对外发布走 `.github/workflows/release.yml`，产出的就是历来挂在本仓 Release 上的 `ArongStudyIme_Setup_v<版本>.exe`。
 
 版本号由 release-please 管理，真源是根目录的 `version.txt`。**从 `main` 往后是全自动的**：把 `develop` 合进 `main`，只要这批提交里有 `fix:` 或 `feat:`，最后就会有一个签好名的安装包挂在 Release 上，中间没有任何一步等人。发版的决定点因此是那次提升本身——合进 `develop` 不产生版本号，也不消耗签名额度。
 
@@ -97,7 +97,7 @@ cmake -S ui      -B ui/build -A x64                # GUI 框架
 
 `workflow_dispatch` 保留下来，它同时是修复通道和发布频道的入口：run 在建出 draft 之后失败时，拿那个 tag 重跑即可。同一个 tag 重复触发会被 `validate-draft-release.sh` 挡下——发布之后它就不是 draft 了，不会重复发布同一个版本。
 
-**两个频道由触发方式决定，`publish-release.sh` 据此选状态**（[#167](https://github.com/metasequoiaime/MSIME-Windows/issues/167)）：
+**两个频道由触发方式决定，`publish-release.sh` 据此选状态**（[#167](https://github.com/daodeqing/Arong-Study-IME/issues/167)）：
 
 | 频道 | 触发 | 发布状态 | 标题 |
 |---|---|---|---|

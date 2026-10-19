@@ -4,6 +4,7 @@
 // 只给 server/src/ipc/event_listener*.cpp 包含，其他地方不要引用。
 
 #include <Windows.h>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -51,6 +52,7 @@ extern std::shared_ptr<IInputSession> g_r_mode_original_session;
 // config drops it, since a scheme or profile change makes it stale.
 extern std::shared_ptr<IInputSession> g_language_cycle_parked_session;
 extern bool g_english_input_mode;
+extern std::atomic_bool g_output_language_english;
 // Glosses are a cache keyed by TranslationIdentity, not the current page's
 // results: the next keystroke's page mostly repeats the same words, and
 // rebuilding it without their glosses first shrank every row, then grew it back
@@ -115,10 +117,16 @@ FanyImeIpc::CandidateUiOwner SnapshotCandidateUiOwner();
 bool CandidateUiOwnerIsCurrent(const FanyImeIpc::CandidateUiOwner &owner);
 void PublishStatusSnapshotValue(int packed_state);
 void SetEnglishInputMode(bool enabled);
+bool IsEnglishOutputEnabled();
+bool IsSensitiveInputField();
+void ToggleOutputLanguage(uint64_t client_id, uint64_t activation_epoch, int anchor_x, int anchor_y);
+void SendOutputLanguageState(uint64_t client_id, uint64_t activation_epoch);
+void PostOutputTranslationFallbackBadge(int anchor_x, int anchor_y);
 void RememberClientStatusSnapshot(uint64_t client_id, int packed_state);
 void ForgetClientStatusSnapshot(uint64_t client_id);
 int RecallClientStatusSnapshot(uint64_t client_id);
 void PostCaretStateBadge(FanyImeUi::CaretStateBadge badge, int x, int y);
+void PostOutputLanguageBadge(bool english, int x, int y);
 
 void UpdateCloudInput(const std::string &input, uint64_t client_id = 0, uint64_t activation_epoch = 0);
 void UpdateEnglishInput(const std::string &input, uint64_t client_id = 0, uint64_t activation_epoch = 0,
@@ -254,6 +262,7 @@ void PushUiLessCandidatesToOwner();
 
 // 拆分前 event_listener.cpp 里的前置声明，定义分布在各个 event_listener*.cpp。
 void PrepareCandidateList(uint64_t client_id, uint64_t activation_epoch);
+void RequestCurrentOutputTranslations();
 void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t request_id);
 void ClearState();
 // count_first_word = false 时这次上屏不进首词命中率（五笔四码唯一自动上屏：用户没有做选择）。

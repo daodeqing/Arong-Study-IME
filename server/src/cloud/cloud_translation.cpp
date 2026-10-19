@@ -189,6 +189,9 @@ void PersistGloss(const EnglishIme::TranslationQuery &query, const std::string &
 {
     // english.db is language-specific. Other target languages remain in the
     // in-memory cloud cache only.
+    const auto config = GetConfiguredTranslation();
+    if (config->provider == "ai" && config->ai.provider == "local")
+        return;
     if (target_language != "en" || g_db_path.empty() || !CloudTranslation::ShouldPersistGloss(query.key, gloss))
         return;
     const bool chinese_to_english = query.direction == EnglishIme::TranslationDirection::ChineseToEnglish;

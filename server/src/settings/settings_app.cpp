@@ -50,9 +50,9 @@ namespace json = boost::json;
 
 namespace
 {
-constexpr wchar_t kWindowClass[] = L"MetasequoiaImeSettingsWindow";
-constexpr wchar_t kWindowTitle[] = L"Metasequoia IME Settings";
-constexpr wchar_t kSingleInstanceMutex[] = L"Local\\MetasequoiaImeSettings.SingleInstance";
+constexpr wchar_t kWindowClass[] = L"ArongStudyImeSettingsWindow";
+constexpr wchar_t kWindowTitle[] = L"阿龍学习输入法 Settings";
+constexpr wchar_t kSingleInstanceMutex[] = L"Local\\ArongStudyImeSettings.SingleInstance";
 constexpr UINT kActivateExistingWindow = WM_APP + 1;
 constexpr UINT kOpenAboutSection = WM_APP + 2;
 constexpr UINT kScanSkinCatalog = WM_APP + 3;
@@ -1340,7 +1340,8 @@ void HandleClientMessage(HWND hwnd, const std::string &raw)
                 return [saved, completion = std::move(completion)] {
                     completion();
                     if (!saved)
-                        MessageBoxW(g_settings_hwnd, L"设置保存失败，请重试。", L"水杉输入法", MB_OK | MB_ICONWARNING);
+                        MessageBoxW(g_settings_hwnd, L"设置保存失败，请重试。", L"阿龍学习输入法",
+                                    MB_OK | MB_ICONWARNING);
                 };
             });
         }
@@ -1455,7 +1456,7 @@ void HandleClientMessage(HWND hwnd, const std::string &raw)
         {
             if (!NotifyImeServerRestart())
             {
-                MessageBoxW(g_settings_hwnd, L"未能重启输入法进程，请稍后重试。", L"水杉输入法",
+                MessageBoxW(g_settings_hwnd, L"未能重启输入法进程，请稍后重试。", L"阿龍学习输入法",
                             MB_OK | MB_ICONWARNING);
             }
         }
@@ -1510,7 +1511,7 @@ void HandleClientMessage(HWND hwnd, const std::string &raw)
                 {
                     ok = default_input_method::SetAsDefault(message);
                     if (ok)
-                        message = "已设为默认输入法，水杉输入法在中文（简体）中排第一位。";
+                        message = "已设为默认输入法，阿龍学习输入法在中文（简体）中排第一位。";
                 }
                 const default_input_method::Status status = default_input_method::QueryStatus();
                 json::value response = {{"type", "defaultImeResponse"},
@@ -1901,7 +1902,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR command_line, int show_
     g_settings_hwnd = hwnd;
     g_worker = std::make_unique<SerialTaskQueue>(
         [hwnd] { PostMessageW(hwnd, kWorkerCompleted, 0, 0); },
-        [] { MessageBoxW(g_settings_hwnd, L"设置操作失败，请重试。", L"水杉输入法", MB_OK | MB_ICONWARNING); },
+        [] { MessageBoxW(g_settings_hwnd, L"设置操作失败，请重试。", L"阿龍学习输入法", MB_OK | MB_ICONWARNING); },
         [] {
             if (g_worker_com_initialized)
                 CoUninitialize();

@@ -13,20 +13,20 @@
 
 namespace
 {
-constexpr wchar_t kServerFileName[] = L"MetasequoiaImeServer.exe";
-constexpr wchar_t kWatchdogMutex[] = L"Local\\MetasequoiaImeWatchdog.SingleInstance";
+constexpr wchar_t kServerFileName[] = L"ArongStudyImeServer.exe";
+constexpr wchar_t kWatchdogMutex[] = L"Local\\ArongStudyImeWatchdog.SingleInstance";
 constexpr DWORD kHealthyRunMilliseconds = 30'000;
 constexpr DWORD kMaximumRestartDelayMilliseconds = 30'000;
 constexpr DWORD kProfileReadyTimeoutMilliseconds = 30'000;
 constexpr DWORD kProfileReadyRetryIntervalMilliseconds = 1'000;
 
-// Keep these identifiers in sync with MetasequoiaImeTsf/src/Global/Globals.cpp.
-constexpr CLSID kMetasequoiaImeClsid = {0xe3062e9a, 0xd834, 0x4637, {0x89, 0x58, 0xed, 0x8c, 0xfa, 0x42, 0x7d, 0x01}};
-constexpr GUID kMetasequoiaImeProfileGuid = {
-    0x4d59b1b4, 0xd503, 0x44ae, {0x92, 0x59, 0xba, 0xd9, 0xbb, 0x27, 0x78, 0xab}};
+// Keep these identifiers in sync with ArongStudyImeTsf/src/Global/Globals.cpp.
+constexpr CLSID kArongStudyImeClsid = {0x7b7c69a5, 0xa68d, 0x5cf5, {0xaa, 0x75, 0x7d, 0xcf, 0xc3, 0x8c, 0x9a, 0x4d}};
+constexpr GUID kArongStudyImeProfileGuid = {
+    0x30eb48a3, 0x0163, 0x5ab7, {0xbb, 0x67, 0x72, 0xe8, 0x77, 0x12, 0xca, 0xb3}};
 constexpr LANGID kMetasequoiaImeLanguage = MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED);
 
-bool IsMetasequoiaImeEnabledForCurrentUser()
+bool IsArongStudyImeEnabledForCurrentUser()
 {
     const HRESULT initialize_result = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (FAILED(initialize_result))

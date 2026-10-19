@@ -3,6 +3,7 @@
 #include "tests/includes/test_framework.h"
 
 int RunModelPathBenchmark(int argc, char **argv);
+int RunLocalOutputProbe(int argc, char **argv);
 
 namespace test
 {
@@ -20,6 +21,8 @@ Registrar::Registrar(const char *name, std::function<void()> fn)
 
 int main(int argc, char **argv)
 {
+    if (argc > 1 && std::string(argv[1]) == "--local-output-probe")
+        return RunLocalOutputProbe(argc - 1, argv + 1);
     if (argc > 1 && std::string(argv[1]) == "--benchmark-model-path")
     {
         return RunModelPathBenchmark(argc - 1, argv + 1);

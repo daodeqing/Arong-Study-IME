@@ -1355,8 +1355,14 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
 
         // Without the capability the toggle goes out as the legacy KeyEvent. A custom
         // chord queued before a reconnect to such a Server has no legacy form.
+        const bool outputLanguageAction = KeystrokeState.Function == FUNCTION_TOGGLE_OUTPUT_LANGUAGE;
+        if (outputLanguageAction && !SupportsInputStateShortcuts())
+        {
+            return KeyDownDispatchResult::Complete;
+        }
         const bool sendInputStateAction =
-            KeystrokeState.Function == FUNCTION_TOGGLE_ENGLISH_CANDIDATES && SupportsInputStateShortcuts();
+            (KeystrokeState.Function == FUNCTION_TOGGLE_ENGLISH_CANDIDATES || outputLanguageAction) &&
+            SupportsInputStateShortcuts();
         if (KeystrokeState.Function == FUNCTION_TOGGLE_ENGLISH_CANDIDATES && !sendInputStateAction &&
             !IsLegacyEnglishInputModeToggle(code, capturedModifiers))
         {
@@ -1396,11 +1402,7 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
         // Password fields keep their text away from the AI assistant. The field
         // is read only while the assistant uploads context, and only on the key
         // that starts a composition; the answer holds until the next one.
-        if (!Global::AiContextUploadEnabled.load(std::memory_order_relaxed))
-        {
-            Global::SensitiveInputField = false;
-        }
-        else if (!_IsComposing())
+        if (!_IsComposing())
         {
             Global::SensitiveInputField = ResolveSensitiveInputField(this, pContext, _tfClientId);
         }
@@ -1410,7 +1412,8 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
         // default point would otherwise read as a real screen position.
         int keyPoint[2] = {0, Global::INVALID_Y};
         const bool includeCaretAnchor =
-            KeystrokeState.Function == FUNCTION_TOGGLE_CHARACTER_SET && SupportsCaretStateIndicator();
+            outputLanguageAction ||
+            (KeystrokeState.Function == FUNCTION_TOGGLE_CHARACTER_SET && SupportsCaretStateIndicator());
         if (includeCaretAnchor)
         {
             (void)ResolveKeyCaretAnchor(this, pContext, _tfClientId, keyPoint);
@@ -1421,9 +1424,20 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
                                 L"", KeyEventPayloadWriteMask(includeCaretAnchor));
 
         PerfTimer sendKeyEventTimer;
-        const KeyEventSendResult sendResult = SendKeyEventToUIProcess(
-            &requestId,
-            sendInputStateAction ? static_cast<unsigned>(FanyImeInputStateShortcuts::Action::EnglishCandidates) : 0);
+        const unsigned inputStateAction =
+            outputLanguageAction   ? static_cast<unsigned>(FanyImeInputStateShortcuts::Action::OutputLanguage)
+            : sendInputStateAction ? static_cast<unsigned>(FanyImeInputStateShortcuts::Action::EnglishCandidates)
+                                   : 0;
+        const KeyEventSendResult sendResult = SendKeyEventToUIProcess(&requestId, inputStateAction);
+        if (outputLanguageAction)
+        {
+            DebugTsfIssue47(sendResult == KeyEventSendResult::Sent ? L"output-language-sent"
+                                                                   : L"output-language-send-failed",
+                            requestId, code, wch, KeystrokeState.Category, KeystrokeState.Function, 1, _IsComposing(),
+                            _pCompositionProcessorEngine->GetVirtualKeyLength(),
+                            sendResult == KeyEventSendResult::Sent ? S_OK : E_FAIL, deferredReplayToken);
+            return KeyDownDispatchResult::Complete;
+        }
         if (KeystrokeState.Function == FUNCTION_TOGGLE_ENGLISH_CANDIDATES)
             KeystrokeState.Function = FUNCTION_CANCEL;
         if (KeystrokeState.Function == FUNCTION_TOGGLE_CHARACTER_SET)

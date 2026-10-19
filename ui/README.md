@@ -125,7 +125,7 @@ image->SetStretch(msimeui::ImageStretch::Uniform);
 - 调整了 `ScrollViewer` 的滚动条悬浮反馈：鼠标移到滚动条轨道上时 thumb 就会立即切到高亮色，不再等到按下拖动后才变色
 - 新增第一版面向输入法候选窗的 `CandidateList`：支持紧凑候选项、序号/主词/注解三段式排版、选中态切换，适合作为 WebView2 候选框的原生替代基础控件
 - `Popup` 现支持自定义背景色、边框色、圆角半径和轻量阴影，便于构建深色候选窗、悬浮工具条弹层等更贴近输入法场景的 overlay UI
-- demo 新增 `Candidate Window Target` 示例：使用深色 `Popup` + `CandidateList` 组合出一版接近输入法候选窗形态的候选层预览，作为后续替换 `MetasequoiaImeServer` WebView2 候选框的起点
+- demo 新增 `Candidate Window Target` 示例：使用深色 `Popup` + `CandidateList` 组合出一版接近输入法候选窗形态的候选层预览，作为后续替换 `ArongStudyImeServer` WebView2 候选框的起点
 - 继续收紧候选窗顶部标题区：压缩 `ni` 上方留白，并把拼音与首个候选项之间的距离调整到更接近参考图
 - `TextBlock` 新增可调的文本布局内边距，候选窗顶部拼音标题已切换到紧凑测量模式，去掉了默认文本行高带来的额外顶部空白
 - 候选窗 demo 中的顶部拼音 `ni` 再向下微调 `3px`，方便继续贴近参考图的标题基线位置
@@ -270,4 +270,4 @@ build/bin/Debug/msimeui-emoji-panel.exe
 
 ## 许可
 
-GPL-3.0，与水杉输入法其余仓库一致。详见 [LICENSE](LICENSE)。
+GPL-3.0，与阿龍学习输入法其余仓库一致。详见 [LICENSE](LICENSE)。

@@ -8,7 +8,7 @@ default_skins/
 bundled_skins/
 bundled_skins.manifest
 MetasequoiaIME.ico
-MetasequoiaImeTip.ico
+ArongStudyImeTip.ico
 /THIRD_PARTY_NOTICES.txt
 /LICENSE.txt
 
@@ -19,3 +19,5 @@ MetasequoiaImeTip.ico
 *.p12
 *.pvk
 *.spc
+
+ArongStudyIme.ico

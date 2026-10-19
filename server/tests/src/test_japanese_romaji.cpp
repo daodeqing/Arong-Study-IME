@@ -272,7 +272,7 @@ TEST_CASE(JapaneseProviderShowsPhrasesBeforeConvertedKana)
 TEST_CASE(JapaneseMatrixSearchDecodesWholeSentenceWhenModelAvailable)
 {
     const auto workspace = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path();
-    const auto model = workspace / "MetasequoiaImeDict" / "out" / "dict_japanese.dat";
+    const auto model = workspace / "ArongStudyImeDict" / "out" / "dict_japanese.dat";
     if (!std::filesystem::is_regular_file(model))
         return;
 
@@ -319,7 +319,7 @@ TEST_CASE(JapaneseMatrixSearchDecodesWholeSentenceWhenModelAvailable)
 TEST_CASE(JapaneseSentenceDecoderReadsGeneratedMozcModelWhenAvailable)
 {
     const auto workspace = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path();
-    const auto model = workspace / "MetasequoiaImeDict" / "out" / "dict_japanese.dat";
+    const auto model = workspace / "ArongStudyImeDict" / "out" / "dict_japanese.dat";
     if (!std::filesystem::is_regular_file(model))
         return;
 

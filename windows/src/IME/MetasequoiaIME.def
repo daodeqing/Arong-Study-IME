@@ -1,4 +1,4 @@
-LIBRARY MetasequoiaImeTsf.dll
+LIBRARY ArongStudyImeTsf.dll
 
 EXPORTS
         DllGetClassObject    PRIVATE

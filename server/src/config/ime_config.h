@@ -69,11 +69,11 @@ struct AiAssistantConfig
     bool enabled = false;
     // Active provider id. The legacy set is deepseek | openai | siliconflow | groq | custom; ids
     // beyond that come from the provider registry in the data directory.
-    std::string provider = "deepseek";
+    std::string provider = "local";
     std::string token;
     std::map<std::string, std::string> tokens;
-    std::string endpoint = "https://api.deepseek.com/chat/completions";
-    std::string model = "deepseek-v4-flash";
+    std::string endpoint = "http://127.0.0.1:8317/v1/chat/completions";
+    std::string model;
     // The provider registry (ai_providers.json in the data dir): any number of user-defined
     // OpenAI-compatible services, HanaAgent-style. The legacy maps below keep the config.toml
     // slots alive for rollback; requests resolve through `active`.
@@ -81,6 +81,7 @@ struct AiAssistantConfig
     AiAssistant::AiProvider active;
     std::map<std::string, std::string> endpoints{
         {"deepseek", "https://api.deepseek.com/chat/completions"},
+        {"local", "http://127.0.0.1:8317/v1/chat/completions"},
         {"openai", "https://api.openai.com/v1/chat/completions"},
         {"siliconflow", "https://api.siliconflow.cn/v1/chat/completions"},
         {"groq", "https://api.groq.com/openai/v1/chat/completions"},
@@ -95,6 +96,7 @@ struct AiAssistantConfig
     // Groq 已弃用 llama-3.3-70b-versatile，默认模型改用 qwen/qwen3.8-27b。
     // custom 槽位不预设接口地址和模型，全部由用户填写并单独保存。
     std::map<std::string, std::string> models{{"deepseek", "deepseek-v4-flash"},
+                                              {"local", ""},
                                               {"openai", "gpt-4o-mini"},
                                               {"siliconflow", "Qwen/Qwen3-8B"},
                                               {"groq", "qwen/qwen3.8-27b"},

@@ -37,6 +37,7 @@
 #include "conversion/chinese_converter.h"
 #include "log/candidate_diag_log.h"
 #include "ipc/event_listener_internal.h"
+#include "ipc/output_language_policy.h"
 #include "ai/jev_candidate_policy.h"
 
 using namespace event_listener_detail;
@@ -55,6 +56,7 @@ bool g_r_mode_triggered = false;
 std::shared_ptr<IInputSession> g_r_mode_original_session;
 std::shared_ptr<IInputSession> g_language_cycle_parked_session;
 bool g_english_input_mode = false;
+std::atomic_bool g_output_language_english{OutputLanguagePolicy::InitialOutputLanguageIsEnglish()};
 } // namespace event_listener_detail
 
 namespace
@@ -458,6 +460,32 @@ void SetEnglishInputMode(bool enabled)
                                            FanyNamedPipe::TemporaryJapanesePolicyPayload());
 }
 
+bool IsEnglishOutputEnabled()
+{
+    return g_output_language_english.load(std::memory_order_relaxed);
+}
+
+bool IsSensitiveInputField()
+{
+    return g_ai_sensitive_field;
+}
+
+void SendOutputLanguageState(uint64_t client_id, uint64_t activation_epoch)
+{
+    if (client_id == 0 || activation_epoch == 0)
+        return;
+    SendToTsfWorkerThreadClientViaNamedpipe(client_id, activation_epoch,
+                                            Global::DataFromServerMsgTypeToTsfWorkerThread::OutputLanguageChanged,
+                                            IsEnglishOutputEnabled() ? L"1" : L"0");
+}
+
+void ToggleOutputLanguage(uint64_t client_id, uint64_t activation_epoch, int anchor_x, int anchor_y)
+{
+    g_output_language_english.store(OutputLanguagePolicy::Toggle(IsEnglishOutputEnabled()), std::memory_order_relaxed);
+    SendOutputLanguageState(client_id, activation_epoch);
+    PostOutputLanguageBadge(IsEnglishOutputEnabled(), anchor_x, anchor_y);
+}
+
 void RememberClientStatusSnapshot(uint64_t client_id, int packed_state)
 {
     if (client_id == 0)
@@ -490,6 +518,28 @@ void PostCaretStateBadge(FanyImeUi::CaretStateBadge badge, int x, int y)
     if (!hwnd || !FanyImeUi::IsUsableCaretAnchor(x, y))
         return;
     auto *request = new (std::nothrow) CaretStateIndicator::ShowRequest{std::move(badge), POINT{x, y}, IsUiLessMode()};
+    if (request && !PostMessage(hwnd, WM_SHOW_CARET_STATE, 0, reinterpret_cast<LPARAM>(request)))
+        delete request;
+}
+
+void PostOutputTranslationFallbackBadge(int anchor_x, int anchor_y)
+{
+    const HWND hwnd = ::global_hwnd_caret_state;
+    if (!hwnd || IsUiLessMode() || !FanyImeUi::IsUsableCaretAnchor(anchor_x, anchor_y))
+        return;
+    auto *request = new (std::nothrow) CaretStateIndicator::ShowRequest{FanyImeUi::OutputTranslationFallbackBadge(),
+                                                                        POINT{anchor_x, anchor_y}, false, true};
+    if (request && !PostMessage(hwnd, WM_SHOW_CARET_STATE, 0, reinterpret_cast<LPARAM>(request)))
+        delete request;
+}
+
+void PostOutputLanguageBadge(bool english, int anchor_x, int anchor_y)
+{
+    const HWND hwnd = ::global_hwnd_caret_state;
+    if (!hwnd || IsUiLessMode() || !FanyImeUi::IsUsableCaretAnchor(anchor_x, anchor_y))
+        return;
+    auto *request = new (std::nothrow) CaretStateIndicator::ShowRequest{FanyImeUi::OutputLanguageBadge(english),
+                                                                        POINT{anchor_x, anchor_y}, false, true};
     if (request && !PostMessage(hwnd, WM_SHOW_CARET_STATE, 0, reinterpret_cast<LPARAM>(request)))
         delete request;
 }

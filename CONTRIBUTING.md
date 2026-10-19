@@ -1,8 +1,8 @@
-# 参与 MSIME-Windows 开发
+# 参与 Arong-Study-IME 开发
 
 组织级的通用约定（行为准则、PR 要求、安全上报）见[组织贡献指南](https://github.com/metasequoiaime/.github/blob/main/CONTRIBUTING.md)。这份文档只讲本仓特有的东西：环境、怎么把它编出来、改哪一层、以及提交前要跑什么。
 
-想找活干的话先看[招募开源开发者](https://github.com/metasequoiaime/.github/blob/main/RECRUITING.md)和 [good first issue](https://github.com/metasequoiaime/MSIME-Windows/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)。不写代码也有事情可做：词库条目、文档、图标资源、兼容性测试都在 [no-code](https://github.com/metasequoiaime/MSIME-Windows/issues?q=is%3Aissue+is%3Aopen+label%3Ano-code) 标签下。
+想找活干的话先看[招募开源开发者](https://github.com/metasequoiaime/.github/blob/main/RECRUITING.md)和 [good first issue](https://github.com/daodeqing/Arong-Study-IME/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)。不写代码也有事情可做：词库条目、文档、图标资源、兼容性测试都在 [no-code](https://github.com/daodeqing/Arong-Study-IME/issues?q=is%3Aissue+is%3Aopen+label%3Ano-code) 标签下。
 
 ## 环境
 
@@ -18,8 +18,8 @@ Boost 按 `-DBoost_ROOT=...` → 环境变量 `BOOST_ROOT` → `%USERPROFILE%\sc
 ## 取代码
 
 ```powershell
-git clone --recursive https://github.com/metasequoiaime/MSIME-Windows.git
-cd MSIME-Windows
+git clone --recursive https://github.com/daodeqing/Arong-Study-IME.git
+cd Arong-Study-IME
 ```
 
 忘了 `--recursive` 的话补一句 `git submodule update --init --recursive`。`vendor/` 下是 opencc 和 cpp-pinyin，缺了它们 Server 编不过。输入引擎在 `engine/`，是本仓的目录而不是 submodule，普通 clone 就有。
@@ -98,6 +98,6 @@ bash scripts/ci/check-developer-paths.sh                # 构建输入里不许�
 
 `git status --short` 确认只暂存本次任务涉及的路径，不要 `git add -A`。提交信息用 `type(scope): 摘要`，不要加 `Co-Authored-By` 或任何 AI 生成标记。
 
-分支从 `develop` 切，PR 也合回 `develop`——它是本仓默认分支，开 PR 时不用改 base。`main` 是发布分支，只在发版时由维护者从 `develop` 合入；特性分支直接提到 `main` 会被 `Branch guard` 检查拦下，把 base 改回 `develop` 即可。发布链条见 [docs/product-release.md](docs/product-release.md)。
+分支从 `develop` 切，PR 也合回 `develop`——它是日常开发分支，开 PR 时把 base 设为 develop。`main` 是发布分支，只在发版时由维护者从 `develop` 合入；特性分支直接提到 `main` 会被 `Branch guard` 检查拦下，把 base 改回 `develop` 即可。发布链条见 [docs/product-release.md](docs/product-release.md)。
 
 不要在 PR、Issue、截图或日志里泄露 API Key。仓库开了 secret scanning 和 push protection，但那是最后一道防线不是第一道。

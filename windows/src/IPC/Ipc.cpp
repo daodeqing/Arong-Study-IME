@@ -1294,7 +1294,7 @@ bool SendToNamedpipe(bool *deliveryAmbiguous = nullptr)
     }
     if ((packet.event_type == FanyImePipeEventType::KeyEvent ||
          packet.event_type == FanyImePipeEventType::InputStateAction) &&
-        Global::SensitiveInputField && Global::AiContextUploadEnabled.load(std::memory_order_relaxed))
+        Global::SensitiveInputField)
     {
         packet.modifiers_down |= FanyImePipeFlags::SensitiveField;
     }

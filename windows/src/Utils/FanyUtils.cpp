@@ -87,7 +87,7 @@ std::wstring EnvironmentValue(const wchar_t *name)
 std::wstring InstalledDataDir()
 {
     HKEY key = nullptr;
-    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Metasequoia\\MetasequoiaIME", 0,
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\ArongStudyIme\\ArongStudyIme", 0,
                       KEY_QUERY_VALUE | KEY_WOW64_64KEY, &key) != ERROR_SUCCESS)
     {
         return {};
@@ -121,7 +121,7 @@ std::wstring InstalledDataDir()
 // the one the Server writes.
 std::filesystem::path SharedDataDirectory()
 {
-    const std::wstring fromEnv = EnvironmentValue(L"METASEQUOIA_IME_DATA_DIR");
+    const std::wstring fromEnv = EnvironmentValue(L"ARONG_STUDY_IME_DATA_DIR");
     if (!fromEnv.empty() && std::filesystem::path(fromEnv).is_absolute())
     {
         return fromEnv;
@@ -138,7 +138,7 @@ std::filesystem::path SharedDataDirectory()
     {
         return {};
     }
-    return std::filesystem::path(localAppData) / L"metasequoiaime";
+    return std::filesystem::path(localAppData) / L"ArongStudyIme";
 }
 
 std::filesystem::path SharedConfigPath()

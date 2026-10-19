@@ -3,7 +3,7 @@ if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
 endif()
 
-set(PROJECT_NAME "MetasequoiaImeServer")
+set(PROJECT_NAME "ArongStudyImeServer")
 
 cmake_policy(SET CMP0167 NEW)
 project(${PROJECT_NAME} VERSION 1.0)
@@ -146,9 +146,9 @@ include_directories("${MSIME_REPO_ROOT}")
 include_directories("${MSIME_VENDOR_DIR}")
 include_directories("${MSIME_ENGINE_DIR}/utfcpp/source/")
 
-set(MY_EXECUTABLE_NAME "MetasequoiaImeServer")
-set(WATCHDOG_EXECUTABLE_NAME "MetasequoiaImeWatchdog")
-set(DICTIONARY_REPLAY_EXECUTABLE_NAME "MetasequoiaImeDictionaryReplay")
+set(MY_EXECUTABLE_NAME "ArongStudyImeServer")
+set(WATCHDOG_EXECUTABLE_NAME "ArongStudyImeWatchdog")
+set(DICTIONARY_REPLAY_EXECUTABLE_NAME "ArongStudyImeDictionaryReplay")
 
 add_executable(${WATCHDOG_EXECUTABLE_NAME} WIN32
     "./src/watchdog/main.cpp"
@@ -190,6 +190,8 @@ set(SRC_FILES
     "./src/cloud/cloud_ime.h"
     "./src/cloud/cloud_translation.cpp"
     "./src/cloud/cloud_translation.h"
+    "./src/cloud/output_translation.cpp"
+    "./src/cloud/output_translation.h"
     "./src/cloud/custom_translation.cpp"
     "./src/cloud/custom_translation.h"
     "./src/cloud/niutrans_translation.cpp"
@@ -387,7 +389,7 @@ set(BUILD_TESTING OFF)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../ui" "${CMAKE_BINARY_DIR}/msimeui" EXCLUDE_FROM_ALL)
 set(BUILD_TESTING "${_metasequoia_saved_build_testing}")
 unset(_metasequoia_saved_build_testing)
-set(EMOJI_EXECUTABLE_NAME "MetasequoiaImeEmojiPanel")
+set(EMOJI_EXECUTABLE_NAME "ArongStudyImeEmojiPanel")
 add_executable(${EMOJI_EXECUTABLE_NAME} WIN32
     "./src/emoji-panel/EmojiPanel.cpp"
     "./src/emoji-panel/EmojiPanel.h"
@@ -424,7 +426,7 @@ add_custom_command(TARGET ${EMOJI_EXECUTABLE_NAME} POST_BUILD
         $<TARGET_FILE_DIR:${EMOJI_EXECUTABLE_NAME}>
 )
 
-set(KEYBOARD_EXECUTABLE_NAME "MetasequoiaImeKeyboardPanel")
+set(KEYBOARD_EXECUTABLE_NAME "ArongStudyImeKeyboardPanel")
 add_executable(${KEYBOARD_EXECUTABLE_NAME} WIN32
     "./src/keyboard-panel/KeyboardPanel.cpp"
     "./src/keyboard-panel/KeyboardPanel.h"
@@ -445,7 +447,7 @@ if(MSVC)
 endif()
 add_dependencies(${PROJECT_NAME} ${KEYBOARD_EXECUTABLE_NAME})
 
-set(HANDWRITING_EXECUTABLE_NAME "MetasequoiaImeHandwritingPanel")
+set(HANDWRITING_EXECUTABLE_NAME "ArongStudyImeHandwritingPanel")
 add_executable(${HANDWRITING_EXECUTABLE_NAME} WIN32
     "./src/handwriting-panel/HandwritingPanel.cpp"
     "./src/handwriting-panel/HandwritingPanel.h"
@@ -466,7 +468,7 @@ if(MSVC)
 endif()
 add_dependencies(${PROJECT_NAME} ${HANDWRITING_EXECUTABLE_NAME})
 
-set(SETTINGS_EXECUTABLE_NAME "MetasequoiaImeSettings")
+set(SETTINGS_EXECUTABLE_NAME "ArongStudyImeSettings")
 add_executable(${SETTINGS_EXECUTABLE_NAME} WIN32
     "./src/settings/settings_app.cpp"
     "./src/ai/chat_request_params.h"

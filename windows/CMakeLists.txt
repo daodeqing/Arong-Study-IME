@@ -7,7 +7,7 @@ endif()
 # colliding with the host's MSVCP140/VCRUNTIME140 (common QQ crash signature).
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-set(PROJECT_NAME MetasequoiaImeTsf)
+set(PROJECT_NAME ArongStudyImeTsf)
 project(${PROJECT_NAME} LANGUAGES CXX C)
 
 # Release binaries need usable symbols for crash diagnosis. Keep the PDB beside the DLL so the

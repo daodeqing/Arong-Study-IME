@@ -124,8 +124,8 @@ sentence_collocation_rear_penalty = -18.0
 [tencent_tmt]
 enabled = false
 # 请自行填写腾讯云密钥，不要把真实密钥写进仓库。
-secret_id = "<YOUR_TENCENT_SECRET_ID>"
-secret_key = "<YOUR_TENCENT_SECRET_KEY>"
+secret_id = ""
+secret_key = ""
 region = "ap-guangzhou"
 # 候选词翻译/背单词目标语种：en / fr / ja / es / ru / de / ko / th / vi / it
 target_language = "en"
@@ -419,7 +419,7 @@ autocorrect_marker = true
 # 快捷键
 #
 [keybindings]
-# 中英文切换快捷键（Ctrl+Space 由 Windows 系统管理，此处不控制）
+# Shift 切换中文/英文输出；Ctrl+Space 由 Windows 管理输入法切换
 switch_language_shift = true
 switch_language_ctrl = false
 switch_language_ctrl_alt_space = true
@@ -428,7 +428,7 @@ toggle_english_candidates = "Ctrl+Shift+KeyE"
 toggle_full_width = "Ctrl+Shift+Space"
 toggle_punctuation = "Ctrl+Period"
 toggle_character_set_ctrl_shift_f = true
-# 中日英循环切换：开启后上面的中英文切换快捷键按中文、日文、英文依次切换，有输入时先上屏原始字母
+# 中日英循环切换：由 Ctrl 或 Ctrl+Alt+Space 按中文、日文、英文顺序切换；Shift 始终控制输出语言
 trilingual_cycle = false
 
 #
@@ -469,16 +469,16 @@ asr_provider = "doubao"
 # 留空表示自动判断：asr_app_key 填了真实值就按 legacy，否则按 api_key。
 # 请自行填写各提供商的密钥，不要把真实密钥写进仓库。
 doubao_auth_mode = "api_key"
-asr_app_key = "<YOUR_ASR_APP_KEY>"
-asr_token = "FAKESECRET_k4l5m6n7o8p9q0r1s2t3"
+asr_app_key = ""
+asr_token = ""
 # 每个 ASR 提供商单独保存 Token，切换提供商只改当前使用哪一份，不会互相覆盖。
-asr_token_doubao = "<YOUR_ASR_TOKEN_DOUBAO>"
-asr_token_openai = "<YOUR_ASR_TOKEN_OPENAI>"
-asr_token_siliconflow = "<YOUR_ASR_TOKEN_SILICONFLOW>"
-asr_token_groq = "<YOUR_ASR_TOKEN_GROQ>"
-asr_token_zhipu = "<YOUR_ASR_TOKEN_ZHIPU>"
-asr_token_minimax = "<YOUR_ASR_TOKEN_MINIMAX>"
-asr_token_custom = "<YOUR_ASR_TOKEN_CUSTOM>"
+asr_token_doubao = ""
+asr_token_openai = ""
+asr_token_siliconflow = ""
+asr_token_groq = ""
+asr_token_zhipu = ""
+asr_token_minimax = ""
+asr_token_custom = ""
 # 豆包流式接口二选一：
 #   .../sauc/bigmodel_nostream 边录边传、返回整句结果，准确率更高，官方推荐用于输入法
 #   .../sauc/bigmodel_async    双向流式，增量结果更密集，实时上屏刷新更频繁
@@ -498,18 +498,18 @@ asr_model = ""
 # 均走 OpenAI 兼容的 /v1/chat/completions。
 polish_provider = "deepseek"
 # 请自行填写各提供商的 API Token，不要把真实密钥写进仓库。
-polish_token = "FAKESECRET_q2r3s4t5u6v7w8x9y0z1"
-polish_token_siliconflow = "<YOUR_POLISH_TOKEN_SILICONFLOW>"
-polish_token_openai = "<YOUR_POLISH_TOKEN_OPENAI>"
-polish_token_deepseek = "<YOUR_POLISH_TOKEN_DEEPSEEK>"
-polish_token_groq = "<YOUR_POLISH_TOKEN_GROQ>"
-polish_token_minimax = "<YOUR_POLISH_TOKEN_MINIMAX>"
-polish_token_moonshot = "<YOUR_POLISH_TOKEN_MOONSHOT>"
-polish_token_zhipu = "<YOUR_POLISH_TOKEN_ZHIPU>"
-polish_token_dashscope = "<YOUR_POLISH_TOKEN_DASHSCOPE>"
-polish_token_volcengine = "<YOUR_POLISH_TOKEN_VOLCENGINE>"
-polish_token_openrouter = "<YOUR_POLISH_TOKEN_OPENROUTER>"
-polish_token_custom = "<YOUR_POLISH_TOKEN_CUSTOM>"
+polish_token = ""
+polish_token_siliconflow = ""
+polish_token_openai = ""
+polish_token_deepseek = ""
+polish_token_groq = ""
+polish_token_minimax = ""
+polish_token_moonshot = ""
+polish_token_zhipu = ""
+polish_token_dashscope = ""
+polish_token_volcengine = ""
+polish_token_openrouter = ""
+polish_token_custom = ""
 polish_endpoint = "https://api.deepseek.com/chat/completions"
 # 留空则按提供商填默认值，例如 Qwen/Qwen3-8B、gpt-4o-mini。
 polish_model = "deepseek-v4-flash"
@@ -575,26 +575,28 @@ v_mode = true # V 模式：V 后接数字转中文（V123 → 一百二十三，
 #
 [ai_assistant]
 enabled = false
-provider = "deepseek"
+provider = "local"
 # 请自行填写各提供商的 API Token，不要把真实密钥写进仓库。
-token = "FAKESECRET_e1f2g3h4i5j6k7l8m9n0"
-token_deepseek = "<YOUR_AI_TOKEN_DEEPSEEK>"
-token_openai = "<YOUR_AI_TOKEN_OPENAI>"
-token_siliconflow = "<YOUR_AI_TOKEN_SILICONFLOW>"
-token_groq = "<YOUR_AI_TOKEN_GROQ>"
-token_custom = "<YOUR_AI_TOKEN_CUSTOM>"
-token_minimax = "<YOUR_AI_TOKEN_MINIMAX>"
-token_moonshot = "<YOUR_AI_TOKEN_MOONSHOT>"
-token_zhipu = "<YOUR_AI_TOKEN_ZHIPU>"
-token_dashscope = "<YOUR_AI_TOKEN_DASHSCOPE>"
-token_volcengine = "<YOUR_AI_TOKEN_VOLCENGINE>"
-token_openrouter = "<YOUR_AI_TOKEN_OPENROUTER>"
+token = ""
+token_local = ""
+token_deepseek = ""
+token_openai = ""
+token_siliconflow = ""
+token_groq = ""
+token_custom = ""
+token_minimax = ""
+token_moonshot = ""
+token_zhipu = ""
+token_dashscope = ""
+token_volcengine = ""
+token_openrouter = ""
 # Jev 从本地候选中选择推荐项，使用 TypeSafe Choice API
-token_jev = "<YOUR_AI_TOKEN_JEV>"
-endpoint ="https://api.deepseek.com/chat/completions"
-model = "deepseek-v4-flash"
+token_jev = ""
+endpoint = "http://127.0.0.1:8317/v1/chat/completions"
+model = ""
 # 空槽位使用提供商默认值，旧版 endpoint/model 只归属于当前提供商
 endpoint_deepseek = ""
+endpoint_local = "http://127.0.0.1:8317/v1/chat/completions"
 endpoint_openai = ""
 endpoint_siliconflow = ""
 endpoint_groq = ""
@@ -607,6 +609,7 @@ endpoint_volcengine = ""
 endpoint_openrouter = ""
 endpoint_jev = ""
 model_deepseek = ""
+model_local = ""
 model_openai = ""
 model_siliconflow = ""
 model_groq = ""

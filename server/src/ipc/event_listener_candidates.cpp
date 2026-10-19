@@ -20,6 +20,7 @@
 #include "engine/quanpin/quanpin_query.h"
 #include "engine/user_dictionary/user_dictionary_journal.h"
 #include "cloud/cloud_translation.h"
+#include "cloud/output_translation.h"
 #include "english/english_ime.h"
 #include "config/ime_config.h"
 #include "ai/jev_candidate_policy.h"
@@ -505,6 +506,7 @@ void RefreshCandidatePageUi(bool show_window)
     RefreshJevSelection();
     PrepareCandidateTranslationRequest();
     const std::string candidate_string = BuildCurrentCandidatePage();
+    FanyNamedPipe::RequestCurrentOutputTranslations();
     // Host-drawn UI wants plain words (Microsoft IME style), not helpcodes.
     const std::wstring published = IsUiLessMode() ? BuildUiLessCandidatePageW() : string_to_wstring(candidate_string);
     ::WriteDataToSharedMemory(published, true);
@@ -523,6 +525,26 @@ void RefreshCandidatePageUi(bool show_window)
 
 namespace FanyNamedPipe
 {
+void RequestCurrentOutputTranslations()
+{
+    if (!IsEnglishOutputEnabled() || g_english_input_mode || !g_inputSession ||
+        g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji || IsSensitiveInputField())
+        return;
+    const auto &ui = Global::candidate_ui;
+    std::vector<std::string> candidates;
+    const int start = ui.current_page_start();
+    const int count = ui.current_page_count();
+    const std::string prefix =
+        GlobalIme::composition.creating_word.active ? GlobalIme::composition.creating_word.word : std::string();
+    for (int i = 0; i < count; ++i)
+    {
+        const WordItem &item = ui.items[static_cast<size_t>(start + i)];
+        if (item.source != CandidateSource::EnglishDictionary && HelpcodeUtils::count_han_chars(item.word) > 0)
+            candidates.push_back(CandidateTextForOutput(prefix + item.word));
+    }
+    OutputTranslation::Request(std::move(candidates));
+}
+
 std::string CurrentRankingContextKey()
 {
     if (g_inputSession)

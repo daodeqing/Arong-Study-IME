@@ -928,13 +928,13 @@ bool LoadImeConfig()
         }
         RememberProviderStoreWriteTime();
         g_ai_assistant.provider =
-            VoiceInput::NormalizeProviderId(tbl["ai_assistant"]["provider"].value_or(std::string("deepseek")));
+            VoiceInput::NormalizeProviderId(tbl["ai_assistant"]["provider"].value_or(std::string("local")));
         const auto registered = [](const std::string &id) {
             return std::any_of(g_ai_assistant.providers.begin(), g_ai_assistant.providers.end(),
                                [&id](const AiAssistant::AiProvider &entry) { return entry.id == id; });
         };
         if (AiAssistantTokenSlotKey(g_ai_assistant.provider).empty() && !registered(g_ai_assistant.provider))
-            g_ai_assistant.provider = "deepseek";
+            g_ai_assistant.provider = "local";
         g_ai_assistant.token = tbl["ai_assistant"]["token"].value_or(std::string());
         g_ai_assistant.tokens.clear();
         for (const auto provider : AiAssistantProviders())
@@ -958,8 +958,8 @@ bool LoadImeConfig()
             g_ai_assistant.token = stored;
         }
         g_ai_assistant.endpoint =
-            tbl["ai_assistant"]["endpoint"].value_or(std::string("https://api.deepseek.com/chat/completions"));
-        g_ai_assistant.model = tbl["ai_assistant"]["model"].value_or(std::string("deepseek-v4-flash"));
+            tbl["ai_assistant"]["endpoint"].value_or(std::string("http://127.0.0.1:8317/v1/chat/completions"));
+        g_ai_assistant.model = tbl["ai_assistant"]["model"].value_or(std::string());
         const AiAssistantConfig ai_defaults;
         g_ai_assistant.endpoints = ai_defaults.endpoints;
         g_ai_assistant.models = ai_defaults.models;
@@ -1083,54 +1083,6 @@ void PersistSeededVoiceInputTokenSlots()
     }
 }
 
-void MigrateLegacyVoiceInputConfig()
-{
-    VoiceInputConfig voice = SnapshotVoiceInput();
-    if (!voice.asr_token.empty())
-        return;
-    const std::filesystem::path legacy_path =
-        std::filesystem::path(CommonUtils::get_local_appdata_path_w()) / L"MetasequoiaVoiceInput" / L"config.toml";
-    if (!std::filesystem::exists(legacy_path))
-        return;
-    try
-    {
-        std::ifstream legacy_input(legacy_path, std::ios::binary);
-        const std::string legacy_text((std::istreambuf_iterator<char>(legacy_input)), std::istreambuf_iterator<char>());
-        const toml::table legacy = toml::parse(legacy_text);
-        const std::string asr_token = legacy["asr_api"]["token"].value_or(std::string());
-        if (asr_token.empty())
-            return;
-        const auto migrate_string = [](const std::string &key, const std::string &value, std::string &target) {
-            if (WriteConfiguredValue("voice_input", key, EscapeTomlBasicString(value)))
-                target = value;
-        };
-        const auto migrate_bool = [](const std::string &key, bool value, bool &target) {
-            if (WriteConfiguredValue("voice_input", key, value ? "true" : "false"))
-                target = value;
-        };
-        migrate_string("asr_provider", legacy["asr_api"]["provider"].value_or(std::string("siliconflow")),
-                       voice.asr_provider);
-        migrate_string("asr_token", asr_token, voice.asr_token);
-        migrate_string("asr_endpoint", legacy["asr_api"]["endpoint"].value_or(voice.asr_endpoint), voice.asr_endpoint);
-        migrate_string("polish_provider", legacy["polish_api"]["provider"].value_or(std::string("siliconflow")),
-                       voice.polish_provider);
-        migrate_string("polish_token", legacy["polish_api"]["token"].value_or(std::string()), voice.polish_token);
-        migrate_string("polish_endpoint", legacy["polish_api"]["endpoint"].value_or(voice.polish_endpoint),
-                       voice.polish_endpoint);
-        migrate_string("language", legacy["settings"]["language"].value_or(std::string("zh-cn")), voice.language);
-        const bool notification_sound = legacy["settings"]["notification_sound"].value_or(true);
-        migrate_bool("start_sound", notification_sound, voice.start_sound);
-        migrate_bool("end_sound", notification_sound, voice.end_sound);
-        migrate_bool("polish_text", legacy["settings"]["polish_text"].value_or(false), voice.polish_text);
-        PublishVoiceInput(std::move(voice));
-    }
-    catch (const toml::parse_error &)
-    {
-#ifdef FANY_DEBUG
-        (void)0;
-#endif
-    }
-}
 } // namespace
 
 namespace ime_config_detail
@@ -1169,7 +1121,6 @@ void InitImeConfig()
     SyncConfigWithInstalledTemplate();
     if (LoadImeConfig())
     {
-        MigrateLegacyVoiceInputConfig();
         VoiceInputConfig voice = SnapshotVoiceInput();
         if (VoiceInput::NormalizeProviderId(voice.asr_provider) == "siliconflow" &&
             voice.asr_model == "TeleAI/TeleSpeechASR")

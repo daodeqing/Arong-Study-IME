@@ -1,12 +1,12 @@
 #pragma once
 #include "resource.h"
 
-#define IME_NAME L"MetasequoiaImeTsf"
+#define IME_NAME L"ArongStudyImeTsf"
 
 #define TEXTSERVICE_MODEL L"Apartment"
 #define TEXTSERVICE_LANGID MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED)
 #define TEXTSERVICE_ICON_INDEX -IDIS_METASEQUOIAIME
-#define TEXTSERVICE_DIC L"MetasequoiaIMESimplifiedQuanPin.txt"
+#define TEXTSERVICE_DIC L"ArongStudyImeSimplifiedQuanPin.txt"
 #define TEXTSERVICE_DIC_DB L"cutted_flyciku_with_jp.db"
 #define FANYLOGFILE_ "fanydebug.log"
 #define FANYLOGFILE L"fanydebug_w.log"

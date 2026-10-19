@@ -420,7 +420,7 @@ autocorrect_marker = true
 # 快捷键
 #
 [keybindings]
-# 中英文切换快捷键（Ctrl+Space 由 Windows 系统管理，此处不控制）
+# Shift 切换中文/英文输出；Ctrl+Space 由 Windows 管理输入法切换
 switch_language_shift = true
 switch_language_ctrl = false
 switch_language_ctrl_alt_space = true
@@ -430,7 +430,7 @@ toggle_full_width = "Ctrl+Shift+Space"
 toggle_punctuation = "Ctrl+Period"
 # Only active in Chinese mode.
 toggle_character_set_ctrl_shift_f = true
-# 中日英循环切换：开启后上面的中英文切换快捷键按中文、日文、英文依次切换，有输入时先上屏原始字母
+# 中日英循环切换：由 Ctrl 或 Ctrl+Alt+Space 按中文、日文、英文顺序切换；Shift 始终控制输出语言
 trilingual_cycle = false
 
 #
@@ -470,10 +470,10 @@ asr_provider = "doubao"
 #   legacy：旧版控制台，App ID + Access Token（Secret Key 不使用），两项都要填。
 # 留空表示自动判断：asr_app_key 填了真实值就按 legacy，否则按 api_key。
 doubao_auth_mode = "api_key"
-asr_app_key = "<YOUR_OWN_DOUBAO_APP_ID>"
-asr_token = "<YOUR_OWN_DOUBAO_ACCESS_TOKEN>"
+asr_app_key = ""
+asr_token = ""
 # 每个 ASR 提供商单独保存 Token，切换提供商只改当前使用哪一份，不会互相覆盖。
-asr_token_doubao = "<YOUR_OWN_DOUBAO_ACCESS_TOKEN>"
+asr_token_doubao = ""
 asr_token_openai = ""
 asr_token_siliconflow = ""
 asr_token_groq = ""
@@ -498,8 +498,8 @@ asr_model = ""
 # 文本润色: siliconflow | openai | deepseek | groq
 # 均走 OpenAI 兼容的 /v1/chat/completions。
 polish_provider = "siliconflow"
-polish_token = "<YOUR_OWN_POLISH_TOKEN>"
-polish_token_siliconflow = "<YOUR_OWN_POLISH_TOKEN>"
+polish_token = ""
+polish_token_siliconflow = ""
 polish_token_openai = ""
 polish_token_deepseek = ""
 polish_token_groq = ""
@@ -574,10 +574,11 @@ v_mode = true # V 模式：V 后接数字转中文（V123 → 一百二十三，
 # AI 辅助
 #
 [ai_assistant]
-enabled = true
-provider = "deepseek"
-token = "<YOUR_OWN_DEEPSEEK_TOKEN>"
-token_deepseek = "<YOUR_OWN_DEEPSEEK_TOKEN>"
+enabled = false
+provider = "local"
+token = ""
+token_local = ""
+token_deepseek = ""
 token_openai = ""
 token_siliconflow = ""
 token_groq = ""
@@ -590,10 +591,11 @@ token_volcengine = ""
 token_openrouter = ""
 # Jev 从本地候选中选择推荐项，使用 TypeSafe Choice API
 token_jev = ""
-endpoint ="https://api.deepseek.com/chat/completions"
-model = "deepseek-v4-flash"
+endpoint = "http://127.0.0.1:8317/v1/chat/completions"
+model = ""
 # 空槽位使用提供商默认值，旧版 endpoint/model 只归属于当前提供商
 endpoint_deepseek = ""
+endpoint_local = "http://127.0.0.1:8317/v1/chat/completions"
 endpoint_openai = ""
 endpoint_siliconflow = ""
 endpoint_groq = ""
@@ -606,6 +608,7 @@ endpoint_volcengine = ""
 endpoint_openrouter = ""
 endpoint_jev = ""
 model_deepseek = ""
+model_local = ""
 model_openai = ""
 model_siliconflow = ""
 model_groq = ""

@@ -1,4 +1,4 @@
-set(TEST_EXECUTABLE_NAME "MetasequoiaImeServerTests")
+set(TEST_EXECUTABLE_NAME "ArongStudyImeServerTests")
 
 add_executable(test_voice_control_dispatch src/test_voice_control_dispatch.cpp
     ../src/ipc/voice_control_dispatch.cpp)
@@ -52,6 +52,10 @@ set(TEST_SOURCE_FILES
     "${CMAKE_SOURCE_DIR}/src/ai/ai_assistant_request.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_ui_action_policy.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_translation_policy.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_output_language_policy.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/local_output_probe.cpp"
+    "${CMAKE_SOURCE_DIR}/src/cloud/output_translation.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_openai_compatible_url.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_ai_context_policy.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_ui_state.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_expansion_policy.cpp"
@@ -192,6 +196,10 @@ target_link_libraries(${TEST_EXECUTABLE_NAME}
 )
 
 add_test(NAME ${TEST_EXECUTABLE_NAME} COMMAND ${TEST_EXECUTABLE_NAME})
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+add_test(NAME local_output_translation_http
+    COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_local_output_translation.py"
+            $<TARGET_FILE:${TEST_EXECUTABLE_NAME}>)
 
 # The identical fixture file also runs in Engine's JavaScript contract CI.
 add_executable(test_webview_contract "${MSIME_ENGINE_DIR}/contracts/webview/test.cpp")

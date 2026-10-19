@@ -311,6 +311,7 @@ inline std::atomic_bool DirectHelpcodeSlashEnabled{true};
 // 不开。V 后面的数字和 . + - * / ( ) 按 engine/contracts/v_mode_input.h 的规则当编码键吃掉。
 inline std::atomic<FanyImeVModeInput::Trigger> VModeTrigger{FanyImeVModeInput::Trigger::Off};
 inline std::atomic_bool JapaneseInputModeEnabled{false};
+inline std::atomic_bool OutputLanguageEnglish{true};
 // Enabled only after a supporting Server sends the persisted setting.
 inline std::atomic_bool TrilingualCycleEnabled{false};
 inline std::atomic_bool CapsLockEnabled{false};

@@ -8,13 +8,13 @@
   <zip-file>
     <directory path="server_exe">
       <pe-file-set>
-        <include path="MetasequoiaImeServer.exe" />
-        <include path="MetasequoiaImeWatchdog.exe" />
-        <include path="MetasequoiaImeDictionaryReplay.exe" />
-        <include path="MetasequoiaImeEmojiPanel.exe" />
-        <include path="MetasequoiaImeKeyboardPanel.exe" />
-        <include path="MetasequoiaImeHandwritingPanel.exe" />
-        <include path="MetasequoiaImeSettings.exe" />
+        <include path="ArongStudyImeServer.exe" />
+        <include path="ArongStudyImeWatchdog.exe" />
+        <include path="ArongStudyImeDictionaryReplay.exe" />
+        <include path="ArongStudyImeEmojiPanel.exe" />
+        <include path="ArongStudyImeKeyboardPanel.exe" />
+        <include path="ArongStudyImeHandwritingPanel.exe" />
+        <include path="ArongStudyImeSettings.exe" />
         <for-each>
           <authenticode-sign />
         </for-each>
@@ -22,12 +22,12 @@
     </directory>
     <directory path="tsf_dll">
       <directory path="32">
-        <pe-file path="MetasequoiaImeTsf.dll">
+        <pe-file path="ArongStudyImeTsf.dll">
           <authenticode-sign />
         </pe-file>
       </directory>
       <directory path="64">
-        <pe-file path="MetasequoiaImeTsf.dll">
+        <pe-file path="ArongStudyImeTsf.dll">
           <authenticode-sign />
         </pe-file>
       </directory>

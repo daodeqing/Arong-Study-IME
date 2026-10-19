@@ -1,6 +1,6 @@
 # windows —— TSF 文本服务
 
-水杉输入法在 Windows 上的前端：一个纯 TSF 方案的文本服务 DLL，注入宿主进程，负责按键预判、焦点与线程归属、composition 的 edit session 写入，以及与 Server 之间的命名管道协议。候选窗、工具栏、设置页和实际的候选计算都在 [`../server/`](../server/)，本目录只做宿主适配。
+阿龍学习输入法在 Windows 上的前端：一个纯 TSF 方案的文本服务 DLL，注入宿主进程，负责按键预判、焦点与线程归属、composition 的 edit session 写入，以及与 Server 之间的命名管道协议。候选窗、工具栏、设置页和实际的候选计算都在 [`../server/`](../server/)，本目录只做宿主适配。
 
 产品介绍、安装和功能说明见仓库根目录的 [README](../README.md)；本目录的代码地图、TSF/COM 硬约定和改动要求见 [AGENTS.md](AGENTS.md)。
 

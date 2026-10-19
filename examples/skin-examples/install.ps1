@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $skinId = 'niya-demo'
 $source = Join-Path (Join-Path $PSScriptRoot 'skins') $skinId
-$imeRoot = Join-Path $env:LOCALAPPDATA 'metasequoiaime'
+$imeRoot = Join-Path $env:LOCALAPPDATA 'ArongStudyIme'
 $destination = Join-Path (Join-Path $imeRoot 'skins') $skinId
 
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
@@ -37,4 +37,4 @@ if (-not $NoActivate) {
 }
 
 Write-Host "Installed $skinId to $destination"
-Write-Host 'Restart Metasequoia IME Server to reload the skin package.'
+Write-Host 'Restart ArongStudyIme Server to reload the skin package.'

@@ -1,4 +1,4 @@
-"""Generate the "sakura-night" schema_version 2 demo skin for Metasequoia IME.
+"""Generate the "sakura-night" schema_version 2 demo skin for ArongStudyIme.
 
 All artwork is procedural (Pillow), drawn at 4x and downsampled for anti-aliasing.
 Every bitmap is a 2x asset: the manifest's *_dip sizes are half the pixel sizes.

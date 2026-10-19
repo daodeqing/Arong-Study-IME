@@ -3,7 +3,7 @@
 | Surface | Renderer | Owner |
 |---|---|---|
 | Candidate, floating toolbar, tray menu | msimeui native Direct2D/DirectWrite | `src/window/` presenters in the Server process |
-| Settings | msimeui native Direct2D/DirectWrite | `src/settings/native/` in the separate `MetasequoiaImeSettings.exe` |
+| Settings | msimeui native Direct2D/DirectWrite | `src/settings/native/` in the separate `ArongStudyImeSettings.exe` |
 | Keyboard, handwriting, emoji and voice panels | Their existing native application/presenter | Shared actions/configuration stay in Server; panels do not own input sessions |
 
 Direct2D is the only renderer. The WebView2 small windows, the WebView2 settings host and
@@ -20,7 +20,7 @@ models, not in a presenter.
 
 ## Settings window
 
-`MetasequoiaImeSettings.exe` draws its window with msimeui in `src/settings/native/`.
+`ArongStudyImeSettings.exe` draws its window with msimeui in `src/settings/native/`.
 The window speaks the message contract in `engine/contracts/webview/` (the name is
 historical): it receives `configSnapshot` and the response messages as JSON and posts
 `configUpdate` and the request messages through `HandleClientMessage` in

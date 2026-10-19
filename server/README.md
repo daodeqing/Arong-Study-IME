@@ -1,6 +1,6 @@
-# Metasequoia IME Server(水杉输入法 Server 端)
+# Metasequoia IME Server(阿龍学习输入法 Server 端)
 
-This is the server end of [MSIME-Windows](https://github.com/metasequoiaime/MSIME-Windows).
+This is the server end of [Arong-Study-IME](https://github.com/daodeqing/Arong-Study-IME).
 
 ## How to build
 
@@ -19,12 +19,12 @@ Make sure vcpkg and Boost are installed by **Scoop**.
 Clone the product and provision the reviewed dictionary release from its root:
 
 ```powershell
-git clone --recursive https://github.com/metasequoiaime/MSIME-Windows.git
-cd MSIME-Windows
+git clone --recursive https://github.com/daodeqing/Arong-Study-IME.git
+cd Arong-Study-IME
 python scripts/product_lock.py fetch-dictionaries --staging-root .
 if ($LASTEXITCODE -ne 0) { throw 'Dictionary verification failed' }
 $devLocalData = Join-Path $PWD 'build/dev-local'
-$devData = Join-Path $devLocalData 'metasequoiaime'
+$devData = Join-Path $devLocalData 'ArongStudyIme'
 New-Item -ItemType Directory -Force $devData | Out-Null
 Copy-Item MetasequoiaImeDict/out/* $devData -Force
 Copy-Item engine/helpcode/helpcodes $devData -Recurse -Force
@@ -36,13 +36,13 @@ Copy-Item server/assets/settings $devAssets -Recurse -Force
 python server/scripts/prepare_env.py
 if ($LASTEXITCODE -ne 0) { throw 'Server environment setup failed' }
 $env:LOCALAPPDATA = $devLocalData
-$env:METASEQUOIA_IME_DATA_DIR = $devData
+$env:ARONG_STUDY_IME_DATA_DIR = $devData
 cd server
 ```
 
 Use a dedicated PowerShell terminal. These steps stage the same locked data as CI
 and the settings window assets in a separate development directory. Both
-`LOCALAPPDATA` (Windows config/assets) and `METASEQUOIA_IME_DATA_DIR` (Engine data)
+`LOCALAPPDATA` (Windows config/assets) and `ARONG_STUDY_IME_DATA_DIR` (Engine data)
 are set for that terminal; setting only the latter would still use installed
 Windows configuration and assets. Close the terminal after development.
 Dictionary source changes belong in Engine's `dictionary/`; use its root `build_profile.py`
@@ -63,7 +63,7 @@ If you want to build and run in **one step**, run the following command,
 
 ## Watchdog
 
-`MetasequoiaImeWatchdog.exe` is built next to the server. Starting the server directly also starts the watchdog,
+`ArongStudyImeWatchdog.exe` is built next to the server. Starting the server directly also starts the watchdog,
 which monitors the server from the same directory and restarts it after an unexpected exit. Repeated early crashes use
 an exponential restart delay (up to 30 seconds) to avoid a restart storm.
 
@@ -72,7 +72,7 @@ after the current process exits.
 
 ## English prefix candidates
 
-Place `english.db` next to `msime.db` in `%LOCALAPPDATA%\metasequoiaime`. Set
+Place `english.db` next to `msime.db` in `%LOCALAPPDATA%\ArongStudyIme`. Set
 `general.cn_en_mixed_input = true` in `config.toml` to enable asynchronous English prefix candidates for Quanpin and
 Shuangpin. The master switch `utility.mixed_candidates` must also be on; English, emoji, kaomoji and date/time mixed
 candidates are queried together on the single `MixedCandidates` worker thread (`src/mixed/`).
@@ -82,9 +82,9 @@ candidates are queried together on the single `MixedCandidates` worker thread (`
 The server process includes a few built-in global shortcuts that are useful during development:
 
 - `Ctrl + Shift + Alt + T`
-  - terminate `MetasequoiaImeServer` immediately
+  - terminate `ArongStudyImeServer` immediately
 - `Ctrl + Shift + Alt + R`
-  - restart `MetasequoiaImeServer`
+  - restart `ArongStudyImeServer`
   - Settings exposes the same restart under 外观 → 重启输入法进程; it reaches the
     server over the Aux pipe because Settings runs in its own process
 - `Ctrl + Shift + Alt + C`

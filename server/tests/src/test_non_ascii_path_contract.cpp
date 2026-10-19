@@ -59,7 +59,7 @@ TEST_CASE(user_dictionary_journal_round_trips_under_non_ascii_path)
     std::error_code ec;
     fs::remove_all(unique_root, ec);
 
-    const fs::path data_dir = unique_root / kChineseDirectory / L"metasequoiaime";
+    const fs::path data_dir = unique_root / kChineseDirectory / L"ArongStudyIme";
     fs::create_directories(data_dir, ec);
     REQUIRE(!ec);
 

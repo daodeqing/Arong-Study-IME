@@ -10,7 +10,7 @@
 
 namespace
 {
-constexpr wchar_t kAppName[] = L"metasequoiaime";
+constexpr wchar_t kAppName[] = L"ArongStudyIme";
 
 bool PathHasEmptyComponent(const std::wstring &path)
 {
@@ -73,7 +73,7 @@ std::wstring QueryEnvironmentW(const wchar_t *name)
 std::wstring QueryInstalledDataDir()
 {
     HKEY key = nullptr;
-    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Metasequoia\\MetasequoiaIME", 0,
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\ArongStudyIme\\ArongStudyIme", 0,
                       KEY_QUERY_VALUE | KEY_WOW64_64KEY, &key) != ERROR_SUCCESS)
     {
         return {};
@@ -296,7 +296,7 @@ std::wstring get_ime_data_path_w()
     // explicit environment override, then the location chosen during setup, then the default
     // under LocalAppData. Resolved on every call, not cached: tests relocate the profile between
     // cases inside one process.
-    const std::wstring from_env = QueryEnvironmentW(L"METASEQUOIA_IME_DATA_DIR");
+    const std::wstring from_env = QueryEnvironmentW(L"ARONG_STUDY_IME_DATA_DIR");
     if (IsUsableAbsolutePath(from_env))
     {
         return from_env;
@@ -315,9 +315,9 @@ std::wstring get_ime_config_dir_w()
 {
     // Configuration normally lives in the data directory. The separate override exists for tests
     // that must redirect config writes without moving the dictionaries with them: the engine
-    // resolves its own data directory (engine/core/data_path.h), so METASEQUOIA_IME_DATA_DIR
+    // resolves its own data directory (engine/core/data_path.h), so ARONG_STUDY_IME_DATA_DIR
     // would take the dictionaries along. Nothing in the product sets this.
-    const std::wstring from_env = QueryEnvironmentW(L"METASEQUOIA_IME_CONFIG_DIR");
+    const std::wstring from_env = QueryEnvironmentW(L"ARONG_STUDY_IME_CONFIG_DIR");
     if (IsUsableAbsolutePath(from_env))
     {
         return from_env;

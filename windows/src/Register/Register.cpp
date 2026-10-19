@@ -17,7 +17,7 @@ static const WCHAR RegInfo_Key_InProSvr32[] = L"InProcServer32";
 static const WCHAR RegInfo_Key_ThreadModel[] = L"ThreadingModel";
 
 // IME text service description, will be displayed in the language menu when switching IME
-static const WCHAR TEXTSERVICE_DESC[] = L"Metasequoia \u6c34\u6749\u8f93\u5165\u6cd5";
+static const WCHAR TEXTSERVICE_DESC[] = L"阿龍学习输入法";
 
 // Valve game compatibility: CS2 / Dota 2 only handle IME messages for input methods whose registered profile name is
 // on a whitelist inside the game, and otherwise let Windows pop its default composition window, which throws an
@@ -41,13 +41,13 @@ static const GUID SupportCategories[] = {
 // so an icon path pointing at the DLL itself changes with each install; if the taskbar re-reads the
 // icon while that path is in flux, it falls back to a text label for the language and keeps showing
 // that until explorer restarts.
-static const WCHAR TEXTSERVICE_STABLE_ICON_FILE[] = L"MetasequoiaImeTip.ico";
+static const WCHAR TEXTSERVICE_STABLE_ICON_FILE[] = L"ArongStudyImeTip.ico";
 
 //+---------------------------------------------------------------------------
 //
 //  GetStableIconFile
 //
-//  Builds <parent of the DLL's directory>\MetasequoiaImeTip.ico and reports whether that file
+//  Builds <parent of the DLL's directory>\ArongStudyImeTip.ico and reports whether that file
 //  exists. Development registrations from a build directory have no such file and keep using the
 //  icon resource embedded in the DLL.
 //

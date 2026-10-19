@@ -21,25 +21,25 @@ class PrepareEnvironmentTests(unittest.TestCase):
                 shutil.copy2(ROOT / component / name, target / name)
             (target / 'tests').mkdir()
             cmake = target / 'CMakeLists.txt'
-            cmake.write_text(cmake.read_text() + '\n# locally reviewed build setting\n')
+            cmake.write_text(cmake.read_text(encoding='utf-8') + '\n# locally reviewed build setting\n', encoding='utf-8')
             original = cmake.read_bytes()
             presets_file = target / 'CMakePresets.json'
-            presets = json.loads(presets_file.read_text())
+            presets = json.loads(presets_file.read_text(encoding='utf-8'))
             presets['configurePresets'].append({'name': 'local-extra', 'inherits': 'vcpkg-release',
                                                 'cacheVariables': {'LOCAL_SETTING': 'kept'}})
-            presets_file.write_text(json.dumps(presets, indent=2))
+            presets_file.write_text(json.dumps(presets, indent=2), encoding='utf-8')
             env = dict(os.environ, VCPKG_ROOT=str(root / 'custom vcpkg'), BOOST_ROOT=str(root / 'custom boost'))
             for _ in range(2):
                 subprocess.run([sys.executable, str(target / 'scripts/prepare_env.py')],
                                cwd=directory, env=env, check=True, capture_output=True)
                 self.assertEqual(original, cmake.read_bytes())
-                actual = json.loads(presets_file.read_text())
+                actual = json.loads(presets_file.read_text(encoding='utf-8'))
                 by_name = {p['name']: p for p in actual['configurePresets']}
                 self.assertEqual(by_name['local-extra']['cacheVariables']['LOCAL_SETTING'], 'kept')
                 self.assertIn('vcpkg-release', by_name)
                 expected = (root / 'custom vcpkg/scripts/buildsystems/vcpkg.cmake').as_posix()
                 self.assertEqual(by_name['vcpkg-release']['cacheVariables']['CMAKE_TOOLCHAIN_FILE'], expected)
-            clangd = (target / '.clangd').read_text().replace('\\', '/')
+            clangd = (target / '.clangd').read_text(encoding='utf-8').replace('\\', '/')
             self.assertIn('engine/utfcpp/source', clangd)
             if component == 'server':
                 self.assertIn('engine/voice/include', clangd)

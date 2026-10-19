@@ -1,5 +1,7 @@
 #include "api_credential_test.h"
+#include "ai/bearer_auth_header.h"
 #include "ai/jev_client.h"
+#include "ai/openai_compatible_url.h"
 #include "api_credential_test_request.h"
 
 #include "cloud/ai_translation.h"
@@ -103,10 +105,14 @@ HttpResponse PerformJsonRequest(const std::string &endpoint, const std::string &
     char error[CURL_ERROR_SIZE] = {};
     curl_slist *headers = nullptr;
     headers = curl_slist_append(headers, payload ? "Content-Type: application/json" : "Accept: application/json");
-    const std::string authorization = "Authorization: Bearer " + token;
-    headers = curl_slist_append(headers, authorization.c_str());
+    const auto authorization = BearerAuthHeader::ForToken(token);
+    if (authorization)
+        headers = curl_slist_append(headers, authorization->c_str());
     curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
-    NetworkProxy::ApplyToCurl(curl);
+    if (OpenAiCompatibleUrl::IsLoopbackUrl(endpoint))
+        curl_easy_setopt(curl, CURLOPT_PROXY, "");
+    else
+        NetworkProxy::ApplyToCurl(curl);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     if (payload)
     {
@@ -160,17 +166,23 @@ std::string ModelListEndpoint(const std::string &endpoint)
 ApiCredentialTest::Result TestChat(const ApiCredentialTest::Request &request)
 {
     const std::string token = Value(request, "token");
-    const std::string endpoint = Value(request, "endpoint");
-    const std::string model = Value(request, "model");
-    if (!CloudTranslation::IsUsableSecret(token))
-        return {false, "请先填写有效的 API Key。"};
-    if (!IsHttpEndpoint(endpoint) || model.empty())
-        return {false, "请填写有效的 HTTPS 接口地址和模型名。"};
     const std::string provider = Value(request, "provider");
-    const std::string payload = ApiCredentialTest::detail::BuildChatProbeRequestBody(provider, model, endpoint).dump();
+    const bool local = provider == "local";
+    const std::string configured_endpoint = Value(request, "endpoint");
+    const std::string endpoint =
+        local ? OpenAiCompatibleUrl::ChatCompletionsEndpoint(configured_endpoint) : configured_endpoint;
+    const std::string model = Value(request, "model");
+    if (!local && !CloudTranslation::IsUsableSecret(token))
+        return {false, "请先填写有效的 API Key。"};
+    if ((local ? !OpenAiCompatibleUrl::IsLoopbackUrl(endpoint) : !IsHttpEndpoint(endpoint)) || model.empty())
+        return {false, local ? "本地模型地址必须使用 localhost、127.0.0.1 或 ::1，并填写模型名。"
+                             : "请填写有效的 HTTPS 接口地址和模型名。"};
+    const std::string payload =
+        local ? AiTranslation::detail::BuildRequestBody({"local", endpoint, token, model}, {"测试"}, "zh", "en").dump()
+              : ApiCredentialTest::detail::BuildChatProbeRequestBody(provider, model, endpoint).dump();
     const HttpResponse response = PerformJsonRequest(endpoint, token, &payload);
     if (response.code == CURLE_OK && response.status >= 200 && response.status < 300)
-        return {true, "连接成功，API Key 和模型配置有效。"};
+        return {true, local ? "本地模型连接成功，模型配置可用。" : "连接成功，API Key 和模型配置有效。"};
     return {false, "测试失败：" + ErrorDetail(response)};
 }
 
@@ -343,13 +355,19 @@ ModelListResult FetchModels(const Request &request)
     if (request.service != "ai.assistant" && request.service != "voice.asr" && request.service != "voice.polish")
         return {false, "不支持的模型列表类型。", {}};
     const std::string token = Value(request, "token");
-    const std::string endpoint = Value(request, "endpoint");
-    if (!CloudTranslation::IsUsableSecret(token))
+    const bool local = Value(request, "provider") == "local";
+    const std::string configured_endpoint = Value(request, "endpoint");
+    const std::string endpoint =
+        local ? OpenAiCompatibleUrl::ModelsEndpoint(configured_endpoint) : ModelListEndpoint(configured_endpoint);
+    if (!local && !CloudTranslation::IsUsableSecret(token))
         return {false, "请先填写有效的 API Key。", {}};
-    if (!IsHttpEndpoint(endpoint))
-        return {false, "请先填写以 http:// 或 https:// 开头的接口地址。", {}};
+    if (local ? !OpenAiCompatibleUrl::IsLoopbackUrl(endpoint) : !IsHttpEndpoint(endpoint))
+        return {false,
+                local ? "本地模型地址必须指向 localhost、127.0.0.1 或 ::1。"
+                      : "请先填写以 http:// 或 https:// 开头的接口地址。",
+                {}};
 
-    const HttpResponse response = PerformJsonRequest(ModelListEndpoint(endpoint), token, nullptr, kMaxModelListBytes);
+    const HttpResponse response = PerformJsonRequest(endpoint, token, nullptr, kMaxModelListBytes);
     if (response.code != CURLE_OK || response.status < 200 || response.status >= 300)
     {
         return {false, "获取模型列表失败：" + ErrorDetail(response), {}};

@@ -126,10 +126,10 @@ struct HelpState
 std::wstring DescribeDefaultIme(const Json &response)
 {
     if (response.value("isDefault", false))
-        return L"水杉输入法已是默认输入法";
+        return L"阿龍学习输入法已是默认输入法";
     if (response.contains("enabled") && response["enabled"].is_boolean() && !response["enabled"].get<bool>())
-        return L"水杉输入法不在当前用户的键盘列表中，设为默认时会自动添加并排到第一位";
-    return L"水杉输入法没有排在中文（简体）键盘列表的第一位";
+        return L"阿龍学习输入法不在当前用户的键盘列表中，设为默认时会自动添加并排到第一位";
+    return L"阿龍学习输入法没有排在中文（简体）键盘列表的第一位";
 }
 
 std::wstring DescribeGameCompat(const Json &response)
@@ -180,11 +180,11 @@ VisualPtr BuildHelpPage(PageContext &context)
             p->SetMargin({0.0f, marginTop, 0.0f, 0.0f});
             doc->Add(p);
         };
-        paragraph({{L"水杉输入法是一款 Windows 平台的中文输入法。目前支持 Windows11/Windows10 平台。", {}}}, 0.0f);
+        paragraph({{L"阿龍学习输入法是一款 Windows 平台的中文输入法。目前支持 Windows11/Windows10 平台。", {}}}, 0.0f);
         paragraph({{L"完整的使用说明见 ", {}},
-                   {L"Wiki", "https://github.com/metasequoiaime/msime-windows/wiki"},
+                   {L"Wiki", "https://github.com/daodeqing/Arong-Study-IME/wiki"},
                    {L"，遇到问题可以先查看 ", {}},
-                   {L"常见问题（FAQ）", "https://github.com/metasequoiaime/msime-windows/wiki/FAQ"},
+                   {L"常见问题（FAQ）", "https://github.com/daodeqing/Arong-Study-IME/wiki/FAQ"},
                    {L"。", {}}},
                   0.0f);
         const auto section = [&](const wchar_t *title, std::vector<const wchar_t *> texts) {
@@ -194,7 +194,7 @@ VisualPtr BuildHelpPage(PageContext &context)
             for (const wchar_t *text : texts)
                 paragraph({{text, {}}}, 8.0f);
         };
-        section(L"快速上手", {L"安装输入法后，可以使用 Win + Space 快捷键切换到水杉输入法。默认是全拼输入法。"});
+        section(L"快速上手", {L"安装输入法后，可以使用 Win + Space 快捷键切换到阿龍学习输入法。默认是全拼输入法。"});
         section(L"基本功能",
                 {L"支持全拼、双拼和五笔。可以在设置窗口下的输入功能分区进行切换。全拼和双拼均支持辅助码。辅助码方案目前"
                  L"支持自然码辅助码、蓝天小雨点、首右2."
@@ -214,9 +214,9 @@ VisualPtr BuildHelpPage(PageContext &context)
     {
         auto left = std::make_shared<Column>(0.0f);
         left->Add(MakeTitle(L"默认输入法"));
-        left->Add(
-            Description(L"设为默认后，水杉输入法会排在系统设置「语言和区域 → "
-                        L"中文（简体）」键盘列表的第一位，切到中文时直接使用水杉输入法。不会改动语言顺序和界面语言"));
+        left->Add(Description(
+            L"设为默认后，阿龍学习输入法会排在系统设置「语言和区域 → "
+            L"中文（简体）」键盘列表的第一位，切到中文时直接使用阿龍学习输入法。不会改动语言顺序和界面语言"));
         state->defaultStatus = Description(L"正在检查…");
         state->defaultStatus->SetMargin({0.0f, 8.0f, 0.0f, 0.0f});
         left->Add(state->defaultStatus);
@@ -279,9 +279,10 @@ VisualPtr BuildHelpPage(PageContext &context)
     {
         auto column = std::make_shared<Column>(0.0f);
         column->Add(MakeTitle(L"游戏兼容（CS2 / Dota 2）"));
-        column->Add(Description(L"CS2、Dota 2 "
-                                L"只给内置名单里的输入法画候选；不在名单里时会在左上角弹出系统组合小框，独占全屏下还会"
-                                L"把游戏踢出全屏（黑屏）。开启后水杉在系统里登记为下面的名称，游戏会自己画候选。"));
+        column->Add(
+            Description(L"CS2、Dota 2 "
+                        L"只给内置名单里的输入法画候选；不在名单里时会在左上角弹出系统组合小框，独占全屏下还会"
+                        L"把游戏踢出全屏（黑屏）。开启后阿龍学习输入法在系统里登记为下面的名称，游戏会自己画候选。"));
         column->Add(Description(L"代价：语言栏和 Windows 设置里也会显示这个名称；需要管理员权限（会弹一次 "
                                 L"UAC）；要重启游戏才生效；已知上屏后的第一下退格会被游戏吞掉（游戏那边的行为）。"));
         state->compatEnabled = std::make_shared<CheckOption>(L"启用游戏兼容名称");

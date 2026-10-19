@@ -8,8 +8,8 @@ param([Parameter(Mandatory)][string]$BuildDir)
 
 $ErrorActionPreference = 'Stop'
 
-$dll = Join-Path $BuildDir 'Release/MetasequoiaImeTsf.dll'
-$pdb = Join-Path $BuildDir 'Release/MetasequoiaImeTsf.pdb'
+$dll = Join-Path $BuildDir 'Release/ArongStudyImeTsf.dll'
+$pdb = Join-Path $BuildDir 'Release/ArongStudyImeTsf.pdb'
 if (-not (Test-Path $dll)) { throw "The build did not produce $dll" }
 if (-not (Test-Path $pdb)) { throw "The build did not produce $pdb" }
 Write-Host "$dll is $((Get-Item $dll).Length) bytes"

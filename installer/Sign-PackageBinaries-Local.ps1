@@ -16,7 +16,7 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-$CertificateSubject = 'CN=Metasequoia IME Local Test Code Signing'
+$CertificateSubject = 'CN=ArongStudyIme Local Test Code Signing'
 $CertificateValidityYears = 5
 $CodeSigningEku = '1.3.6.1.5.5.7.3.3'
 $TrustStores = @('Cert:\LocalMachine\Root', 'Cert:\LocalMachine\TrustedPublisher')
@@ -106,7 +106,7 @@ function Initialize-LocalTestCertificate {
         $certificate = New-SelfSignedCertificate `
             -Type CodeSigningCert `
             -Subject $CertificateSubject `
-            -FriendlyName 'Metasequoia IME Local Test Code Signing' `
+            -FriendlyName 'ArongStudyIme Local Test Code Signing' `
             -KeyAlgorithm RSA `
             -KeyLength 3072 `
             -HashAlgorithm SHA256 `

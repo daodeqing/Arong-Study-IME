@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const string ShuangpinUtil::app_name = "metasequoiaime";
+const string ShuangpinUtil::app_name = "ArongStudyIme";
 
 string ShuangpinUtil::get_local_appdata_path()
 {

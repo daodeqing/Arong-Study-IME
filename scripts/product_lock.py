@@ -227,7 +227,7 @@ def main() -> None:
     elif args.command == "manifest":
         if not SHA.fullmatch(args.windows_commit):
             raise ValueError("Windows commit must be a full SHA")
-        data["repositories"]["windows"] = {"repository": "metasequoiaime/MSIME-Windows",
+        data["repositories"]["windows"] = {"repository": "daodeqing/Arong-Study-IME",
                                            "commit": args.windows_commit}
         data["lock_sha256"] = sha256(args.lock)
         write_json(args.output, data)

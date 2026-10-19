@@ -1,17 +1,17 @@
-# Metasequoia IME for Windows
+# Arong Study IME for Windows
 
-[中文 README](README.md) · [Website](https://msime.app) · [Docs](https://msime.app/docs/) · [Privacy](PRIVACY.md) · [Code signing policy](docs/code-signing-policy.md)
+[中文 README](README.md) · [Releases](https://github.com/daodeqing/Arong-Study-IME/releases) · [Privacy](PRIVACY.md)
 
 <!-- badges:start -->
-[![CI](https://img.shields.io/github/actions/workflow/status/metasequoiaime/MSIME-Windows/ci.yml?branch=develop&label=CI)](https://github.com/metasequoiaime/MSIME-Windows/actions/workflows/ci.yml)
-[![CodeQL](https://img.shields.io/github/actions/workflow/status/metasequoiaime/MSIME-Windows/codeql.yml?branch=develop&label=CodeQL)](https://github.com/metasequoiaime/MSIME-Windows/actions/workflows/codeql.yml)
-[![Release](https://img.shields.io/github/v/release/metasequoiaime/MSIME-Windows?include_prereleases&label=release)](https://github.com/metasequoiaime/MSIME-Windows/releases)
-[![Downloads](https://img.shields.io/github/downloads/metasequoiaime/MSIME-Windows/total?label=downloads)](https://github.com/metasequoiaime/MSIME-Windows/releases)
-[![License](https://img.shields.io/github/license/metasequoiaime/MSIME-Windows)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/metasequoiaime/MSIME-Windows?style=flat)](https://github.com/metasequoiaime/MSIME-Windows/stargazers)
+[![CI](https://img.shields.io/github/actions/workflow/status/daodeqing/Arong-Study-IME/ci.yml?branch=main&label=CI)](https://github.com/daodeqing/Arong-Study-IME/actions/workflows/ci.yml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/daodeqing/Arong-Study-IME/codeql.yml?branch=main&label=CodeQL)](https://github.com/daodeqing/Arong-Study-IME/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/daodeqing/Arong-Study-IME?label=release)](https://github.com/daodeqing/Arong-Study-IME/releases)
+[![Downloads](https://img.shields.io/github/downloads/daodeqing/Arong-Study-IME/total?label=downloads)](https://github.com/daodeqing/Arong-Study-IME/releases)
+[![License](https://img.shields.io/github/license/daodeqing/Arong-Study-IME)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/daodeqing/Arong-Study-IME?style=flat)](https://github.com/daodeqing/Arong-Study-IME/stargazers)
 <!-- badges:end -->
 
-A free and open-source Chinese and Japanese input method for Windows 10 and 11, built on TSF with no legacy IMM32 path.
+Arong Study IME is a free and open-source Chinese and Japanese input method for Windows 10 and 11. English output is the default. The candidate window stays Chinese; when a local OpenAI-compatible model is configured, selecting a Chinese candidate commits English. Press `Shift` to switch between English and Chinese output; `Ctrl+Space` remains the Windows input-method switch.
 
 This repository is the whole Windows product: the TSF text service DLL, the resident server, the conversion engine, a self-written native GUI framework, the HTML surfaces and the installer. The engine was imported from [MSIME-Engine](https://github.com/metasequoiaime/MSIME-Engine) and specialized for Windows; it now lives in `engine/` as a first-party component, so a plain clone builds the product. See [`engine/UPSTREAM.md`](engine/UPSTREAM.md).
 
@@ -19,9 +19,9 @@ This repository is the whole Windows product: the TSF text service DLL, the resi
 
 ## Install
 
-Download the installer from [Releases](https://github.com/metasequoiaime/MSIME-Windows/releases) or the [download page](https://msime.app/download/), run it, then switch with `Win + Space`.
+Download the installer from [Releases](https://github.com/daodeqing/Arong-Study-IME/releases), run it, then switch with `Win + Space`.
 
-Current builds are **not code signed**. SmartScreen will block them and uiAccess is unavailable, which means the candidate window cannot float above elevated applications. Verify the download with the SHA256 published on the download page.
+Unsigned builds may trigger SmartScreen and cannot use uiAccess. Verify the installer with the SHA256 published with the release.
 
 You need the **Microsoft Visual C++ 2015–2022 Redistributable (x64)**. The server and settings app are 64-bit; the x86 redistributable is a separate package and does not substitute for it. If you cannot switch to the IME, the server keeps exiting, or the settings window closes immediately, install that first.
 
@@ -30,7 +30,7 @@ You need the **Microsoft Visual C++ 2015–2022 Redistributable (x64)**. The ser
 - Chinese input: full pinyin, double pinyin (Xiaohe / Ziranma / Shoudao / Microsoft / Sogou / Ziguang / Zhineng ABC / Guobiao / Pinyin Jiajia), Wubi 86
 - Japanese input: romaji, with hiragana, katakana and dictionary candidates; also available as a temporary mode from Chinese
 - Helpcode (形码) filtering on pinyin schemes: six tables, single- and double-code
-- Optional cloud candidates, and AI suggestions via DeepSeek / OpenAI / SiliconFlow / Groq
+- Local OpenAI-compatible output translation; remote AI providers remain manually configurable
 - English-Chinese glosses in the vertical candidate window
 - Mixed Chinese-English input, emoji and kaomoji, a dedicated English candidate mode
 - Local input statistics (off by default): character counts and active time stay on this machine; view and clean them under Settings → Statistics
@@ -42,7 +42,7 @@ You need the **Microsoft Visual C++ 2015–2022 Redistributable (x64)**. The ser
 
 An input method sees every keystroke, so the boundaries are stated explicitly in [PRIVACY.md](PRIVACY.md): which features reach the network, what each one sends, what the defaults are, and how to turn each off.
 
-Two things worth knowing up front. **Cloud candidates are on by default** — the composition spelling goes to Google's input-tools service, and it is the only network feature that works without you supplying a credential. **API tokens are stored in plain text** in `config.toml`, unlike macOS and Linux which use the Keychain and Secret Service.
+Cloud candidates can send the current spelling to Google's input-tools service. Output translation uses only the configured loopback model endpoint, keeps translations in a bounded memory cache and does not log request bodies. API credentials are protected with Windows DPAPI in the local configuration file.
 
 There is no telemetry, analytics or crash reporting of any kind.
 
@@ -54,7 +54,7 @@ Note that most issues, documentation and code comments are in Chinese. English p
 
 ## Code signing policy
 
-Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+The 0.8.0 package is unsigned. It is built and tested on GitHub-hosted Windows runners and ships with a SHA-256 sidecar; upstream signing approvals do not transfer to this repository.
 
 What is signed, who the committers, reviewers and approvers are, the build and release process and the current status are in the [code signing policy](docs/code-signing-policy.md). The privacy policy is [PRIVACY.md](PRIVACY.md).
 

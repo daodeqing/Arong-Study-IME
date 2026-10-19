@@ -2,7 +2,7 @@
 
 本目录的脚本从 Windows 合仓目录收集产物、签名、用 Inno Setup 打成安装包。它服务两条流程：
 
-- **正式发布**：由 `MSIME-Windows` 的 release workflow 驱动，用真实证书签名包内全部 EXE/DLL 和最终安装包；产物是挂在 Release 上的 `MetasequoiaIME_Setup_v<版本>.exe`，并携带与 Release 二进制匹配的 PDB 符号文件。见下面「CI 契约」
+- **正式发布**：由 `Arong-Study-IME` 的 release workflow 驱动，用真实证书签名包内全部 EXE/DLL 和最终安装包；产物是挂在 Release 上的 `ArongStudyIme_Setup_v<版本>.exe`，并携带与 Release 二进制匹配的 PDB 符号文件。见下面「CI 契约」
 - **本地测试**：手工跑，用本机自签名证书，用来在自己机器上验证安装流程。本文其余部分讲的是这条
 
 版本号不是固定的，由 `Prepare-PackageFiles.ps1` 的 `-TargetVersion` 决定，默认 `0.0.1`；正式发布时 CI 传入真实版本。
@@ -34,12 +34,12 @@ pwsh -File ./Prepare-PackageFiles.ps1 -TargetVersion 1.2.3 -RepoRoot .. `
 
 ## 数据目录
 
-程序本体固定装在 `Program Files\metasequoiaime`（Server 带 `uiAccess=true`，只有装在受信任目录里这个标志才生效），**用户数据目录可以在安装向导里改**：词库、`config.toml`、用户词库、皮肤和设置窗口的图片资源都在那里，整包几百 MB，装 C 盘吃紧的用户可以放到别的盘。
+程序本体固定装在 `Program Files\ArongStudyIme`（Server 带 `uiAccess=true`，只有装在受信任目录里这个标志才生效），**用户数据目录可以在安装向导里改**：词库、`config.toml`、用户词库、皮肤和设置窗口的图片资源都在那里，整包几百 MB，装 C 盘吃紧的用户可以放到别的盘。
 
-- 默认值 `%LOCALAPPDATA%\metasequoiaime`；升级安装时默认沿用上次的位置
-- 选择写进 `HKLM\Software\Metasequoia\MetasequoiaIME` 的 `DataDir`。这是运行期唯一的权威来源：Server（`server/src/utils/ime_paths.cpp`）、TSF DLL（`windows/src/Utils/FanyUtils.cpp`）和引擎（`engine/core/data_path.h`）各自按 `METASEQUOIA_IME_DATA_DIR` 环境变量 → 该注册表值 → `%LOCALAPPDATA%\metasequoiaime` 的顺序解析，三处必须保持一致。32 位 TSF DLL 用 `KEY_WOW64_64KEY` 读，所以这个值必须写在 64 位视图里
+- 默认值 `%LOCALAPPDATA%\ArongStudyIme`；升级安装时默认沿用上次的位置
+- 选择写进 `HKLM\Software\ArongStudyIme\ArongStudyIme` 的 `DataDir`。这是运行期唯一的权威来源：Server（`server/src/utils/ime_paths.cpp`）、TSF DLL（`windows/src/Utils/FanyUtils.cpp`）和引擎（`engine/core/data_path.h`）各自按 `ARONG_STUDY_IME_DATA_DIR` 环境变量 → 该注册表值 → `%LOCALAPPDATA%\ArongStudyIme` 的顺序解析，三处必须保持一致。32 位 TSF DLL 用 `KEY_WOW64_64KEY` 读，所以这个值必须写在 64 位视图里
 - 升级时改了位置，安装器会把用户词库（`msime_user.db` 及其 WAL/SHM）、输入统计库（`stats.db` 及其 WAL/SHM）、`config.toml`、`config.base.toml`、`custom_translations.txt`，以及 `skins\`、`helpcodes\custom\`、`shuangpin\`、`models\` 搬到新目录，再删掉旧目录。`config.toml` 或 `custom_translations.txt` 在新旧目录里各有一份且内容不同时，安装器拒绝这个目录，不覆盖任何一份；`custom_translations.txt` 没搬成会中止安装；词库和设置窗口的图片资源由本次安装重新写入，不搬
-- **数据目录必须整个归输入法**（[#537](https://github.com/metasequoiaime/MSIME-Windows/issues/537)）。用户选的目录里已经有别的文件、或者选了驱动器根目录时，安装器改用其中的 `metasequoiaime` 子目录，并在向导里把实际位置告诉用户；连那个子目录也不空就拒绝。输入法用过的目录（有标记，或历史默认位置）原样沿用
+- **数据目录必须整个归输入法**（[#537](https://github.com/daodeqing/Arong-Study-IME/issues/537)）。用户选的目录里已经有别的文件、或者选了驱动器根目录时，安装器改用其中的 `metasequoiaime` 子目录，并在向导里把实际位置告诉用户；连那个子目录也不空就拒绝。输入法用过的目录（有标记，或历史默认位置）原样沿用
 - 安装器在数据目录里放一个 `.metasequoiaime-data` 标记文件。只有标记里带 `exclusive: adopted empty by the installer` 这一行（安装时目录是空的），或目录就是历史默认位置，覆盖安装才整目录清理、卸载才整目录删除
 - 旧版安装器不管目录里原来有什么都写标记，所以只有旧标记（没有那一行）的目录不能再信：覆盖安装、换目录和卸载都只按 `IsShippedAppDataItem` / `IsRuntimeAppDataItem` / `IsPreservedAppDataItem` 名单删输入法自己的条目，`assets`、`logs`、`skins` 这种通用目录名（以及已退役的 `html`）只删输入法写进去的部分，最后目录空了才删目录。包里新增顶层文件要同步 `IsShippedAppDataItem`，`tests/package-files.ps1` 会拿真实打出的 `app_data` 核对；Server 在数据目录根下新写文件要同步 `IsRuntimeAppDataItem`
 - 仓库 `skins\` 下的外部皮肤（除 `default\` 和素材授权为 `UNVERIFIED*` 的）随包装到 `skins\<id>`，完整包和轻量包都带，卸载不删。`Prepare-PackageFiles.ps1` 同时写出 `bundled_skins.manifest`（每行 `id|相对路径|sha256`），安装器在 `PrepareToInstall` 里拿它核对用户机器上的同名目录：文件集合和内容完全一致就直接覆盖，否则先改名成 `<id>.bak`（已有就 `<id>.2.bak`……，不覆盖旧备份）再装。Server 扫描皮肤时跳过 `*.bak` 目录。`tests/bundled-skins.ps1` 把这段 Pascal 编进探针安装器真跑一遍
@@ -68,7 +68,7 @@ Windows CI 运行 `installer/tests/cloud-choice.ps1`，用 Inno Setup 跑八个�
 
 ## 运行时依赖检查
 
-安装包不携带 VC 运行库，它是系统级共享组件。缺了它 Server 起不来，而这个故障出现在安装结束之后，用户看不到任何解释。所以 `msime_setup.iss` 的 `InitializeSetup` 在安装开始前先查一遍，缺了就当场说清楚，并给出下载地址。界面全部由 `msimeui` 以 Direct2D 绘制，不再依赖 WebView2 Runtime；旧版本留下的 WebView2 用户数据（`ProgramData\metasequoiaime\webview2`、`webview2-settings`，以及 `%LOCALAPPDATA%\metasequoiaime` 下的同名回退目录）由安装器在升级和卸载时清掉。
+安装包不携带 VC 运行库，它是系统级共享组件。缺了它 Server 起不来，而这个故障出现在安装结束之后，用户看不到任何解释。所以 `msime_setup.iss` 的 `InitializeSetup` 在安装开始前先查一遍，缺了就当场说清楚，并给出下载地址。界面全部由 `msimeui` 以 Direct2D 绘制，不再依赖 WebView2 Runtime；旧版本留下的 WebView2 用户数据（`ProgramData\ArongStudyIme\webview2`、`webview2-settings`，以及 `%LOCALAPPDATA%\ArongStudyIme` 下的同名回退目录）由安装器在升级和卸载时清掉。
 
 - **Visual C++ 2015–2022 可再发行组件包（x64）**：读 `Software\Microsoft\VisualStudio\14.0\VC\Runtimes\x64` 的 `Installed` / `Major` / `Minor`，`HKLM32` 和 `HKLM64` 两个视图都查。要求 **14.40 以上**（常量 `VCRuntimeMinMinor`）：`server_exe\` 里的 exe 用 MSVC 14.40+（VS 2022 17.10 起）编译并导入 `msvcp140.dll`，这一版起 `std::mutex` 的构造函数是 constexpr，配上更旧的 `msvcp140.dll` 会在第一次加锁时访问冲突、无声闪退——设置页「点了没反应」就是这个现象。装了 2019 / 早期 2022 运行库的机器同样有 `Installed=1`，所以必须比版本号。构建工具链升级到要求更高 redist 时同步调高这个常量。32 位 TSF DLL 用静态 CRT（`windows/CMakeLists.txt` 的 `CMAKE_MSVC_RUNTIME_LIBRARY`），所以不检查 x86 redist
 - **不要改成查 `System32` 里的 DLL。** Setup.exe 是 32 位进程，Pascal Script 的 `FileExists` 会被 WOW64 重定向到 `SysWOW64`，查到的是 x86 运行库；只装了 x64 redist 的机器会被误判成缺少 x64 运行库。绕开重定向的办法不可移植：`EnableFsRedirection` 在 Inno Setup 7 里已被移除，而它的替代品在 CI 用的 6.x 里还不存在
@@ -88,14 +88,14 @@ Windows CI 运行 `installer/tests/cloud-choice.ps1`，用 Inno Setup 跑八个�
 
 ## 本地打包路径
 
-从 `installer/` 运行上面的带参数打包命令即可。`-RepoRoot` 指向 MSIME-Windows 根目录；目录不同时通过参数指定，无需编辑脚本中的复制路径。
+从 `installer/` 运行上面的带参数打包命令即可。`-RepoRoot` 指向 Arong-Study-IME 根目录；目录不同时通过参数指定，无需编辑脚本中的复制路径。
 
 ## 一键测试
 
 先准备上述构建依赖与锁定词库。然后在管理员 PowerShell 中（把本机测试证书写入受信任存储需要提升权限）：
 
 ```powershell
-cd path\to\MSIME-Windows\installer
+cd path\to\Arong-Study-IME\installer
 pwsh -File .\test.ps1
 ```
 
@@ -104,7 +104,7 @@ pwsh -File .\test.ps1
 1. 编译本仓 TSF、Server，并构建设置页；缺少组件入口则失败
 2. `Prepare-PackageFiles.ps1` — 收集 `server_exe\`、`tsf_dll\`、`app_data\`，并把 `msime_setup.iss` 的版本写成 `0.0.1`
 3. `Sign-PackageBinaries-Local.ps1` — 本机自签名包内 EXE/DLL
-4. `Compile-Installer.ps1` — 编译出 `Output\MetasequoiaIME_Setup_v0.0.1.exe`
+4. `Compile-Installer.ps1` — 编译出 `Output\ArongStudyIme_Setup_v0.0.1.exe`
 5. `Sign-Installer-Local.ps1` — 本机自签名安装包
 6. `Install.ps1` — 启动安装程序
 
@@ -116,17 +116,17 @@ pwsh -File .\test.ps1
 SimplySign Desktop、用手机 OTP 连接虚拟卡，然后执行：
 
 ```powershell
-cd path\to\MSIME-Windows\installer
+cd path\to\Arong-Study-IME\installer
 pwsh -File .\package-simplysign.ps1 1.2.3
 ```
 
 命令行版本会同时写入本轮 TSF DLL 的版本资源和安装包元数据（脚本结束后恢复源码模板）。脚本会
 增量编译 TSF、Server 和设置页，制作完整包，用 `http://time.certum.pl` 的 RFC 3161 时间戳签名
 `server_exe\` 和 `tsf_dll\` 下的**全部 EXE/DLL**，编译 Inno Setup 安装包，再签名并校验最终
-安装包。产物位于 `Output\MetasequoiaIME_Setup_v1.2.3.exe`；脚本只产出文件，不会自动启动
+安装包。产物位于 `Output\ArongStudyIme_Setup_v1.2.3.exe`；脚本只产出文件，不会自动启动
 安装程序。
 
-**为什么整包都要签。** `MetasequoiaImeServer.exe` 是唯一一个技术上必须签的——`uiAccess=true`
+**为什么整包都要签。** `ArongStudyImeServer.exe` 是唯一一个技术上必须签的——`uiAccess=true`
 没有可信 Authenticode 签名就会被 Windows 忽略。但其余辅助进程（设置页、表情面板、手写面板、
 键盘面板、看门狗、词库回放）和随包分发的 DLL 不签名会被 Microsoft Defender 按信誉拦下，
 用户看到的现象是输入法装完了、某个面板却打不开。所有文件在一次 `signtool sign` 调用里签完：
@@ -137,7 +137,7 @@ SimplySign 可能对每次调用弹一次 PIN，逐个文件调用会变成十�
 同时暴露了多张有效的 Certum Code Signing 证书，脚本会列出它们并要求用
 `-CertificateThumbprint <指纹>` 明确选择。可用 `-Reconfigure` 强制重新配置 CMake，也可用
 `-IsccPath <路径>` 指定 Inno Setup 编译器。带 PDB 的安装包会使用 `_with_pdb` 文件名后缀，
-例如 `Output\MetasequoiaIME_Setup_v1.2.3_with_pdb.exe`。
+例如 `Output\ArongStudyIme_Setup_v1.2.3_with_pdb.exe`。
 
 也可以直接使用固定包含 PDB 的一键入口，不需要再写 `-IncludeSymbols`：
 
@@ -156,7 +156,7 @@ pwsh -File .\package-simplysign-symbols.ps1 1.2.3
 pwsh -File .\package-simplysign-light.ps1 1.2.4
 ```
 
-它等价于 `package-simplysign.ps1 1.2.4 -Light`，产物是 `Output\MetasequoiaIME_Setup_v1.2.4_light.exe`
+它等价于 `package-simplysign.ps1 1.2.4 -Light`，产物是 `Output\ArongStudyIme_Setup_v1.2.4_light.exe`
 （加 `-IncludeSymbols` 时是 `_light_with_pdb`）。轻量包和 `test-light.ps1` 用的是同一个
 `/DLightPackage=1` 编译开关，因此有同样的限制：
 
@@ -184,7 +184,7 @@ pwsh -File .\package-simplysign-light.ps1 1.2.4
 `Invoke-LocalTest.ps1` 调用的 `lcompile-release*.ps1` 是增量的：
 
 - `build-release` / `build{32,64}-release` 已有 CMake 缓存时不再重跑 configure。Visual Studio 生成器把 ZERO_CHECK 接进了每个目标，`CMakeLists.txt` 变化时构建会自己重新生成。改了 preset 或换了工具链，用 `-Reconfigure` 强制重跑
-- 只构建打包用的目标（`MetasequoiaImeServer` / `MetasequoiaImeTsf`），不构建那些打完包又被删掉的测试可执行文件。要连测试一起构建（比如为了跑 ctest）传 `-Target ALL_BUILD`
+- 只构建打包用的目标（`ArongStudyImeServer` / `ArongStudyImeTsf`），不构建那些打完包又被删掉的测试可执行文件。要连测试一起构建（比如为了跑 ctest）传 `-Target ALL_BUILD`
 - `cmake --build` 带 `--parallel`
 
 没有改动时整轮编译约 15 秒；如果比这慢很多，慢的多半是打包而不是编译。

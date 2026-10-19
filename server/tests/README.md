@@ -18,19 +18,19 @@ session behavior.
 
 ## Build and run
 
-Run these commands from the **MSIME-Windows repository root** after preparing
+Run these commands from the **Arong-Study-IME repository root** after preparing
 vcpkg and Boost with `python server/scripts/prepare_env.py`:
 
 ```powershell
 python scripts/product_lock.py fetch-dictionaries --staging-root .
 if ($LASTEXITCODE -ne 0) { throw 'Dictionary verification failed' }
 $env:LOCALAPPDATA = Join-Path $PWD 'build/test-data/user-local'
-$env:METASEQUOIA_IME_DATA_DIR = Join-Path $env:LOCALAPPDATA 'metasequoiaime'
-New-Item -ItemType Directory -Force $env:METASEQUOIA_IME_DATA_DIR | Out-Null
-Copy-Item MetasequoiaImeDict/out/* $env:METASEQUOIA_IME_DATA_DIR -Force
-Copy-Item engine/helpcode/helpcodes $env:METASEQUOIA_IME_DATA_DIR -Recurse -Force
-Copy-Item server/assets/tables/* $env:METASEQUOIA_IME_DATA_DIR -Force
-Copy-Item server/assets/config/config.toml $env:METASEQUOIA_IME_DATA_DIR -Force
+$env:ARONG_STUDY_IME_DATA_DIR = Join-Path $env:LOCALAPPDATA 'ArongStudyIme'
+New-Item -ItemType Directory -Force $env:ARONG_STUDY_IME_DATA_DIR | Out-Null
+Copy-Item MetasequoiaImeDict/out/* $env:ARONG_STUDY_IME_DATA_DIR -Force
+Copy-Item engine/helpcode/helpcodes $env:ARONG_STUDY_IME_DATA_DIR -Recurse -Force
+Copy-Item server/assets/tables/* $env:ARONG_STUDY_IME_DATA_DIR -Force
+Copy-Item server/assets/config/config.toml $env:ARONG_STUDY_IME_DATA_DIR -Force
 .\server\tests\scripts\llaunch.ps1 -Configuration Release
 ```
 
@@ -53,7 +53,7 @@ Once test data is prepared, the convenience scripts work from any directory:
 ```
 
 Omitting `-Configuration` selects Debug in `server/build`; Release uses
-`server/build-release`. Both compile `MetasequoiaImeServerTests` and
+`server/build-release`. Both compile `ArongStudyImeServerTests` and
 `test_webview_contract` in the parent build tree. Configuration, compilation,
 test failures and an empty CTest registry return failure rather than launching a
 stale executable or reporting success.
@@ -84,12 +84,12 @@ ctest --test-dir server/build-release -C Release --output-on-failure --no-tests=
 Build the Server test target in Release mode. Run the benchmark from a Windows terminal:
 
 ```powershell
-cmake --build server/build-release --config Release --target MetasequoiaImeServerTests
-server/build-release/bin/Release/MetasequoiaImeServerTests.exe --benchmark-model-path 10000 > model-path.csv
+cmake --build server/build-release --config Release --target ArongStudyImeServerTests
+server/build-release/bin/Release/ArongStudyImeServerTests.exe --benchmark-model-path 10000 > model-path.csv
 ```
 
 The executable creates small model files in a temporary data directory.
-It restores `METASEQUOIA_IME_DATA_DIR` when it exits.
+It restores `ARONG_STUDY_IME_DATA_DIR` when it exits.
 It does not load model contents.
 Each row reports P50, P95, P99, and worst latency in nanoseconds.
 
@@ -106,7 +106,7 @@ It does not simulate all disk workloads.
 The benchmark calls the production path resolvers used by `ApplyConfiguration()`.
 It measures their cost per call.
 It does not measure full `handle_key()` latency.
-The benchmark sets `METASEQUOIA_IME_DATA_DIR` to an isolated temporary directory.
+The benchmark sets `ARONG_STUDY_IME_DATA_DIR` to an isolated temporary directory.
 Each resolver call reads this override and builds a path.
 Normal installations do not set this override. Their directory lookup takes a different path.
 The `disabled-empty-id` row returns before `data_directory()` runs.

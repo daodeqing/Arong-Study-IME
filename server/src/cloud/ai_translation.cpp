@@ -2,6 +2,7 @@
 
 #include "ai/chat_completions.h"
 #include "ai/chat_request_params.h"
+#include "ai/openai_compatible_url.h"
 #include "translation_gloss.h"
 #include <nlohmann/json.hpp>
 #include <algorithm>
@@ -162,12 +163,18 @@ std::vector<std::string> ParseTranslations(const std::string &content, size_t ex
 
 Config FromConfiguredTranslation(const TranslationConfig &config)
 {
-    return {config.ai.provider, CloudTranslation::TrimSecret(config.ai.endpoint),
-            CloudTranslation::TrimSecret(config.ai.token), CloudTranslation::TrimSecret(config.ai.model)};
+    const std::string endpoint = config.ai.provider == "local"
+                                     ? OpenAiCompatibleUrl::ChatCompletionsEndpoint(config.ai.endpoint)
+                                     : CloudTranslation::TrimSecret(config.ai.endpoint);
+    return {config.ai.provider, endpoint, CloudTranslation::TrimSecret(config.ai.token),
+            CloudTranslation::TrimSecret(config.ai.model)};
 }
 
 bool IsUsableConfig(const Config &config)
 {
+    if (config.provider == "local")
+        return OpenAiCompatibleUrl::IsLoopbackUrl(config.endpoint) && !config.model.empty() &&
+               (config.token.empty() || CloudTranslation::IsUsableSecret(config.token));
     return config.provider != "jev" && CloudTranslation::IsUsableSecret(config.token) && !config.model.empty() &&
            (config.endpoint.rfind("https://", 0) == 0 || config.endpoint.rfind("http://", 0) == 0);
 }
@@ -197,6 +204,8 @@ nlohmann::json BuildRequestBody(const Config &config, const std::vector<std::str
 
 long RequestTimeoutMs(const Config &config)
 {
+    if (config.provider == "local")
+        return 5000L;
     return ChatCompletions::IsOpenAiReasoningRequest(config.provider, config.model)
                ? ChatCompletions::kReasoningTimeoutMs
                : ChatCompletions::kDefaultTimeoutMs;

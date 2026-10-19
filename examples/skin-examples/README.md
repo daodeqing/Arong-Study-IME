@@ -1,6 +1,6 @@
 # Metasequoia IME skin example
 
-水杉输入法（Metasequoia IME）外部皮肤的官方样例。一个皮肤就是一个文件夹，外观全部写在一份 `skin.toml` 里：候选框的装饰图、背景图、圆角和配色，以及悬浮工具栏的配色。不需要写 CSS，也不会加载任何脚本。
+阿龍学习输入法（Metasequoia IME）外部皮肤的官方样例。一个皮肤就是一个文件夹，外观全部写在一份 `skin.toml` 里：候选框的装饰图、背景图、圆角和配色，以及悬浮工具栏的配色。不需要写 CSS，也不会加载任何脚本。
 
 更多现成皮肤见仓库根目录的 [skins/](../../skins/)。
 
@@ -15,16 +15,16 @@
    - `background.png`：卡片背景纹理。深浅两套主题共用这张图，建议大部分透明。
 3. 修改 `skin.toml` 中的名称、作者、尺寸和配色。
 4. 用浏览器打开 `preview.html`，大致确认横向、纵向两种候选框的效果。
-5. 把皮肤文件夹复制到 `%LOCALAPPDATA%\metasequoiaime\skins\`，打开设置里的“皮肤”页面（会自动扫描），或者点“刷新皮肤”。
+5. 把皮肤文件夹复制到 `%LOCALAPPDATA%\ArongStudyIme\skins\`，打开设置里的“皮肤”页面（会自动扫描），或者点“刷新皮肤”。
 
 也可以直接运行安装脚本装上样例皮肤：
 
 ```powershell
-./install.ps1            # 复制到 %LOCALAPPDATA%\metasequoiaime\skins\niya-demo\ 并启用
+./install.ps1            # 复制到 %LOCALAPPDATA%\ArongStudyIme\skins\niya-demo\ 并启用
 ./install.ps1 -NoActivate  # 只复制，不改 config.toml
 ```
 
-启用即把 `config.toml` 中的 `appearance.candidate_skin` 设为 `niya-demo`。装好后重启水杉输入法服务即可生效。
+启用即把 `config.toml` 中的 `appearance.candidate_skin` 设为 `niya-demo`。装好后重启阿龍学习输入法服务即可生效。
 
 设置页会读取 `skins\` 下每个一级子目录中的 `skin.toml`。目录名与 `id` 不一致或字段不合法时，该皮肤不会出现在可选列表里，原因会显示在页面底部的诊断信息中。
 

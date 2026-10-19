@@ -2,7 +2,7 @@
 
 [English README](README.en.md)
 
-水杉输入法 Windows 版的输入引擎：输入会话、候选查询、辅助码、共享契约和语音模块。
+阿龍学习输入法 Windows 版的输入引擎：输入会话、候选查询、辅助码、共享契约和语音模块。
 
 这个目录曾经是 `metasequoiaime/MSIME-Engine` 的子模块，现在是本仓库的一个组件，和 `server/`、`ui/`、`windows/`、`installer/` 平级。来源提交、以及专门化时裁掉了什么，见 [UPSTREAM.md](UPSTREAM.md)。**请把它当本仓库的一等代码来改**：和别处一样评审、格式化、测试，不再从上游合并。
 

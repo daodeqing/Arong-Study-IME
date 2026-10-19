@@ -36,7 +36,7 @@ inline std::optional<std::wstring> wide_environment_variable(const wchar_t *name
 inline std::optional<std::wstring> read_installed_data_directory()
 {
     HKEY key = nullptr;
-    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Metasequoia\\MetasequoiaIME", 0,
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\ArongStudyIme\\ArongStudyIme", 0,
                       KEY_QUERY_VALUE | KEY_WOW64_64KEY, &key) != ERROR_SUCCESS)
     {
         return std::nullopt;
@@ -91,7 +91,7 @@ inline std::filesystem::path path_from_utf8(const char *path)
 inline std::filesystem::path data_directory()
 {
 #ifdef _WIN32
-    if (const auto override_path = detail::wide_environment_variable(L"METASEQUOIA_IME_DATA_DIR"))
+    if (const auto override_path = detail::wide_environment_variable(L"ARONG_STUDY_IME_DATA_DIR"))
     {
         const std::filesystem::path path(*override_path);
         if (path.is_absolute())
@@ -100,7 +100,7 @@ inline std::filesystem::path data_directory()
         }
     }
 #else
-    if (const char *override_path = std::getenv("METASEQUOIA_IME_DATA_DIR"))
+    if (const char *override_path = std::getenv("ARONG_STUDY_IME_DATA_DIR"))
     {
         const std::filesystem::path path = path_from_utf8(override_path);
         if (path.is_absolute())
@@ -127,14 +127,14 @@ inline std::filesystem::path data_directory()
         const std::filesystem::path root(*local_app_data);
         if (root.is_absolute())
         {
-            return root / L"metasequoiaime";
+            return root / L"ArongStudyIme";
         }
     }
 
     PWSTR known_path = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &known_path)) && known_path)
     {
-        const std::filesystem::path result = std::filesystem::path(known_path) / L"metasequoiaime";
+        const std::filesystem::path result = std::filesystem::path(known_path) / L"ArongStudyIme";
         CoTaskMemFree(known_path);
         return result;
     }
@@ -144,7 +144,7 @@ inline std::filesystem::path data_directory()
         const std::filesystem::path root(home);
         if (root.is_absolute())
         {
-            return root / "Library" / "Application Support" / "metasequoiaime";
+            return root / "Library" / "Application Support" / "ArongStudyIme";
         }
     }
 #else
@@ -153,7 +153,7 @@ inline std::filesystem::path data_directory()
         const std::filesystem::path root(xdg_data_home);
         if (root.is_absolute())
         {
-            return root / "metasequoiaime";
+            return root / "ArongStudyIme";
         }
     }
     if (const char *home = std::getenv("HOME"))
@@ -161,7 +161,7 @@ inline std::filesystem::path data_directory()
         const std::filesystem::path root(home);
         if (root.is_absolute())
         {
-            return root / ".local" / "share" / "metasequoiaime";
+            return root / ".local" / "share" / "ArongStudyIme";
         }
     }
 #endif

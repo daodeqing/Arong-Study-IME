@@ -530,9 +530,9 @@ LRESULT CALLBACK WndProcCaretStateWindow(HWND hwnd, UINT message, WPARAM wParam,
     case WM_SHOW_CARET_STATE: {
         std::unique_ptr<CaretStateIndicator::ShowRequest> request(
             reinterpret_cast<CaretStateIndicator::ShowRequest *>(lParam));
-        if (!request ||
-            !FanyImeUi::ShouldShowCaretStateIndicator(GetConfiguredCaretStateIndicatorEnabled(), g_is_ime_active,
-                                                      request->uiLess, request->caret.x, request->caret.y) ||
+        if (!request || request->uiLess || !g_is_ime_active ||
+            !FanyImeUi::IsUsableCaretAnchor(request->caret.x, request->caret.y) ||
+            (!request->bypassPreference && !GetConfiguredCaretStateIndicatorEnabled()) ||
             IsForegroundD3DExclusiveFullscreen())
         {
             CaretStateIndicator::Hide(hwnd);

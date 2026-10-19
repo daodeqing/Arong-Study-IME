@@ -204,6 +204,7 @@ void SendInputModeState(const PipeClientActivation &activation)
     SendToTsfWorkerThreadClientViaNamedpipe(activation.client_id, activation.epoch,
                                             Global::DataFromServerMsgTypeToTsfWorkerThread::InputModeChanged,
                                             GetActiveInputMode() == "japanese" ? L"1" : L"0");
+    SendOutputLanguageState(activation.client_id, activation.epoch);
     SendTemporaryJapanesePolicy(activation);
     SendTrilingualCycleState(activation.client_id, activation.epoch);
 }
@@ -539,7 +540,8 @@ void MainPipeClientThread(HANDLE clientPipe, uint64_t handlerId)
 
         if (pipeData.event_type == FanyImePipeEventType::InputStateAction &&
             (!ClientNegotiatedInputStateShortcuts(clientId) ||
-             pipeData.keycode != static_cast<unsigned>(FanyImeInputStateShortcuts::Action::EnglishCandidates)))
+             (pipeData.keycode != static_cast<unsigned>(FanyImeInputStateShortcuts::Action::EnglishCandidates) &&
+              pipeData.keycode != static_cast<unsigned>(FanyImeInputStateShortcuts::Action::OutputLanguage))))
             continue;
 
         PipeClientActivation activation = GetActivePipeClient();

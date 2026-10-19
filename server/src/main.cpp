@@ -14,6 +14,7 @@
 #include <spdlog/spdlog.h>
 #include "cloud/cloud_ime.h"
 #include "cloud/cloud_translation.h"
+#include "cloud/output_translation.h"
 #include "ai/ai_assistant.h"
 #include "english/english_ime.h"
 #include "mixed/mixed_candidates.h"
@@ -46,7 +47,7 @@ void StartWatchdogIfNeeded(const char *command_line)
     const size_t separator = watchdog_path.find_last_of(L"\\/");
     if (separator == std::wstring::npos)
         return;
-    watchdog_path.replace(separator + 1, std::wstring::npos, L"MetasequoiaImeWatchdog.exe");
+    watchdog_path.replace(separator + 1, std::wstring::npos, L"ArongStudyImeWatchdog.exe");
     if (GetFileAttributesW(watchdog_path.c_str()) == INVALID_FILE_ATTRIBUTES)
         return;
 
@@ -89,7 +90,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/,
                      _In_ int /*nCmdShow*/)
 {
     const bool pipe_probe = IsPipeProbe(lpCmdLine);
-    CommonUtils::SingleInstanceGuard single_instance(L"Local\\MetasequoiaImeServer_SingleInstance");
+    CommonUtils::SingleInstanceGuard single_instance(L"Local\\ArongStudyImeServer_SingleInstance");
     if (!single_instance.is_valid())
     {
         (void)0;
@@ -195,6 +196,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/,
                             [](std::vector<EnglishIme::TranslationResult> results, uint64_t generation) {
                                 FanyNamedPipe::EnqueueCandidateTranslations(std::move(results), generation, true);
                             });
+    OutputTranslation::Start();
     MixedCandidates::Start(CommonUtils::get_ime_data_path() + "\\english.db",
                            CommonUtils::get_ime_data_path() + "\\others.db",
                            [](MixedCandidates::Result result, const std::string &input, uint64_t generation) {
@@ -218,6 +220,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/,
 
     FanyNamedPipe::RegisterStatusSnapshotWindow(nullptr);
 
+    OutputTranslation::Stop();
     EnglishIme::Stop();
     CloudTranslation::Stop();
     MixedCandidates::Stop();

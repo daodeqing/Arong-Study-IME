@@ -13,13 +13,13 @@ constexpr wchar_t kApplySwitch[] = L"--apply-game-compat-name";
 constexpr wchar_t kClearSwitch[] = L"--clear-game-compat-name";
 
 // Read by windows/src/Register/Register.cpp at registration time; keep the two in step.
-constexpr wchar_t kRecordKey[] = L"Software\\Metasequoia\\MetasequoiaIME";
+constexpr wchar_t kRecordKey[] = L"Software\\ArongStudyIme\\ArongStudyIme";
 constexpr wchar_t kRecordValue[] = L"GameCompatProfileName";
 // Same profile as default_input_method.cpp and windows/src/Global/Globals.cpp.
-constexpr wchar_t kTipProfileKey[] = L"SOFTWARE\\Microsoft\\CTF\\TIP\\{E3062E9A-D834-4637-8958-ED8CFA427D01}"
-                                     L"\\LanguageProfile\\0x00000804\\{4D59B1B4-D503-44AE-9259-BAD9BB2778AB}";
+constexpr wchar_t kTipProfileKey[] = L"SOFTWARE\\Microsoft\\CTF\\TIP\\{7B7C69A5-A68D-5CF5-AA75-7DCFC38C9A4D}"
+                                     L"\\LanguageProfile\\0x00000804\\{30EB48A3-0163-5AB7-BB67-72E87712CAB3}";
 // TEXTSERVICE_DESC in windows/src/Register/Register.cpp: what the profile is called with the switch off.
-constexpr wchar_t kProductName[] = L"Metasequoia 水杉输入法";
+constexpr wchar_t kProductName[] = L"阿龍学习输入法";
 
 enum ExitCode : int
 {
@@ -99,7 +99,7 @@ std::string DescribeExitCode(DWORD code)
     case RecordFailed:
         return "无法写入设置，请确认在弹出的授权窗口中选择了「是」。";
     case NotRegistered:
-        return "水杉输入法没有在系统中注册，请重新安装输入法。";
+        return "阿龍学习输入法没有在系统中注册，请重新安装输入法。";
     case DescriptionFailed:
         return "无法修改输入法在系统中登记的名称。";
     default:

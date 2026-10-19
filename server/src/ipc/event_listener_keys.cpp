@@ -1010,8 +1010,17 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     // MainPipeClientThread only enqueues this from a negotiated client with a known action.
     if (namedpipeData.event_type == FanyImePipeEventType::InputStateAction)
     {
-        SetEnglishInputMode(!g_english_input_mode);
-        ClearState();
+        if (namedpipeData.keycode == static_cast<unsigned>(FanyImeInputStateShortcuts::Action::OutputLanguage))
+        {
+            ToggleOutputLanguage(client_id, activation_epoch, Global::Point[0], Global::Point[1]);
+            if (IsEnglishOutputEnabled())
+                FanyNamedPipe::RequestCurrentOutputTranslations();
+        }
+        else
+        {
+            SetEnglishInputMode(!g_english_input_mode);
+            ClearState();
+        }
         return;
     }
 

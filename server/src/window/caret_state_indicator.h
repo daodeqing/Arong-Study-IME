@@ -16,6 +16,7 @@ struct ShowRequest
     POINT caret;
     // Captured on the worker thread, which owns the UILess session state.
     bool uiLess = false;
+    bool bypassPreference = false;
 };
 
 bool Show(HWND hwnd, const FanyImeUi::CaretStateBadge &badge, POINT caret, bool topmost);

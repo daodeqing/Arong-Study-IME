@@ -23,7 +23,7 @@ $verified = (Resolve-Path (Join-Path $StagingRoot 'MetasequoiaImeDict/out')).Pat
 # Some Windows-only helpers still resolve LOCALAPPDATA; isolate those and the
 # cross-platform engine under the same root so no installed dictionary is used.
 $env:LOCALAPPDATA = Join-Path (Resolve-Path $StagingRoot).Path 'user-local'
-$data = Join-Path $env:LOCALAPPDATA 'metasequoiaime'
+$data = Join-Path $env:LOCALAPPDATA 'ArongStudyIme'
 New-Item -ItemType Directory -Force -Path $data | Out-Null
 Copy-Item (Join-Path $verified '*') -Destination $data -Force
 Copy-Item $helpcodes -Destination $data -Recurse -Force
@@ -32,7 +32,7 @@ New-Item -ItemType Directory -Force -Path (Join-Path $data 'radical') | Out-Null
 Copy-Item $radical -Destination (Join-Path $data 'radical') -Force
 Copy-Item (Join-Path $server 'assets/tables/*') -Destination $data -Force
 Copy-Item (Join-Path $server 'assets/config/config.toml') -Destination $data -Force
-$env:METASEQUOIA_IME_DATA_DIR = $data
+$env:ARONG_STUDY_IME_DATA_DIR = $data
 ctest --test-dir (Join-Path $server $BuildDir) -C Release --output-on-failure --timeout 120
 if ($LASTEXITCODE -ne 0) { throw 'Server integration tests failed for the locked product' }
 & (Join-Path $PSScriptRoot 'probe-server.ps1') -ServerRoot $server -BuildDir $BuildDir

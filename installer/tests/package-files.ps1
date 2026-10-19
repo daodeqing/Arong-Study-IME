@@ -13,18 +13,18 @@ try {
     Copy-Item (Join-Path $PSScriptRoot '../msime_setup.iss') $installer
     Copy-Item (Join-Path $PSScriptRoot '../default_config') $installer -Recurse
     foreach ($file in @(
-        'server/build-release/bin/Release/MetasequoiaImeServer.exe',
-        'server/build-release/bin/Release/MetasequoiaImeServer.pdb',
-        'server/build-release/bin/Release/MetasequoiaImeDictionaryReplay.exe',
-        'server/build-release/bin/Release/MetasequoiaImeDictionaryReplay.pdb',
-        'server/build-release/bin/Release/MetasequoiaImeServerTests.exe',
-        'server/build-release/bin/Release/MetasequoiaImeServerTests.pdb',
+        'server/build-release/bin/Release/ArongStudyImeServer.exe',
+        'server/build-release/bin/Release/ArongStudyImeServer.pdb',
+        'server/build-release/bin/Release/ArongStudyImeDictionaryReplay.exe',
+        'server/build-release/bin/Release/ArongStudyImeDictionaryReplay.pdb',
+        'server/build-release/bin/Release/ArongStudyImeServerTests.exe',
+        'server/build-release/bin/Release/ArongStudyImeServerTests.pdb',
         'server/build-release/bin/Release/test_webview_contract.exe',
         'server/build-release/bin/Release/test_webview_contract.pdb',
-        'windows/build32-release/Release/MetasequoiaImeTsf.dll',
-        'windows/build32-release/Release/MetasequoiaImeTsf.pdb',
-        'windows/build64-release/Release/MetasequoiaImeTsf.dll',
-        'windows/build64-release/Release/MetasequoiaImeTsf.pdb',
+        'windows/build32-release/Release/ArongStudyImeTsf.dll',
+        'windows/build32-release/Release/ArongStudyImeTsf.pdb',
+        'windows/build64-release/Release/ArongStudyImeTsf.dll',
+        'windows/build64-release/Release/ArongStudyImeTsf.pdb',
         'THIRD_PARTY_NOTICES.txt',
         'LICENSE',
         'server/assets/config/config.toml',
@@ -60,13 +60,13 @@ try {
                          'app_data/dictionary-manifest.json',
                          'app_data/sc.lm', 'app_data/libime-lm-NOTICE.md', 'app_data/dict_pinyin.dat',
                          'app_data/sentence-model.safetensors', 'app_data/chinese-ime-lm-NOTICE.md',
-                         'tsf_dll/32/MetasequoiaImeTsf.dll', 'tsf_dll/32/MetasequoiaImeTsf.pdb',
-                         'tsf_dll/64/MetasequoiaImeTsf.dll', 'tsf_dll/64/MetasequoiaImeTsf.pdb',
-                         'server_exe/MetasequoiaImeServer.pdb',
-                         'server_exe/MetasequoiaImeDictionaryReplay.pdb',
+                         'tsf_dll/32/ArongStudyImeTsf.dll', 'tsf_dll/32/ArongStudyImeTsf.pdb',
+                         'tsf_dll/64/ArongStudyImeTsf.dll', 'tsf_dll/64/ArongStudyImeTsf.pdb',
+                         'server_exe/ArongStudyImeServer.pdb',
+                         'server_exe/ArongStudyImeDictionaryReplay.pdb',
                          'app_data/helpcodes/helpcode.txt', 'app_data/radical/decomposition.txt',
                          'default_skins/fluent/skin.toml',
-                         'THIRD_PARTY_NOTICES.txt', 'LICENSE.txt', 'MetasequoiaImeTip.ico')) {
+                         'THIRD_PARTY_NOTICES.txt', 'LICENSE.txt', 'ArongStudyImeTip.ico')) {
         if (-not (Test-Path (Join-Path $installer $file))) { throw "Missing packaged file: $file" }
     }
     # 语言配置图标必须在 TSF DLL 的 regserver 之前装好：DLL 注册时才看得到它，否则又会把图标
@@ -75,10 +75,10 @@ try {
     $dllEntry = $issForIcon.IndexOf('Source: "{#MySourceRoot}\tsf_dll\')
     foreach ($root in @('{#MyTsfRoot32}', '{#MyTsfRoot64}')) {
         $iconEntry = [regex]::Match($issForIcon,
-            'Source: "\{#MySourceRoot\}\\MetasequoiaImeTip\.ico";\s*\\\s*DestDir: "' + [regex]::Escape($root) + '";')
-        if (-not $iconEntry.Success) { throw "MetasequoiaImeTip.ico is not installed to $root" }
+            'Source: "\{#MySourceRoot\}\\ArongStudyImeTip\.ico";\s*\\\s*DestDir: "' + [regex]::Escape($root) + '";')
+        if (-not $iconEntry.Success) { throw "ArongStudyImeTip.ico is not installed to $root" }
         if ($dllEntry -lt 0 -or $iconEntry.Index -gt $dllEntry) {
-            throw "MetasequoiaImeTip.ico for $root must be installed before the TSF DLL entries"
+            throw "ArongStudyImeTip.ico for $root must be installed before the TSF DLL entries"
         }
     }
     # CS2 等 Trusted Mode 游戏只放行系统目录下的签名 DLL，TSF DLL 装回 Program Files 就进不了游戏。
@@ -139,8 +139,8 @@ try {
     # 自造词顶掉，而且每次升级顶一次，所以它必须由引擎在用户数据目录下自建。
     if (Test-Path (Join-Path $installer 'app_data/user_dict.dat')) { throw 'Packaged the writable user dictionary' }
     foreach ($testFile in @(
-        'server_exe/MetasequoiaImeServerTests.exe',
-        'server_exe/MetasequoiaImeServerTests.pdb',
+        'server_exe/ArongStudyImeServerTests.exe',
+        'server_exe/ArongStudyImeServerTests.pdb',
         'server_exe/test_webview_contract.exe',
         'server_exe/test_webview_contract.pdb'
     )) {
@@ -149,8 +149,8 @@ try {
     # 默认不带符号：PDB 是安装包体积和打包耗时的大头，只有显式 -IncludeSymbols 才进包。
     & (Join-Path $installer 'Prepare-PackageFiles.ps1') -RepoRoot $fixture -TargetVersion '2026.9.1'
     foreach ($file in @('app_data/assets/settings/sidebar/about.svg',
-                         'tsf_dll/32/MetasequoiaImeTsf.dll', 'tsf_dll/64/MetasequoiaImeTsf.dll',
-                         'server_exe/MetasequoiaImeServer.exe')) {
+                         'tsf_dll/32/ArongStudyImeTsf.dll', 'tsf_dll/64/ArongStudyImeTsf.dll',
+                         'server_exe/ArongStudyImeServer.exe')) {
         if (-not (Test-Path (Join-Path $installer $file))) { throw "Missing packaged file: $file" }
     }
     $stagedSymbols = @(
@@ -160,7 +160,7 @@ try {
     if ($stagedSymbols.Count -gt 0) {
         throw "Packaged symbols without -IncludeSymbols: $($stagedSymbols.Name -join ', ')"
     }
-    $serverPdbFixture = Join-Path $fixture 'server/build-release/bin/Release/MetasequoiaImeServer.pdb'
+    $serverPdbFixture = Join-Path $fixture 'server/build-release/bin/Release/ArongStudyImeServer.pdb'
     Remove-Item $serverPdbFixture -Force
     $rejected = $false
     try { & (Join-Path $installer 'Prepare-PackageFiles.ps1') -RepoRoot $fixture } catch { $rejected = $_.Exception.Message -match 'PDB' }

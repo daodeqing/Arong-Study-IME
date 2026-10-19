@@ -194,9 +194,9 @@ function Test-Activation([IntPtr]$Target, [IntPtr]$Settings, [uint32]$SettingsTh
 }
 
 $windows = [SettingsFocusNative]::TopLevelWindows() | ForEach-Object { Get-WindowInfo $_ }
-$settingsProcess = Get-Process MetasequoiaImeSettings -ErrorAction Stop | Select-Object -First 1
+$settingsProcess = Get-Process ArongStudyImeSettings -ErrorAction Stop | Select-Object -First 1
 $settingsInfo = $windows | Where-Object {
-    $_.Pid -eq $settingsProcess.Id -and $_.Title -eq 'Metasequoia IME Settings'
+    $_.Pid -eq $settingsProcess.Id -and $_.Title -eq 'ArongStudyIme Settings'
 } | Select-Object -First 1
 if (-not $settingsInfo) { throw 'Could not find the Settings top-level window.' }
 

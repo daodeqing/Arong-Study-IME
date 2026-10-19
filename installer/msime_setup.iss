@@ -1,4 +1,4 @@
-; Metasequoia IME — Inno Setup script
+; ArongStudyIme — Inno Setup script
 ; 源文件根目录：本脚本所在目录
 ;
 ; 编译方法：
@@ -18,27 +18,27 @@
 ; 上面两条都不把 PDB 打进包；要带符号用 .\test-symbols.ps1。
 ; 本仓库不包含任何预置代码签名证书。
 
-#define MyAppName      "Metasequoia IME 水杉输入法"
-#define MyAppVersion   "0.0.1"
-#define MyAppPublisher "Metasequoia"
-#define MyAppExeName   "MetasequoiaImeServer.exe"
-#define MySettingsExeName "MetasequoiaImeSettings.exe"
+#define MyAppName      "阿龍学习输入法"
+#define MyAppVersion   "0.8.0"
+#define MyAppPublisher "阿龍"
+#define MyAppExeName   "ArongStudyImeServer.exe"
+#define MySettingsExeName "ArongStudyImeSettings.exe"
 ; 与 settings_app.cpp / settings_launcher.cpp 的 kQuitSettings 保持一致：WM_APP + 5。
-#define MySettingsWindowClass "MetasequoiaImeSettingsWindow"
+#define MySettingsWindowClass "ArongStudyImeSettingsWindow"
 #define MySettingsQuitMessage 32773
-#define MyEmojiPanelExeName "MetasequoiaImeEmojiPanel.exe"
-#define MyKeyboardPanelExeName "MetasequoiaImeKeyboardPanel.exe"
-#define MyHandwritingPanelExeName "MetasequoiaImeHandwritingPanel.exe"
-#define MyWatchdogName "MetasequoiaImeWatchdog.exe"
-#define MyWatchdogTaskName "Metasequoia IME Watchdog"
-#define MyReplayName   "MetasequoiaImeDictionaryReplay.exe"
-#define MyVersionDirBase "msime_v" + MyAppVersion
+#define MyEmojiPanelExeName "ArongStudyImeEmojiPanel.exe"
+#define MyKeyboardPanelExeName "ArongStudyImeKeyboardPanel.exe"
+#define MyHandwritingPanelExeName "ArongStudyImeHandwritingPanel.exe"
+#define MyWatchdogName "ArongStudyImeWatchdog.exe"
+#define MyWatchdogTaskName "ArongStudyIme Watchdog"
+#define MyReplayName   "ArongStudyImeDictionaryReplay.exe"
+#define MyVersionDirBase "ArongStudyIme_v" + MyAppVersion
 #define MySourceRoot   "."
 ; TSF DLL 装在系统目录下：CS2 等开启 Trusted Mode 的游戏只放行「位于系统目录且有代码签名」的
 ; 第三方 in-proc DLL，装在 Program Files 的 DLL 连加载都会被拒，输入法在游戏里根本切不出来。
-; 本安装器是 32 位进程，[Code] 里访问 64 位那份要先过 ApplyPathRedirRulesForCurrentProcess。
-#define MyTsfRoot64    "{sys}\IME\MetasequoiaIME"
-#define MyTsfRoot32    "{syswow64}\IME\MetasequoiaIME"
+; Inno 的 x64 install mode 会把 {sys} 映射到 System32；32 位 DLL 明确放到 SysWOW64。
+#define MyTsfRoot64    "{sys}\IME\ArongStudyIme"
+#define MyTsfRoot32    "{syswow64}\IME\ArongStudyIme"
 #ifdef LightPackage
 #define MyOutputSuffix "_light"
 #else
@@ -46,19 +46,19 @@
 #endif
 
 [Setup]
-AppId={{A7C3E91F-4B2D-4E8A-9F1C-6D5E8B0A2C4D}
+AppId={{08A43E4B-6DA4-4FE0-9A6F-743841661036}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={autopf}\metasequoiaime
+DefaultDirName={autopf}\ArongStudyIme
 DefaultGroupName={#MyAppName}
 DisableDirPage=yes
 ; DisableDirPage=yes 时就绪页默认不显示目标目录，显式打开以便用户确认装到哪。
 AlwaysShowDirOnReadyPage=yes
 DisableProgramGroupPage=yes
 OutputDir=Output
-OutputBaseFilename=MetasequoiaIME_Setup_v{#MyAppVersion}{#MyOutputSuffix}
-SetupIconFile={#MySourceRoot}\MetasequoiaIME.ico
+OutputBaseFilename=ArongStudyIme_Setup_v{#MyAppVersion}{#MyOutputSuffix}
+SetupIconFile={#MySourceRoot}\ArongStudyIme.ico
 Compression=lzma2
 SolidCompression=yes
 ; 安装和卸载界面自动跟随 Windows 的浅色/深色模式。
@@ -68,7 +68,7 @@ UsedUserAreasWarning=no
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayName={#MyAppName}
-UninstallDisplayIcon={commonpf64}\metasequoiaime\MetasequoiaIME.ico
+UninstallDisplayIcon={commonpf64}\ArongStudyIme\ArongStudyIme.ico
 VersionInfoVersion={#MyAppVersion}
 
 [Languages]
@@ -78,7 +78,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Dirs]
 Name: "{#MyTsfRoot32}\{code:GetVersionDir}"
 Name: "{#MyTsfRoot64}\{code:GetVersionDir}"
-Name: "{commonpf64}\metasequoiaime\server"
+Name: "{commonpf64}\ArongStudyIme\server"
 ; 用户数据（词库、配置、皮肤、界面资源）。默认在 LocalAppData，安装时可以改到别的盘，
 ; 选择写进 HKLM 的 DataDir，Server / TSF DLL / 引擎三方都从那里读。
 Name: "{code:GetDataDir}"; Permissions: users-modify
@@ -89,29 +89,29 @@ Name: "{code:GetDataDir}\shuangpin\custom"
 
 [Files]
 ; 独立安装应用图标，供 Windows“已安装的应用”列表稳定显示。
-Source: "{#MySourceRoot}\MetasequoiaIME.ico"; \
-    DestDir: "{commonpf64}\metasequoiaime"; Flags: ignoreversion
+Source: "{#MySourceRoot}\ArongStudyIme.ico"; \
+    DestDir: "{commonpf64}\ArongStudyIme"; DestName: "ArongStudyIme.ico"; Flags: ignoreversion
 
 ; 第三方声明随包安装。词库主体含 rime-ice（GPL-3.0）内容，其许可要求保留署名，
 ; 因此这份文件必须落到用户磁盘上，而不能只存在于源码仓库里。
 Source: "{#MySourceRoot}\THIRD_PARTY_NOTICES.txt"; \
-    DestDir: "{commonpf64}\metasequoiaime"; Flags: ignoreversion
+    DestDir: "{commonpf64}\ArongStudyIme"; Flags: ignoreversion
 
 ; GPLv3 第 4、6 条要求分发时向接收者提供许可证副本，而 THIRD_PARTY_NOTICES.txt 只是指向
 ; "the LICENSE file"、本身不含 GPL 正文。macOS 与 Linux 的 CMake 安装规则早已随包装入许可证，
 ; Windows 是唯一大规模分发却漏掉这一步的平台。
 Source: "{#MySourceRoot}\LICENSE.txt"; \
-    DestDir: "{commonpf64}\metasequoiaime"; Flags: ignoreversion
+    DestDir: "{commonpf64}\ArongStudyIme"; Flags: ignoreversion
 
 ; 输入法语言配置（profile）的图标放在固定路径。TSF DLL 每次升级都换版本目录，图标若指向 DLL，
 ; 注册表里的图标路径就跟着变；任务栏恰好在换目录时取不到图标，就改显示「简体」文字并一直沿用到
 ; 资源管理器重启。DLL 注册时发现自己上一级目录有这个文件就改用它（windows/src/Register/Register.cpp），
 ; 所以这两条必须排在下面两个 regserver 条目之前；32 位和 64 位 DLL 各按自己的上一级目录找，各放一份。
-Source: "{#MySourceRoot}\MetasequoiaImeTip.ico"; \
-    DestDir: "{#MyTsfRoot32}"; Flags: ignoreversion 32bit
+Source: "{#MySourceRoot}\ArongStudyImeTip.ico"; \
+    DestDir: "{#MyTsfRoot32}"; DestName: "ArongStudyImeTip.ico"; Flags: ignoreversion 32bit
 
-Source: "{#MySourceRoot}\MetasequoiaImeTip.ico"; \
-    DestDir: "{#MyTsfRoot64}"; Flags: ignoreversion
+Source: "{#MySourceRoot}\ArongStudyImeTip.ico"; \
+    DestDir: "{#MyTsfRoot64}"; DestName: "ArongStudyImeTip.ico"; Flags: ignoreversion
 
 ; TSF DLL 使用版本独立目录，避免升级时覆盖仍被进程加载的 DLL。系统目录的原因见 MyTsfRoot64。
 ; PDB 与对应 DLL 放在同一目录，调试器可按二进制的内嵌路径自动找到符号。
@@ -134,7 +134,7 @@ Source: "{#MySourceRoot}\tsf_dll\64\*.pdb"; \
     Flags: ignoreversion skipifsourcedoesntexist
 
 Source: "{#MySourceRoot}\server_exe\*"; \
-    DestDir: "{commonpf64}\metasequoiaime\server"; \
+    DestDir: "{commonpf64}\ArongStudyIme\server"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; 内置皮肤的出厂清单（开关与完整外观）每次安装都整份覆盖：用户技术上能改，但不建议，升级会冲掉改动。
@@ -173,36 +173,36 @@ Source: "{#MySourceRoot}\app_data\config.default.toml"; \
 
 [Icons]
 Name: "{group}\{#MyAppName}"; \
-    Filename: "{commonpf64}\metasequoiaime\server\{#MySettingsExeName}"; \
-    WorkingDir: "{commonpf64}\metasequoiaime\server"
+    Filename: "{commonpf64}\ArongStudyIme\server\{#MySettingsExeName}"; \
+    WorkingDir: "{commonpf64}\ArongStudyIme\server"
 Name: "{group}\卸载 {#MyAppName}"; Filename: "{uninstallexe}"
 
 [Registry]
-Root: HKLM; Subkey: "Software\Metasequoia\MetasequoiaIME"; \
+Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     ValueType: string; ValueName: "VersionDir"; ValueData: "{code:GetVersionDir}"; \
     Flags: uninsdeletevalue
-Root: HKLM; Subkey: "Software\Metasequoia\MetasequoiaIME"; \
+Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     ValueType: string; ValueName: "ServerPath"; \
-    ValueData: "{commonpf64}\metasequoiaime\server\{#MyAppExeName}"; \
+    ValueData: "{commonpf64}\ArongStudyIme\server\{#MyAppExeName}"; \
     Flags: uninsdeletevalue
 ; 用户数据目录的唯一权威来源。Server、TSF DLL 和引擎都按
-; METASEQUOIA_IME_DATA_DIR → 这个键 → %LOCALAPPDATA%\metasequoiaime 的顺序解析；
+; ARONG_STUDY_IME_DATA_DIR → 这个键 → %LOCALAPPDATA%\ArongStudyIme 的顺序解析；
 ; 32 位 TSF DLL 用 KEY_WOW64_64KEY 读，所以这里必须写在 64 位视图里
 ; （ArchitecturesInstallIn64BitMode 已经保证了这一点）。
-Root: HKLM; Subkey: "Software\Metasequoia\MetasequoiaIME"; \
+Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     ValueType: string; ValueName: "DataDir"; ValueData: "{code:GetDataDir}"; \
     Flags: uninsdeletevalue
 
 [Code]
 const
   { 放在数据目录里，标记「输入法用过这个目录」。}
-  DataDirMarkerName = '.metasequoiaime-data';
+  DataDirMarkerName = '.ArongStudyIme-data';
   { 标记文件里带上这一行，才表示目录是安装器在它为空时接手的，整个目录都归输入法，
     覆盖安装和卸载可以整目录清理。旧版安装器不管目录里原来有什么都写标记（#537），
     所以只有标记、没有这一行的目录只能按名单删输入法自己的文件。}
   DataDirExclusiveTag = 'exclusive: adopted empty by the installer';
   { 用户选的目录里已有别的文件时，数据改放到这个子目录里。}
-  DataDirSubfolderName = 'metasequoiaime';
+  DataDirSubfolderName = 'ArongStudyIme';
 
   VCRuntimeKey = 'Software\Microsoft\VisualStudio\14.0\VC\Runtimes\x64';
   { 安装器界面本身就是中文（InitializeSetup 在选语言对话框之前跑，拿不到用户选的语言），
@@ -343,14 +343,14 @@ begin
     if
       RegQueryStringValue(
         HKLM,
-        'Software\Metasequoia\MetasequoiaIME',
+        'Software\ArongStudyIme\ArongStudyIme',
         'DataDir',
         Recorded
       ) and (Trim(Recorded) <> '')
     then
       PreviousDataDir := RemoveBackslashUnlessRoot(Trim(Recorded))
     else
-      PreviousDataDir := ExpandConstant('{localappdata}\metasequoiaime');
+      PreviousDataDir := ExpandConstant('{localappdata}\ArongStudyIme');
   end;
   Result := PreviousDataDir;
 end;
@@ -407,7 +407,7 @@ begin
     (Directory <> '') and
     ((CompareText(
         Directory,
-        ExpandConstant('{localappdata}\metasequoiaime')) = 0) or
+        ExpandConstant('{localappdata}\ArongStudyIme')) = 0) or
      (DataDirHasMarker(Directory) and DataDirMarkerIsExclusive(Directory)));
 end;
 
@@ -422,7 +422,7 @@ begin
     if DataDirMarkerIsExclusive(Directory) then
       exit;
     SetArrayLength(Lines, 2);
-    Lines[0] := 'Metasequoia IME user data directory.';
+    Lines[0] := 'ArongStudyIme user data directory.';
     Lines[1] := DataDirExclusiveTag;
   end
   else
@@ -430,7 +430,7 @@ begin
     if DataDirHasMarker(Directory) then
       exit;
     SetArrayLength(Lines, 1);
-    Lines[0] := 'Metasequoia IME user data directory.';
+    Lines[0] := 'ArongStudyIme user data directory.';
   end;
   SaveStringsToFile(DataDirMarkerPath(Directory), Lines, False);
 end;
@@ -483,7 +483,7 @@ begin
 
   if (Length(Directory) < 4) or (Directory[2] <> ':') or (Directory[3] <> '\') then
   begin
-    Result := '请填写本机磁盘上的完整路径，例如 D:\MetasequoiaIME。';
+    Result := '请填写本机磁盘上的完整路径，例如 D:\ArongStudyIme。';
     exit;
   end;
   if not DirExists(Copy(Directory, 1, 3)) then
@@ -500,8 +500,8 @@ begin
   { 覆盖安装会清理数据目录里的旧资源，卸载会整个删掉它。
     因此它既不能落在程序目录里，也不能反过来包住系统或用户的关键目录。}
   if
-    IsPathInside(Directory, ExpandConstant('{commonpf64}\metasequoiaime')) or
-    IsPathInside(Directory, ExpandConstant('{commonpf32}\metasequoiaime'))
+    IsPathInside(Directory, ExpandConstant('{commonpf64}\ArongStudyIme')) or
+    IsPathInside(Directory, ExpandConstant('{commonpf32}\ArongStudyIme'))
   then
   begin
     Result := '数据目录不能放在输入法的程序目录里面。';
@@ -597,7 +597,7 @@ begin
     '输入法数据存放在哪里',
     '请选择输入法数据（词库、配置、皮肤）的存放位置。',
     True,
-    'metasequoiaime'
+    'ArongStudyIme'
   );
   DataDirPage.Add('');
   DataDirPage.Values[0] := ResolvePreviousDataDir;
@@ -638,7 +638,7 @@ begin
     完成页点击 Finish 后，以原用户身份执行 ShellExecute（等同双击）。}
   ShellExecAsOriginalUser(
     '',
-    ExpandConstant('{commonpf64}\metasequoiaime\server\{#MyAppExeName}'),
+    ExpandConstant('{commonpf64}\ArongStudyIme\server\{#MyAppExeName}'),
     '',
     '',
     SW_SHOWNORMAL,
@@ -647,7 +647,7 @@ begin
   );
   ShellExecAsOriginalUser(
     '',
-    ExpandConstant('{commonpf64}\metasequoiaime\server\{#MyWatchdogName}'),
+    ExpandConstant('{commonpf64}\ArongStudyIme\server\{#MyWatchdogName}'),
     '',
     '',
     SW_SHOWNORMAL,
@@ -721,7 +721,7 @@ end;
 { 本进程能直接访问的 TSF 根目录。32 位安装器里不经改写的 System32 会被 WOW64 落到 SysWOW64。}
 function TsfRoot64: String;
 begin
-  Result := ApplyPathRedirRulesForCurrentProcess(True, ExpandConstant('{#MyTsfRoot64}'));
+  Result := ExpandConstant('{#MyTsfRoot64}');
 end;
 
 function TsfRoot32: String;
@@ -791,7 +791,7 @@ end;
 
 function IsUserSkinDirectory(const FileName: String): Boolean;
 begin
-  { 外部皮肤在 %LOCALAPPDATA%\metasequoiaime\skins，升级安装不得清掉。}
+  { 外部皮肤在 %LOCALAPPDATA%\ArongStudyIme\skins，升级安装不得清掉。}
   Result := CompareText(FileName, 'skins') = 0;
 end;
 
@@ -925,7 +925,7 @@ function InitializeUninstall(): Boolean;
 begin
   RegQueryStringValue(
     HKLM,
-    'Software\Metasequoia\MetasequoiaIME',
+    'Software\ArongStudyIme\ArongStudyIme',
     'VersionDir',
     VersionDirName
   );
@@ -1039,7 +1039,7 @@ var
 begin
   ResultCode := -1;
   WatchdogPath := ExpandConstant(
-    '{commonpf64}\metasequoiaime\server\{#MyWatchdogName}');
+    '{commonpf64}\ArongStudyIme\server\{#MyWatchdogName}');
   { /F replaces the same fixed-name task during an upgrade. /IT keeps the
     task in the interactive user's session; LIMITED avoids an elevated token. }
   Params :=
@@ -1143,11 +1143,11 @@ end;
   退到历史默认数据目录下的同名子目录，那个目录整个归我们，按名字删是安全的。}
 procedure RemoveLegacyWebView2UserData;
 begin
-  TryDeleteTree(ExpandConstant('{commonappdata}\metasequoiaime\webview2'));
-  TryDeleteTree(ExpandConstant('{commonappdata}\metasequoiaime\webview2-settings'));
-  RemoveDir(ExpandConstant('{commonappdata}\metasequoiaime'));
-  TryDeleteTree(ExpandConstant('{localappdata}\metasequoiaime\webview2'));
-  TryDeleteTree(ExpandConstant('{localappdata}\metasequoiaime\webview2-settings'));
+  TryDeleteTree(ExpandConstant('{commonappdata}\ArongStudyIme\webview2'));
+  TryDeleteTree(ExpandConstant('{commonappdata}\ArongStudyIme\webview2-settings'));
+  RemoveDir(ExpandConstant('{commonappdata}\ArongStudyIme'));
+  TryDeleteTree(ExpandConstant('{localappdata}\ArongStudyIme\webview2'));
+  TryDeleteTree(ExpandConstant('{localappdata}\ArongStudyIme\webview2-settings'));
 end;
 
 #ifdef LightPackage
@@ -1309,7 +1309,7 @@ begin
   end;
 
   ReplayPath := ExpandConstant(
-    '{commonpf64}\metasequoiaime\server\{#MyReplayName}');
+    '{commonpf64}\ArongStudyIme\server\{#MyReplayName}');
   Log('Starting user dictionary replay.');
   if not Exec(
     ReplayPath,
@@ -1334,7 +1334,7 @@ var
   FindRec: TFindRec;
 begin
   if FindFirst(
-    AddBackslash(RootPath) + 'msime_v*',
+    AddBackslash(RootPath) + 'ArongStudyIme_v*',
     FindRec
   ) then
   begin
@@ -1642,17 +1642,17 @@ begin
 #endif
   RemoveLegacyWebView2UserData;
   TryDeleteTree(ExpandConstant(
-    '{commonpf64}\metasequoiaime\server'));
+    '{commonpf64}\ArongStudyIme\server'));
   TryDeleteOldVersionDirs(TsfRoot32);
   TryDeleteOldVersionDirs(TsfRoot64);
   { 旧版把 TSF DLL 装在 Program Files 下，升级上来时一并清掉。}
   TryDeleteOldVersionDirs(ExpandConstant(
-    '{commonpf32}\metasequoiaime'));
+    '{commonpf32}\ArongStudyIme'));
   TryDeleteOldVersionDirs(ExpandConstant(
-    '{commonpf64}\metasequoiaime'));
-  DeleteFile(ExpandConstant('{commonpf32}\metasequoiaime\MetasequoiaImeTip.ico'));
-  DeleteFile(ExpandConstant('{commonpf64}\metasequoiaime\MetasequoiaImeTip.ico'));
-  RemoveDir(ExpandConstant('{commonpf32}\metasequoiaime'));
+    '{commonpf64}\ArongStudyIme'));
+  DeleteFile(ExpandConstant('{commonpf32}\ArongStudyIme\ArongStudyImeTip.ico'));
+  DeleteFile(ExpandConstant('{commonpf64}\ArongStudyIme\ArongStudyImeTip.ico'));
+  RemoveDir(ExpandConstant('{commonpf32}\ArongStudyIme'));
   { 随后的 [Files] 与 ssPostInstall 会写入新 Server 和登录任务。}
   Result := '';
 end;
@@ -1673,7 +1673,7 @@ begin
     RegDeleteValue(
       HKLM,
       'Software\Microsoft\Windows\CurrentVersion\Run',
-      'MetasequoiaImeWatchdog'
+      'ArongStudyImeWatchdog'
     );
 #ifndef LightPackage
     { 偏好写入放在最后：它失败只弹提示，不能挡住上面这些必需步骤。}
@@ -1691,7 +1691,7 @@ begin
   if RegQueryStringValue(HKCU, 'Control Panel\International\User Profile',
     'InputMethodOverride', OverrideId) and
     (CompareText(OverrideId,
-      '0804:{E3062E9A-D834-4637-8958-ED8CFA427D01}{4D59B1B4-D503-44AE-9259-BAD9BB2778AB}') = 0) then
+      '0804:{7B7C69A5-A68D-5CF5-AA75-7DCFC38C9A4D}{30EB48A3-0163-5AB7-BB67-72E87712CAB3}') = 0) then
     RegDeleteValue(HKCU, 'Control Panel\International\User Profile',
       'InputMethodOverride');
 end;
@@ -1703,30 +1703,30 @@ begin
     ClearOurInputMethodOverride;
     { 设置页「游戏兼容」记下的登记名称。升级时要留着（TSF DLL 注册时读它），卸载时不能留：
       否则日后重装会悄悄沿用别名。}
-    RegDeleteValue(HKLM, 'Software\Metasequoia\MetasequoiaIME', 'GameCompatProfileName');
+    RegDeleteValue(HKLM, 'Software\ArongStudyIme\ArongStudyIme', 'GameCompatProfileName');
     DeleteWatchdogLogonTask;
     RegDeleteValue(
       HKLM,
       'Software\Microsoft\Windows\CurrentVersion\Run',
-      'MetasequoiaImeWatchdog'
+      'ArongStudyImeWatchdog'
     );
     StopImeProcesses;
   end
   else if CurUninstallStep = usPostUninstall then
   begin
     TryDeleteTree(ExpandConstant(
-      '{commonpf64}\metasequoiaime\server'));
+      '{commonpf64}\ArongStudyIme\server'));
     { 还被宿主进程加载着的 DLL 删不掉，会留到重启后由用户或下次安装清理。}
     TryDeleteTree(TsfRoot32);
     TryDeleteTree(TsfRoot64);
-    TryDeleteTree(ExpandConstant('{commonpf32}\metasequoiaime'));
-    TryDeleteTree(ExpandConstant('{commonpf64}\metasequoiaime'));
+    TryDeleteTree(ExpandConstant('{commonpf32}\ArongStudyIme'));
+    TryDeleteTree(ExpandConstant('{commonpf64}\ArongStudyIme'));
     { 数据目录可能被用户指到了别的盘，甚至指到一个本来就有文件的文件夹（#537）。}
     RemoveDataDir(ResolvePreviousDataDir);
     { 旧版 WebView2 的用户数据，见 RemoveLegacyWebView2UserData。}
     RemoveLegacyWebView2UserData;
     { 数据目录在别处时，历史默认位置里可能只剩上面删掉的那两样；还有别的东西就删不掉，原样留着。}
-    RemoveDir(ExpandConstant('{localappdata}\metasequoiaime'));
-    TryDeleteTree(ExpandConstant('{commonappdata}\metasequoiaime'));
+    RemoveDir(ExpandConstant('{localappdata}\ArongStudyIme'));
+    TryDeleteTree(ExpandConstant('{commonappdata}\ArongStudyIme'));
   end;
 end;

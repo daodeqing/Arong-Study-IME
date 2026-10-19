@@ -1,6 +1,8 @@
-# 水杉输入法 (MSIME-Windows)
+# 阿龍学习输入法
 
 一款面向 Windows 10 / Windows 11 的自由开源中文输入法，基于 Windows TSF (Text Services Framework) 原生架构开发。
+
+默认输出英文。候选窗仍显示中文；配置本地 OpenAI 兼容模型后，选择中文候选会提交英文。单按 `Shift` 切换中文/英文输出，`Ctrl+Space` 仍由 Windows 切换输入法。默认 Base URL 为 `http://127.0.0.1:8317/v1`，访问密钥可留空。模型离线或译文未及时返回时立即提交中文。
 
 ## 项目概述
 
@@ -47,8 +49,7 @@ cmake --build server/build --config Release
 
 本项目配置了独立的 GitHub Actions 云端构建工作流（.github/workflows/package-release.yml），支持在 GitHub-hosted windows-2025 环境中全自动编译组件并打包生成 Inno Setup 安装包：
 - **手动触发**：在 GitHub 仓库页面进入 **Actions** -> **Build and Package Release** -> **Run workflow**，可按需选择打包精简版（light）或包含词库模型的完整版（full）。
-- **Release 发布**：推送版本标签（例如 
-0.7.1），工作流将自动编译并在 GitHub Release 中发布安装包文件。
+- **Release 发布**：推送版本标签（例如 `v0.8.0`），工作流将自动编译并在 GitHub Release 中发布安装包文件。
 - **构件下载**：每次成功构建的安装包均会自动上传至 Actions Artifacts 供直接下载测试。
 
 ## 开源协议

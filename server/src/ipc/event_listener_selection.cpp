@@ -8,10 +8,13 @@
 #include "ipc.h"
 #include "ipc/candidate_render_sync.h"
 #include "ipc/candidate_selection_policy.h"
+#include "ipc/output_language_policy.h"
 #include "ipc/input_key_policy.h"
-#include "utils/common_utils.h"
 #include "global/globals.h"
 #include "config/ime_config.h"
+#include "cloud/output_translation.h"
+#include "utils/common_utils.h"
+#include "engine/common/helpcode_utils.h"
 #include "engine/local_modes/date_time_query.h"
 #include "engine/local_modes/quick_phrase_query.h"
 #include "log/candidate_diag_log.h"
@@ -99,6 +102,29 @@ void LearnEnglishSlot(const WordItem &selected, size_t absolute_index, uint64_t 
         FanyNamedPipe::EnqueueLearnEnglishSlotTask(code, static_cast<int>(*english_index),
                                                    static_cast<int>(absolute_index), client_id, activation_epoch);
     }
+}
+
+std::wstring OutputTextForCandidate(const std::string &chinese, CandidateSource source)
+{
+    const std::string visible = CandidateTextForOutput(chinese);
+    const bool japanese = g_inputSession && g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji;
+    const bool chinese_candidate =
+        source != CandidateSource::EnglishDictionary && HelpcodeUtils::count_han_chars(chinese) > 0;
+    std::optional<std::string> translated;
+    if (chinese_candidate && !IsSensitiveInputField())
+        translated = OutputTranslation::Lookup(visible);
+    switch (OutputLanguagePolicy::ResolveCommit(IsEnglishOutputEnabled() && !g_english_input_mode, chinese_candidate,
+                                                japanese, translated.has_value()))
+    {
+    case OutputLanguagePolicy::CommitKind::EnglishTranslation:
+        return string_to_wstring(*translated);
+    case OutputLanguagePolicy::CommitKind::ChineseFallback:
+        PostOutputTranslationFallbackBadge(Global::Point[0], Global::Point[1]);
+        break;
+    case OutputLanguagePolicy::CommitKind::ExistingText:
+        break;
+    }
+    return string_to_wstring(visible);
 }
 } // namespace
 
@@ -286,6 +312,7 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
         LearnEnglishSlot(curWordItem, absolute_index, client_id, activation_epoch);
         Global::candidate_ui.selected_text = Global::candidate_ui.page_words[index];
         std::string curWord = curWordItem.word;
+        const std::string output_source_text = GlobalIme::composition.creating_word.word + curWord;
         std::string curWordPinyin = curWordItem.pinyin;
         // 日语假名可能只覆盖已完成的音节，和词典候选一起推进，保留尚未转换的后缀。
         if (curWordItem.source == CandidateSource::EnglishDictionary ||
@@ -294,8 +321,7 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
             curWordItem.source == CandidateSource::DateTime ||
             (curWordItem.source == CandidateSource::Generated && !japanese_candidate))
         {
-            Global::candidate_ui.selected_text =
-                string_to_wstring(CandidateTextForOutput(GlobalIme::composition.creating_word.word + curWord));
+            Global::candidate_ui.selected_text = OutputTextForCandidate(output_source_text, curWordItem.source);
             // 整句候选走的是这条提前返回的捷径，到不了下面 creating_word 的收尾逻辑，
             // 因此造好的词必须在这里落库，否则前缀 + 整句只上屏、学不到。没有前缀时
             // 整句自己就是要落库的那条词：它在词库里没有行，下面的调频改不到它。
@@ -476,7 +502,7 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
 
                 /* 更新一下被选中的候选项 */
                 Global::candidate_ui.selected_text =
-                    string_to_wstring(CandidateTextForOutput(GlobalIme::composition.creating_word.word));
+                    OutputTextForCandidate(GlobalIme::composition.creating_word.word, curWordItem.source);
 
                 if (creating_word_progress.can_store && !japanese_candidate)
                 {
@@ -518,6 +544,11 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
         }
 
         AppendAiContext(curWord);
+
+        if (!isNeedCreateWord && !GlobalIme::composition.creating_word.active)
+        {
+            Global::candidate_ui.selected_text = OutputTextForCandidate(output_source_text, curWordItem.source);
+        }
 
         if (!isNeedCreateWord)
         {

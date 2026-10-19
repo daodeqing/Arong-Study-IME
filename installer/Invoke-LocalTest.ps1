@@ -14,7 +14,7 @@
 param(
     # 轻量包：跳过词库、辅助码、拼音表和出厂配置，只刷新 TSF、Server 和设置窗口图片资源。
     # 适用：只改了 TSF 或 Server，本机已有完整安装（词库已在
-    # %LOCALAPPDATA%\metasequoiaime）。不要用轻量包做首次安装。
+    # %LOCALAPPDATA%\ArongStudyIme）。不要用轻量包做首次安装。
     [switch]$Light,
     # 把 PDB 打进安装包。PDB 有 ~140 MB，而真正的二进制只有 ~20 MB，Inno Setup 还要对它们做
     # 固实 LZMA2 压缩，所以默认不打包；只有需要在装好的机器上直接做崩溃分析时才加这个开关。

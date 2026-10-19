@@ -11,7 +11,7 @@
 
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int nCmdShow)
 {
-    CommonUtils::SingleInstanceGuard single_instance(L"Local\\MetasequoiaImeHandwritingPanel.SingleInstance");
+    CommonUtils::SingleInstanceGuard single_instance(L"Local\\ArongStudyImeHandwritingPanel.SingleInstance");
     if (!single_instance.is_valid())
         return -1;
     if (single_instance.already_running())

@@ -1,6 +1,7 @@
 #include "settings/native/native_page_voice_fields.h"
 
 #include "ai/jev_client.h"
+#include "ai/openai_compatible_url.h"
 
 #include "msimeui/DeviceResources.h"
 #include "msimeui/Scene.h"
@@ -26,6 +27,7 @@ struct ProviderDefaults
 const std::map<std::string, ProviderDefaults> &Defaults()
 {
     static const std::map<std::string, ProviderDefaults> defaults = {
+        {"local", {"http://127.0.0.1:8317/v1", ""}},
         {"deepseek", {"https://api.deepseek.com/chat/completions", "deepseek-v4-flash"}},
         {"openai", {"https://api.openai.com/v1/chat/completions", "gpt-4o-mini"}},
         {"siliconflow", {"https://api.siliconflow.cn/v1/chat/completions", "Qwen/Qwen3-8B"}},
@@ -36,7 +38,17 @@ const std::map<std::string, ProviderDefaults> &Defaults()
     return defaults;
 }
 
-const std::vector<std::string> kProviders = {"deepseek", "openai", "siliconflow", "groq", "custom", "jev"};
+const std::vector<std::string> kProviders = {"local", "deepseek", "openai", "siliconflow", "groq", "custom", "jev"};
+
+std::string EndpointForStorage(const std::string &provider, const std::string &value)
+{
+    return provider == "local" ? OpenAiCompatibleUrl::ChatCompletionsEndpoint(value) : value;
+}
+
+std::string EndpointForDisplay(const std::string &provider, const std::string &value)
+{
+    return provider == "local" ? OpenAiCompatibleUrl::NormalizeBaseUrl(value) : value;
+}
 
 ProviderDefaults DefaultsOf(const std::string &provider)
 {
@@ -478,7 +490,7 @@ struct AiPage : std::enable_shared_from_this<AiPage>
 
     PageContext &context;
     int localWrites = 0;
-    std::string provider = "deepseek";
+    std::string provider = "local";
     std::map<std::string, std::string> tokens;
     std::map<std::string, std::string> endpoints;
     std::map<std::string, std::string> models;
@@ -521,8 +533,9 @@ struct AiPage : std::enable_shared_from_this<AiPage>
     void ApplyProviderFields()
     {
         const ProviderDefaults defaults = DefaultsOf(provider);
-        endpoint->SetText(
-            Widen(provider != "jev" && !endpoints[provider].empty() ? endpoints[provider] : defaults.endpoint));
+        const std::string stored =
+            provider != "jev" && !endpoints[provider].empty() ? endpoints[provider] : defaults.endpoint;
+        endpoint->SetText(Widen(EndpointForDisplay(provider, stored)));
         model->Input()->SetText(Widen(!models[provider].empty() ? models[provider] : defaults.model));
         model->Input()->SetPlaceholder(Widen(defaults.model));
     }
@@ -540,7 +553,7 @@ struct AiPage : std::enable_shared_from_this<AiPage>
     {
         tokens[provider] = Narrow(Trim(token->GetText()));
         Write("ai_assistant.token_" + provider, tokens[provider]);
-        endpoints[provider] = Narrow(endpoint->GetText());
+        endpoints[provider] = EndpointForStorage(provider, Narrow(endpoint->GetText()));
         Write("ai_assistant.endpoint", endpoints[provider]);
         models[provider] = Narrow(model->Input()->GetText());
         Write("ai_assistant.model", models[provider]);
@@ -610,8 +623,8 @@ struct AiPage : std::enable_shared_from_this<AiPage>
         if (localWrites > 0)
             return;
         const SettingsModel &m = context.model;
-        provider = m.GetString("ai_assistant.provider", "deepseek");
-        endpoint->SetText(Widen(m.GetString("ai_assistant.endpoint")));
+        provider = m.GetString("ai_assistant.provider", "local");
+        endpoint->SetText(Widen(EndpointForDisplay(provider, m.GetString("ai_assistant.endpoint"))));
         model->Input()->SetText(Widen(m.GetString("ai_assistant.model")));
         if (const Json *value = m.Find("ai_assistant.candidate_limit"); value && value->is_number())
             limit->SetText(std::to_wstring(value->get<int64_t>()));
@@ -648,14 +661,17 @@ struct AiPage : std::enable_shared_from_this<AiPage>
             heading->SetMargin({0.0f, 0.0f, 0.0f, 18.0f});
             column->Add(heading);
             auto description = MakeDescription(
-                L"DeepSeek、OpenAI、SiliconFlow、Groq 均使用 OpenAI 兼容的 Chat Completions 接口。Custom "
+                L"本地模型用于英文输出翻译；访问密钥可为空。默认英文输出，单按 Shift "
+                L"切换为中文输出。DeepSeek、OpenAI、SiliconFlow、Groq 也使用 OpenAI 兼容的 Chat Completions "
+                L"接口。Custom "
                 L"用于接入兼容服务。Jev 使用 TypeSafe 官方 Choice 接口，将前文、拼音和最多 32 个本地候选发送给服务商。"
                 L"Jev 固定选择一个候选，不使用下方的候选数量、思考强度和自定义提示词。各提供商凭据分开保存。");
             description->SetMargin({0.0f, -10.0f, 0.0f, 16.0f});
             column->Add(description);
 
             auto grid = std::make_shared<FormGrid>();
-            providerDropdown = GridDropdown(Options({{"deepseek", L"DeepSeek"},
+            providerDropdown = GridDropdown(Options({{"local", L"本地模型"},
+                                                     {"deepseek", L"DeepSeek"},
                                                      {"openai", L"OpenAI"},
                                                      {"siliconflow", L"SiliconFlow"},
                                                      {"groq", L"Groq"},
@@ -707,7 +723,7 @@ struct AiPage : std::enable_shared_from_this<AiPage>
                 tokens[provider] = Narrow(Trim(text));
                 Write("ai_assistant.token_" + provider, tokens[provider]);
             });
-            grid->Add(std::make_shared<Field>(L"API Token", token));
+            grid->Add(std::make_shared<Field>(provider == "local" ? L"访问密钥（可选）" : L"访问密钥", token));
 
             limit = GridInput();
             limit->SetOnCommit([this](const std::wstring &text) {
@@ -746,11 +762,12 @@ struct AiPage : std::enable_shared_from_this<AiPage>
                     endpoint->SetText(Widen(Jev::kEndpoint));
                     return;
                 }
-                Write("ai_assistant.endpoint", Narrow(text));
+                endpoints[provider] = EndpointForStorage(provider, Narrow(text));
+                Write("ai_assistant.endpoint", endpoints[provider]);
                 if (text.empty())
                     endpoint->SetText(Widen(DefaultsOf(provider).endpoint));
             });
-            grid->Add(std::make_shared<Field>(L"接口地址", endpoint), true);
+            grid->Add(std::make_shared<Field>(L"接口地址 / Base URL", endpoint), true);
             column->Add(grid);
             page.AddSection(column);
         }

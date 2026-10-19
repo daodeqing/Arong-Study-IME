@@ -73,13 +73,13 @@ class ScopedCollocationEnvironment
         : root_(std::filesystem::temp_directory_path() /
                 (L"msime-collocation-model-test-" + std::to_wstring(GetCurrentProcessId()))),
           local_app_data_(L"LOCALAPPDATA", root_.wstring()),
-          config_dir_(L"METASEQUOIA_IME_CONFIG_DIR", (root_ / L"metasequoiaime").wstring()),
-          data_dir_(L"METASEQUOIA_IME_DATA_DIR", (root_ / L"metasequoiaime").wstring())
+          config_dir_(L"ARONG_STUDY_IME_CONFIG_DIR", (root_ / L"ArongStudyIme").wstring()),
+          data_dir_(L"ARONG_STUDY_IME_DATA_DIR", (root_ / L"ArongStudyIme").wstring())
     {
         std::error_code ec;
         std::filesystem::remove_all(root_, ec);
-        std::filesystem::create_directories(root_ / L"metasequoiaime", ec);
-        std::filesystem::copy_file(MSIME_DEFAULT_CONFIG_PATH, root_ / L"metasequoiaime" / L"config.default.toml",
+        std::filesystem::create_directories(root_ / L"ArongStudyIme", ec);
+        std::filesystem::copy_file(MSIME_DEFAULT_CONFIG_PATH, root_ / L"ArongStudyIme" / L"config.default.toml",
                                    std::filesystem::copy_options::overwrite_existing, ec);
         REQUIRE(!ec);
         InitImeConfig();
@@ -100,7 +100,7 @@ class ScopedCollocationEnvironment
 
     std::filesystem::path models_dir() const
     {
-        return root_ / L"metasequoiaime" / L"models";
+        return root_ / L"ArongStudyIme" / L"models";
     }
 
   private:

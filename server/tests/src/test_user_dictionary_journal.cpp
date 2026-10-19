@@ -126,7 +126,7 @@ TEST_CASE(UserDictionaryReplayIsIdempotentAcrossAllSettingsDictionaries)
     REQUIRE(user_dictionary::record_delete(test::Utf8(user_path), user_dictionary::DictionaryKind::Pinyin, "ni'hao",
                                            "旧词"));
     REQUIRE(user_dictionary::record_upsert(test::Utf8(user_path), user_dictionary::DictionaryKind::Pinyin,
-                                           "shui'shan'shu'ru'fa'hai'ke'yi", "水杉输入法还可以", 5000));
+                                           "shui'shan'shu'ru'fa'hai'ke'yi", "阿龍学习输入法还可以", 5000));
     REQUIRE(user_dictionary::record_upsert(test::Utf8(user_path), user_dictionary::DictionaryKind::Wubi, "wxyz",
                                            "新五笔", 88));
     REQUIRE(
@@ -155,7 +155,7 @@ TEST_CASE(UserDictionaryReplayIsIdempotentAcrossAllSettingsDictionaries)
         REQUIRE_EQ(main_db.scalar_int("SELECT COUNT(*) FROM tbl_2_n WHERE value='旧词'"), 0);
         REQUIRE_EQ(
             main_db.scalar_int("SELECT COUNT(*) FROM tbl_others_s WHERE key='shui''shan''shu''ru''fa''hai''ke''yi' "
-                               "AND value='水杉输入法还可以' AND jp='sssrfhky' AND weight=5000"),
+                               "AND value='阿龍学习输入法还可以' AND jp='sssrfhky' AND weight=5000"),
             1);
         REQUIRE_EQ(main_db.scalar_int("SELECT COUNT(*) FROM wubi86 WHERE key='wxyz' AND value='新五笔' AND weight=88"),
                    1);

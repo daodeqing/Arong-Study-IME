@@ -275,7 +275,7 @@ HINTERNET ConnectWebSocket(const std::string &endpoint, bool legacy_auth, const 
     std::wstring path(components.lpszUrlPath, components.dwUrlPathLength);
     if (components.dwExtraInfoLength)
         path.append(components.lpszExtraInfo, components.dwExtraInfoLength);
-    session.value = NetworkProxy::OpenWinHttpSession(L"MetasequoiaImeServer/1.0");
+    session.value = NetworkProxy::OpenWinHttpSession(L"ArongStudyImeServer/1.0");
     if (!session.value)
         return nullptr;
     WinHttpSetTimeouts(session.value, 10000, 10000, 10000, 30000);

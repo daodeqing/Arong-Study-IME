@@ -700,6 +700,10 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
                 PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 0, 0);
             }
         }
+        else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::OutputLanguageChanged)
+        {
+            Global::OutputLanguageEnglish.store(buf.data[0] == L'1', std::memory_order_relaxed);
+        }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::TrilingualCycleChanged)
         {
             Global::TrilingualCycleEnabled.store(buf.data[0] == L'1', std::memory_order_relaxed);

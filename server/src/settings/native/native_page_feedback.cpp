@@ -190,7 +190,7 @@ VisualPtr BuildFeedbackPage(PageContext &context)
     };
     const Channel channels[] = {
         {L"GH", L"GitHub Issues", L"适合提交可复现的问题、功能建议和开发讨论。",
-         L"github.com/metasequoiaime/MSIME-Windows/issues", "https://github.com/metasequoiaime/MSIME-Windows/issues",
+         L"github.com/daodeqing/Arong-Study-IME/issues", "https://github.com/daodeqing/Arong-Study-IME/issues",
          L"查看 Issues", nullptr},
         {L"QQ", L"QQ 交流群", L"适合中文用户进行日常交流、测试反馈和使用讨论。", L"群号：829919142", nullptr,
          L"复制群号", "829919142"},

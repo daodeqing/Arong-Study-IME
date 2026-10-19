@@ -1,6 +1,6 @@
-# 安装水杉输入法
+# 安装阿龍学习输入法
 
-> 本文描述当前内测版的安装流程。具体版本号、下载链接与该版本的已知问题一律以 [Releases](https://github.com/metasequoiaime/MSIME-Windows/releases) 页面为准——这里不再写死版本号，避免文档落后于实际发布。
+> 本文描述当前内测版的安装流程。具体版本号、下载链接与该版本的已知问题一律以 [Releases](https://github.com/daodeqing/Arong-Study-IME/releases) 页面为准——这里不再写死版本号，避免文档落后于实际发布。
 
 ## 目录
 
@@ -27,8 +27,8 @@
 
 也可以直接从 GitHub 取：
 
-1. 打开 [Releases 页面](https://github.com/metasequoiaime/MSIME-Windows/releases)。
-2. 下载最上面那个版本的 `MetasequoiaIME_Setup_v<版本号>.exe`。
+1. 打开 [Releases 页面](https://github.com/daodeqing/Arong-Study-IME/releases)。
+2. 下载最上面那个版本的 `ArongStudyIme_Setup_v<版本号>.exe`。
 
 Releases 页面计划分两个频道：
 
@@ -46,29 +46,31 @@ Releases 页面计划分两个频道：
 
 双击安装包，按安装向导提示完成安装。
 
-- 安装默认路径是C:\Program Files\MetasequoiaIme
-- 安装程序会把水杉输入法加入输入法列表，无须手动添加
-- 安装完成后自动启动 `MetasequoiaImeServer`
+- 安装默认路径是 `C:\Program Files\ArongStudyIme`；TSF DLL 安装在系统 `IME\ArongStudyIme` 目录
+- 安装程序会把阿龍学习输入法加入输入法列表，无须手动添加
+- 安装完成后自动启动 `ArongStudyImeServer`
 
-## 在Windows中启用水杉
+## 在 Windows 中启用阿龍学习输入法
 
-使用 `Win + 空格` 在已安装的输入法之间切换，或用 `Ctrl + Shift` 切换。
+使用 `Win + 空格` 在已安装的输入法之间切换。默认英文输出，单按 `Shift` 切换中文/英文输出；`Ctrl + Space` 仍由 Windows 切换输入法。
+
+在设置 → AI 与云联想中选择“本地模型”，填写 OpenAI 兼容服务的 Base URL 和模型。默认地址是 `http://127.0.0.1:8317/v1`，访问密钥可留空。模型离线或译文未及时返回时会立即提交中文。
 
 ## 常见问题
 
-### 安装后无法切换到水杉，或设置窗口一闪即关
+### 安装后无法切换到阿龍学习输入法，或设置窗口一闪即关
 
 绝大多数情况是缺少 **Visual C++ 2015–2022 Redistributable（x64）**。
 
-TSF DLL 被加载进宿主程序进程，采用静态 CRT 构建，不依赖运行库；但 Server 和设置程序是独立的 64 位程序，采用动态 CRT，缺少运行库时进程会在启动阶段直接退出。典型表现有三种：切换不到水杉输入法、Server 反复退出、设置窗口打开后立即消失。
+TSF DLL 被加载进宿主程序进程，采用静态 CRT 构建，不依赖运行库；但 Server 和设置程序是独立的 64 位程序，采用动态 CRT，缺少运行库时进程会在启动阶段直接退出。典型表现有三种：切换不到阿龍学习输入法、Server 反复退出、设置窗口打开后立即消失。
 
 到[微软官方下载页](https://learn.microsoft.com/zh-cn/cpp/windows/latest-supported-vc-redist?view=msvc-170)下载 `vc_redist.x64.exe` 安装，然后重启 Windows。
 
-**注意 x86 与 x64 是两套独立的运行库。** 即使机器上已经装了较新的 x86 版本，也不能替代这里需要的 x64 版本。Windows 事件查看器里如果记录了 `MetasequoiaImeServer.exe` 或 `MetasequoiaImeSettings.exe` 因 `MSVCP140.dll` 或 `VCRUNTIME140.dll` 无法启动，就是这个原因。
+**注意 x86 与 x64 是两套独立的运行库。** 即使机器上已经装了较新的 x86 版本，也不能替代这里需要的 x64 版本。Windows 事件查看器里如果记录了 `ArongStudyImeServer.exe` 或 `ArongStudyImeSettings.exe` 因 `MSVCP140.dll` 或 `VCRUNTIME140.dll` 无法启动，就是这个原因。
 
 ### 候选窗始终不出现
 
-候选窗由 Server 用 Direct2D 绘制，不依赖 WebView2 Runtime。先按上一节确认 x64 运行库已安装，再在任务管理器里确认 `MetasequoiaImeServer.exe` 正在运行。在独占全屏的游戏里，候选窗会被有意隐藏，以免把游戏切出全屏。
+候选窗由 Server 用 Direct2D 绘制，不依赖 WebView2 Runtime。先按上一节确认 x64 运行库已安装，再在任务管理器里确认 `ArongStudyImeServer.exe` 正在运行。在独占全屏的游戏里，候选窗会被有意隐藏，以免把游戏切出全屏。
 
 ### 手写识别没有候选结果
 
@@ -76,6 +78,6 @@ TSF DLL 被加载进宿主程序进程，采用静态 CRT 构建，不依赖运�
 
 ### 其他问题
 
-在 [Issues](https://github.com/metasequoiaime/MSIME-Windows/issues) 中反馈。为便于定位，请附上：输入法版本号、Windows 版本（`Win + R` 输入 `winver`）、出问题的宿主程序、以及最小复现步骤。
+在 [Issues](https://github.com/daodeqing/Arong-Study-IME/issues) 中反馈。为便于定位，请附上：输入法版本号、Windows 版本（`Win + R` 输入 `winver`）、出问题的宿主程序、以及最小复现步骤。
 
-与按键、候选窗相关的问题，可以在数据目录下的 `config.toml`（默认 `%LOCALAPPDATA%\metasequoiaime\config.toml`，安装时若选了别的位置就在那里）的 `[general]` 段设 `tsf_diagnostic_log = true`，复现一次后附上日志。日志中可能包含你输入的内容，贴出前请先自行检查。
+与按键、候选窗相关的问题，可以在数据目录下的 `config.toml`（默认 `%LOCALAPPDATA%\ArongStudyIme\config.toml`，安装时若选了别的位置就在那里）的 `[general]` 段设 `tsf_diagnostic_log = true`，复现一次后附上日志。日志中可能包含你输入的内容，贴出前请先自行检查。

@@ -1,13 +1,13 @@
 name: Release
 run-name: ${{ inputs.test_signing && 'SignPath test signing' || 'Release' }}
 
-# Releasing is automatic. A push to main that carries a fix or a feat ends with a published installer, without anybody merging or dispatching anything: this workflow refreshes release-please's pull request, tests it, merges it, turns the merge into a draft release, then builds, signs and publishes that draft.
-#
-# The whole cycle runs inside the one run that the original push started. land-release-pr.sh merges with GITHUB_TOKEN, whose pushes do not start workflow runs, so the merge cannot produce a second Release run queued behind this one on the concurrency group.
+# The release-please path runs on pushes to main only when RELEASE_PLEASE_TOKEN is configured.
+# Without that repository secret, this job skips release metadata and package-release.yml is the
+# GitHub-hosted manual build-and-publish path.
 #
 # This spends code signing signatures on every releasable merge to main -- one per payload EXE/DLL plus one for the installer, so roughly fifteen per release rather than one. The certificate allows 3000 signatures a month, so the quota is still not what constrains this; what it spends is release hygiene -- see docs/product-release.md.
 #
-# workflow_dispatch either repairs an existing draft or tests SignPath with the selected commit.
+# workflow_dispatch with a tag repairs/builds a draft; test_signing exercises SignPath only.
 # Test signing uses the same build and packaging steps, but never creates or publishes a release.
 on:
   push:
@@ -78,8 +78,20 @@ jobs:
       # Separate release metadata from PR updates to preserve release-please ordering.
       # Recover an already-merged release before calculating the next PR, matching release-please's
       # normal releases-then-pull-requests ordering.
+      - name: Detect release metadata credential
+        id: metadata_auth
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+        run: |
+          if [[ -n "$RELEASE_TOKEN" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "No release token configured; use package-release.yml."
+          fi
+
       - name: Require the release metadata credential
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && steps.metadata_auth.outputs.available == 'true' }}
         env:
           RELEASE_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
         run: |
@@ -89,7 +101,7 @@ jobs:
           fi
 
       - name: Recover releases from previously merged pull requests
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && steps.metadata_auth.outputs.available == 'true' }}
         id: release_pr
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         with:
@@ -101,7 +113,7 @@ jobs:
       - name: Refresh the release pull request
         # When recovery found a release to publish, do not create the next
         # release PR in the same run. That PR belongs to the next main push.
-        if: ${{ github.event_name == 'push' && steps.release_pr.outputs.release_created != 'true' }}
+        if: ${{ github.event_name == 'push' && steps.metadata_auth.outputs.available == 'true' && steps.release_pr.outputs.release_created != 'true' }}
         id: release_update
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         with:
@@ -111,14 +123,14 @@ jobs:
           skip-github-release: true
 
       - name: Test and merge the release pull request
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && steps.metadata_auth.outputs.available == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: bash scripts/ci/land-release-pr.sh
 
       - name: Create the release for the merged pull request
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && steps.metadata_auth.outputs.available == 'true' }}
         id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         with:
@@ -129,7 +141,7 @@ jobs:
           skip-github-pull-request: true
 
       - name: Resolve the release this run publishes
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && steps.metadata_auth.outputs.available == 'true' }}
         id: target
         env:
           FIRST_CREATED: ${{ steps.release_pr.outputs.release_created }}
@@ -210,6 +222,9 @@ jobs:
           ref: ${{ needs.prepare.outputs.target_sha }}
           submodules: recursive
           persist-credentials: false
+
+      - name: Verify pinned vendor dependencies
+        run: python scripts/ci/verify-vendor.py
 
       # Some runner instances leave _work owned by SYSTEM while the job itself
       # runs as `runner`. checkout still succeeds, so the first plain git call
@@ -321,6 +336,9 @@ jobs:
           ref: ${{ needs.prepare.outputs.target_sha }}
           submodules: recursive
           persist-credentials: false
+
+      - name: Verify pinned vendor dependencies
+        run: python scripts/ci/verify-vendor.py
 
       # Some runner instances leave _work owned by SYSTEM while the job itself
       # runs as `runner`. checkout still succeeds, so the first plain git call
@@ -688,7 +706,7 @@ jobs:
           CERTIFICATE_THUMBPRINT: ${{ vars.WINDOWS_SIGNING_CERTIFICATE_THUMBPRINT }}
           TIMESTAMP_URL: ${{ vars.WINDOWS_SIGNING_TIMESTAMP_URL || 'http://timestamp.digicert.com' }}
           TARGET_VERSION: ${{ needs.prepare.outputs.version }}
-        run: ../scripts/ci/sign-binaries.ps1 -Path "Output/MetasequoiaIME_Setup_v$env:TARGET_VERSION.exe"
+        run: ../scripts/ci/sign-binaries.ps1 -Path "Output/ArongStudyIme_Setup_v$env:TARGET_VERSION.exe"
 
       - name: Stage the installer for SignPath
         if: ${{ steps.signing.outputs.signing_provider == 'signpath' }}

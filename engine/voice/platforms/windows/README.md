@@ -42,7 +42,7 @@ endpoint = "https://api.siliconflow.cn/v1/audio/transcriptions"
 # 服务提供商（如：azure、openai、deepgram 等）
 provider = "siliconflow"
 # API 访问令牌
-token = "<YOUR_OWN_TOKEN>"
+token = ""
 
 # 文本润色配置
 [polish_api]
@@ -51,7 +51,7 @@ endpoint = "https://api.siliconflow.cn/v1/chat/completions"
 # 服务提供商（如：azure、openai、deepgram 等）
 provider = "siliconflow"
 # API 访问令牌
-token = "<YOUR_OWN_TOKEN>"
+token = ""
 
 # 基础设置
 [settings]

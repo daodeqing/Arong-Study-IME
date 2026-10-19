@@ -5,7 +5,7 @@ param(
     # ALL_BUILD also builds test_windows_ipc_contract and the tests/ subdirectory, neither of which
     # is packaged. Naming the DLL target keeps a local packaging run from paying for them; the test
     # jobs still build ALL_BUILD by passing -Target ALL_BUILD.
-    [string]$Target = 'MetasequoiaImeTsf',
+    [string]$Target = 'ArongStudyImeTsf',
     # The Visual Studio generator wires ZERO_CHECK into every target, so a build regenerates itself
     # whenever CMakeLists.txt changes. Re-running configure up front only costs ~10s per build
     # directory without changing the result, so do it once and let ZERO_CHECK handle the rest.

@@ -63,8 +63,8 @@ TEST_CASE(dictionary_replay_behaves_identically_under_non_ascii_data_path)
     std::error_code ec;
     fs::remove_all(unique_root, ec);
 
-    const DWORD ascii_exit = RunReplay(SeedDataDir(unique_root / L"ascii" / L"metasequoiaime"));
-    const DWORD non_ascii_exit = RunReplay(SeedDataDir(unique_root / L"用户目录" / L"metasequoiaime"));
+    const DWORD ascii_exit = RunReplay(SeedDataDir(unique_root / L"ascii" / L"ArongStudyIme"));
+    const DWORD non_ascii_exit = RunReplay(SeedDataDir(unique_root / L"用户目录" / L"ArongStudyIme"));
 
     // 0xC0000409 (STATUS_STACK_BUFFER_OVERRUN) is what MSVC's __fastfail reports for an escaping
     // exception, which is the exact regression being guarded against.

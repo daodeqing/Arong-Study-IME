@@ -533,7 +533,7 @@ std::map<WPARAM, std::shared_ptr<BackgroundJob>> &Jobs()
 
 UINT BackgroundJobMessage()
 {
-    static const UINT message = RegisterWindowMessageW(L"MetasequoiaImeSettings.BackgroundJobDone");
+    static const UINT message = RegisterWindowMessageW(L"ArongStudyImeSettings.BackgroundJobDone");
     return message;
 }
 

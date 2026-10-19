@@ -18,28 +18,28 @@ $ErrorActionPreference = 'Stop'
 
 $files = if ($Set -eq 'Payload') {
     @(
-        'server_exe/MetasequoiaImeServer.exe',
-        'server_exe/MetasequoiaImeWatchdog.exe',
-        'server_exe/MetasequoiaImeDictionaryReplay.exe',
-        'server_exe/MetasequoiaImeEmojiPanel.exe',
-        'server_exe/MetasequoiaImeKeyboardPanel.exe',
-        'server_exe/MetasequoiaImeHandwritingPanel.exe',
-        'server_exe/MetasequoiaImeSettings.exe',
-        'tsf_dll/32/MetasequoiaImeTsf.dll',
-        'tsf_dll/64/MetasequoiaImeTsf.dll'
+        'server_exe/ArongStudyImeServer.exe',
+        'server_exe/ArongStudyImeWatchdog.exe',
+        'server_exe/ArongStudyImeDictionaryReplay.exe',
+        'server_exe/ArongStudyImeEmojiPanel.exe',
+        'server_exe/ArongStudyImeKeyboardPanel.exe',
+        'server_exe/ArongStudyImeHandwritingPanel.exe',
+        'server_exe/ArongStudyImeSettings.exe',
+        'tsf_dll/32/ArongStudyImeTsf.dll',
+        'tsf_dll/64/ArongStudyImeTsf.dll'
     )
 }
 else {
     if (-not $Version) { throw 'The installer set needs -Version.' }
-    @("Output/MetasequoiaIME_Setup_v$Version.exe")
+    @("Output/ArongStudyIme_Setup_v$Version.exe")
 }
 
 if ($Mode -eq 'Stage') {
     if ($Set -eq 'Payload') {
-        # A new executable of ours that is not in the list above would ship unsigned. Every binary of this project carries the MetasequoiaIme prefix, so that is what the check keys on.
+        # A new executable of ours that is not in the list above would ship unsigned. Every product binary carries this prefix.
         $listed = $files | ForEach-Object { (Resolve-Path $_).Path }
         $pe = @(Get-ChildItem -Recurse -File -Include '*.exe', '*.dll' -Path 'server_exe', 'tsf_dll')
-        $unlisted = @($pe | Where-Object { $_.Name -like 'MetasequoiaIme*' -and $_.FullName -notin $listed })
+        $unlisted = @($pe | Where-Object { $_.Name -like 'ArongStudyIme*' -and $_.FullName -notin $listed })
         if ($unlisted) {
             throw "Project binaries missing from the SignPath list: $($unlisted.FullName -join ', ')"
         }

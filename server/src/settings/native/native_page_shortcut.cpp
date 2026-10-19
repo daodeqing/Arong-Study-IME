@@ -1016,14 +1016,16 @@ VisualPtr BuildShortcutPage(PageContext &context)
         page.AddRaw(std::make_shared<FlatSection>(column), 18.0f);
     }
 
-    // 中英文切换
+    // 输入与输出语言快捷键
     {
         auto column = std::make_shared<Column>(0.0f);
-        column->Add(Heading(L"中英文切换", L"勾选启用对应快捷键；Ctrl+Space 由 Windows 系统管理，此处不控制"));
+        column->Add(Heading(
+            L"输入与输出语言",
+            L"单按 Shift 切换中文/英文输出；Ctrl 与 Ctrl + Alt + Space 切换输入法状态。Ctrl + Space 由 Windows 管理"));
         column->Add(Options({BindCheck(context, L"Shift", "keybindings.switch_language_shift"),
                              BindCheck(context, L"Ctrl", "keybindings.switch_language_ctrl"),
                              BindCheck(context, L"Ctrl + Alt + Space", "keybindings.switch_language_ctrl_alt_space")}));
-        auto cycle = Heading(L"", L"开启后，上面勾选的快捷键按 中文 → 日文 → 英文 → 中文 "
+        auto cycle = Heading(L"", L"开启后，Ctrl 与 Ctrl + Alt + Space 按 中文 → 日文 → 英文 → 中文 "
                                   L"依次切换；有输入时先上屏原始字母，中文和日文分别保留各自的输入方案");
         cycle->SetMargin({0.0f, 12.0f, 0.0f, 0.0f});
         column->Add(cycle);

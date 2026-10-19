@@ -59,11 +59,11 @@ function Reset-Directory {
 }
 
 $serverRelease = Join-Path $RepoRoot (Join-Path $ServerDirectory 'build-release\bin\Release')
-$dictionaryReplayRelease = Join-Path $serverRelease 'MetasequoiaImeDictionaryReplay.exe'
-$tsf32Release = Join-Path $RepoRoot (Join-Path $TsfDirectory 'build32-release\Release\MetasequoiaImeTsf.dll')
-$tsf64Release = Join-Path $RepoRoot (Join-Path $TsfDirectory 'build64-release\Release\MetasequoiaImeTsf.dll')
-$tsf32Pdb = Join-Path $RepoRoot (Join-Path $TsfDirectory 'build32-release\Release\MetasequoiaImeTsf.pdb')
-$tsf64Pdb = Join-Path $RepoRoot (Join-Path $TsfDirectory 'build64-release\Release\MetasequoiaImeTsf.pdb')
+$dictionaryReplayRelease = Join-Path $serverRelease 'ArongStudyImeDictionaryReplay.exe'
+$tsf32Release = Join-Path $RepoRoot (Join-Path $TsfDirectory 'build32-release\Release\ArongStudyImeTsf.dll')
+$tsf64Release = Join-Path $RepoRoot (Join-Path $TsfDirectory 'build64-release\Release\ArongStudyImeTsf.dll')
+$tsf32Pdb = Join-Path $RepoRoot (Join-Path $TsfDirectory 'build32-release\Release\ArongStudyImeTsf.pdb')
+$tsf64Pdb = Join-Path $RepoRoot (Join-Path $TsfDirectory 'build64-release\Release\ArongStudyImeTsf.pdb')
 # 原生（Direct2D）设置窗口用到的图标与图片，按原相对路径装到数据目录的 assets\settings\。
 $settingsAssets = Join-Path $RepoRoot (Join-Path $ServerDirectory 'assets\settings')
 $defaultSkinsSource = Join-Path $RepoRoot 'skins\default'
@@ -324,8 +324,8 @@ if ($IncludeSymbols) {
     Copy-Item -LiteralPath $tsf32Pdb -Destination $targetTsf32 -Force
     Copy-Item -LiteralPath $tsf64Pdb -Destination $targetTsf64 -Force
 }
-Copy-Item -LiteralPath $appIcon -Destination (Join-Path $PSScriptRoot 'MetasequoiaIME.ico') -Force
-Copy-Item -LiteralPath $tipIcon -Destination (Join-Path $PSScriptRoot 'MetasequoiaImeTip.ico') -Force
+Copy-Item -LiteralPath $appIcon -Destination (Join-Path $PSScriptRoot 'ArongStudyIme.ico') -Force
+Copy-Item -LiteralPath $tipIcon -Destination (Join-Path $PSScriptRoot 'ArongStudyImeTip.ico') -Force
 # rime-ice is GPL-3.0 and requires attribution, and its content forms the bulk of msime.db, so the
 # notice has to reach the user's disk rather than only exist in the source repository.
 Copy-Item -LiteralPath $thirdPartyNotices -Destination (Join-Path $PSScriptRoot 'THIRD_PARTY_NOTICES.txt') -Force

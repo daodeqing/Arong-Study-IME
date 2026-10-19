@@ -23,7 +23,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Could not provision locked dictionaries' }
 $verified = (Resolve-Path (Join-Path $StagingRoot 'MetasequoiaImeDict/out')).Path
 # Isolate LOCALAPPDATA as well, so no installed dictionary or user journal is ever touched.
 $env:LOCALAPPDATA = Join-Path (Resolve-Path $StagingRoot).Path 'user-local'
-$data = Join-Path $env:LOCALAPPDATA 'metasequoiaime'
+$data = Join-Path $env:LOCALAPPDATA 'ArongStudyIme'
 New-Item -ItemType Directory -Force -Path $data | Out-Null
 Copy-Item (Join-Path $verified '*') -Destination $data -Force
 Copy-Item $helpcodes -Destination $data -Recurse -Force
@@ -32,6 +32,6 @@ New-Item -ItemType Directory -Force -Path (Join-Path $data 'radical') | Out-Null
 Copy-Item $radical -Destination (Join-Path $data 'radical') -Force
 Copy-Item (Join-Path $automationRoot 'server/assets/tables/*') -Destination $data -Force
 Copy-Item (Join-Path $automationRoot 'server/assets/config/config.toml') -Destination $data -Force
-$env:METASEQUOIA_IME_DATA_DIR = $data
+$env:ARONG_STUDY_IME_DATA_DIR = $data
 ctest --no-tests=error --test-dir $BuildDir -C Release --output-on-failure --timeout 120
 if ($LASTEXITCODE -ne 0) { throw 'Engine tests failed for the locked product' }

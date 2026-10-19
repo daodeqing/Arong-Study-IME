@@ -17,11 +17,11 @@ vcpkg_root = normpath(
     os.environ.get("VCPKG_ROOT") or os.path.join(user_home, "scoop", "apps", "vcpkg", "current")
 ).rstrip("/")
 
-MetasequoiaImeServer_root_path = normpath(project_root_path)
-MetasequoiaImeServer_src_path = normpath(os.path.join(MetasequoiaImeServer_root_path, "src"))
+ArongStudyImeServer_root_path = normpath(project_root_path)
+ArongStudyImeServer_src_path = normpath(os.path.join(ArongStudyImeServer_root_path, "src"))
 vcpkg_include_path = normpath(
     os.path.join(
-        MetasequoiaImeServer_root_path,
+        ArongStudyImeServer_root_path,
         "build",
         "vcpkg_installed",
         "x64-windows",
@@ -56,8 +56,8 @@ boost_path = normpath(
 # not resolve the headers they were meant for.
 #
 clangd_substitutions = {
-    "@SERVER_ROOT@": MetasequoiaImeServer_root_path,
-    "@SERVER_SRC@": MetasequoiaImeServer_src_path,
+    "@SERVER_ROOT@": ArongStudyImeServer_root_path,
+    "@SERVER_SRC@": ArongStudyImeServer_src_path,
     "@VCPKG_INCLUDE@": vcpkg_include_path,
     "@ENGINE_ROOT@": engine_path,
     "@UTFCPP@": utfcpp_path,
@@ -68,9 +68,9 @@ clangd_substitutions = {
     "@BOOST@": boost_path,
 }
 dot_clangd_file = os.path.join(
-    MetasequoiaImeServer_root_path, "scripts", "config_files", ".clangd"
+    ArongStudyImeServer_root_path, "scripts", "config_files", ".clangd"
 )
-dot_clangd_output_file = os.path.join(MetasequoiaImeServer_root_path, ".clangd")
+dot_clangd_output_file = os.path.join(ArongStudyImeServer_root_path, ".clangd")
 with open(dot_clangd_file, "r", encoding="utf-8") as f:
     content = f.read()
 for placeholder, value in clangd_substitutions.items():
@@ -88,7 +88,7 @@ with open(dot_clangd_output_file, "w", encoding="utf-8") as f:
 # to be copied here had fallen behind the tracked file and would have dropped
 # the vcpkg-release preset that llaunch-release.ps1 depends on.
 #
-CMakePresets_file = os.path.join(MetasequoiaImeServer_root_path, "CMakePresets.json")
+CMakePresets_file = os.path.join(ArongStudyImeServer_root_path, "CMakePresets.json")
 with open(CMakePresets_file, "r", encoding="utf-8") as f:
     content = f.read()
 content = re.sub(

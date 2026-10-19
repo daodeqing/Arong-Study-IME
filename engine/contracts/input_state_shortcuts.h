@@ -10,7 +10,8 @@ enum class Action : unsigned
 {
     EnglishCandidates = 1,
     FullWidth = 2,
-    Punctuation = 3
+    Punctuation = 3,
+    OutputLanguage = 4
 };
 struct Definition
 {

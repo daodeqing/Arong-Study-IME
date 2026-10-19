@@ -450,7 +450,7 @@ class SidebarHeader : public msimeui::Visual
         TextStyle style;
         style.size = 19.0f;
         style.weight = DWRITE_FONT_WEIGHT_MEDIUM;
-        title_.Set(L"水杉 IME", style);
+        title_.Set(L"阿龍学习输入法", style);
         // padding 0 12px 12px 12px; margin-bottom 8px
         SetMargin({0.0f, 0.0f, 0.0f, 8.0f});
     }
@@ -1238,7 +1238,7 @@ class SettingsWindowImpl : public HostServices
           }),
           context_(model_, *this)
     {
-        window_ = std::make_unique<msimeui::Window>(L"MetasequoiaImeSettingsWindow", L"Metasequoia IME Settings", 0, 0);
+        window_ = std::make_unique<msimeui::Window>(L"ArongStudyImeSettingsWindow", L"阿龍学习输入法 设置", 0, 0);
         window_->AdoptExistingHwnd(hwnd_);
         window_->SetQuitOnDestroy(false);
         // The frame is extended into the client area for the custom caption; DWM does not

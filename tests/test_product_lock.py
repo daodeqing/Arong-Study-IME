@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -232,7 +233,7 @@ class ProductLockTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "manifest.json"
             commit = "1" * 40
-            subprocess.run(["python3", str(ROOT / "scripts/product_lock.py"), "manifest",
+            subprocess.run([sys.executable, str(ROOT / "scripts/product_lock.py"), "manifest",
                             "--windows-commit", commit, "--output", str(output)], check=True)
             manifest = json.loads(output.read_text())
             self.assertEqual(manifest["repositories"]["windows"]["commit"], commit)

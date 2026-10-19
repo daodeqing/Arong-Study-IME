@@ -32,6 +32,15 @@ TEST_CASE(AiTranslationValidatesConfig)
     }
 }
 
+TEST_CASE(AiTranslationAllowsOptionalCredentialsOnlyForLoopbackLocalModels)
+{
+    AiTranslation::Config local{"local", "http://127.0.0.1:8317/v1/chat/completions", "", "qwen-local"};
+    REQUIRE(AiTranslation::IsUsableConfig(local));
+
+    local.endpoint = "https://models.example.com/v1/chat/completions";
+    REQUIRE(!AiTranslation::IsUsableConfig(local));
+}
+
 TEST_CASE(AiTranslationBuildsConfigFromTranslationSnapshot)
 {
     TranslationConfig snapshot;

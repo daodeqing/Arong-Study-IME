@@ -53,7 +53,7 @@ std::string UrlEncode(const std::string &input)
 
 bool HttpGet(const std::wstring &host, const std::wstring &path, std::string &response_out)
 {
-    HINTERNET hSession = NetworkProxy::OpenWinHttpSession(L"MetasequoiaImeServer/1.0");
+    HINTERNET hSession = NetworkProxy::OpenWinHttpSession(L"ArongStudyImeServer/1.0");
     if (!hSession)
         return false;
 

@@ -3,7 +3,7 @@ $originalLocalAppData = $env:LOCALAPPDATA
 $testRoot = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
 try {
     $env:LOCALAPPDATA = $testRoot
-    $imeRoot = Join-Path $testRoot 'metasequoiaime'
+    $imeRoot = Join-Path $testRoot 'ArongStudyIme'
     $destination = Join-Path $imeRoot 'skins/niya-demo'
     $config = Join-Path $imeRoot 'config.toml'
     & "$PSScriptRoot/../install.ps1" -NoActivate

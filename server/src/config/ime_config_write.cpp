@@ -82,11 +82,11 @@ HWND FindImeServerCandidateWindow()
 {
     // Candidate, tray menu, and floating toolbar share the same class. FindWindow
     // without a title often hits the toolbar, which does not apply config.
-    if (const HWND hwnd = FindWindowW(L"metasequoiaime_windows", L"metaseuqoiaimecandwnd"))
+    if (const HWND hwnd = FindWindowW(L"ArongStudyIme_windows", L"ArongStudyImecandwnd"))
     {
         return hwnd;
     }
-    return FindWindowW(L"metasequoiaime_windows", nullptr);
+    return FindWindowW(L"ArongStudyIme_windows", nullptr);
 }
 
 bool SendAuxConfigNotification(const wchar_t *message)
@@ -127,7 +127,7 @@ void NotifyImeServer(UINT windowMessage, const wchar_t *auxMessage, WPARAM wPara
         return;
     }
 
-    // MetasequoiaImeServer runs with uiAccess while the standalone Settings
+    // ArongStudyImeServer runs with uiAccess while the standalone Settings
     // process does not. Cross-process WM_USER delivery can therefore be
     // rejected by UIPI. The session-less Aux pipe is already the supported
     // cross-integrity control path; use it for config invalidation as well.

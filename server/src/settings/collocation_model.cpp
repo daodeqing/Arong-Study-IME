@@ -175,7 +175,7 @@ void DownloadThread(CatalogEntry entry)
         return;
     }
 
-    HINTERNET session = NetworkProxy::OpenWinHttpSession(L"MetasequoiaImeServer/1.0");
+    HINTERNET session = NetworkProxy::OpenWinHttpSession(L"ArongStudyImeServer/1.0");
     if (session == nullptr)
     {
         SetState(model_id, DownloadState::Error, 0, "无法初始化网络");

@@ -1,6 +1,6 @@
 # msime-skins
 
-水杉输入法（Metasequoia IME）的外部皮肤合集。
+阿龍学习输入法（Metasequoia IME）的外部皮肤合集。
 
 ## 皮肤列表
 
@@ -51,10 +51,10 @@
 手动安装时，把想用的皮肤目录整个复制到：
 
 ```
-%LOCALAPPDATA%\metasequoiaime\skins\
+%LOCALAPPDATA%\ArongStudyIme\skins\
 ```
 
-例如 `%LOCALAPPDATA%\metasequoiaime\skins\qq-blue\skin.toml`，然后在输入法设置中选择对应皮肤即可。
+例如 `%LOCALAPPDATA%\ArongStudyIme\skins\qq-blue\skin.toml`，然后在输入法设置中选择对应皮肤即可。
 
 ## 皮肤结构
 

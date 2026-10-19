@@ -5,7 +5,6 @@
 
 #include <winhttp.h>
 
-#include <chrono>
 #include <regex>
 
 // partials/about-settings.html + modules/about-settings.ts + modules/update-manifest.ts;
@@ -14,14 +13,13 @@ namespace native_settings
 {
 namespace
 {
-constexpr char kUpdateManifestUrl[] = "https://msime.app/update.json";
-constexpr char kReleasesPageUrl[] = "https://github.com/metasequoiaime/MSIME-Windows/releases";
-constexpr char kDownloadMirrorPrefix[] = "https://dl.msime.app/gh/";
-constexpr char kWebsiteUrl[] = "https://msime.app/";
-constexpr char kLicenseUrl[] = "https://github.com/metasequoiaime/MSIME-Windows/blob/main/LICENSE";
-constexpr char kPrivacyUrl[] = "https://github.com/metasequoiaime/MSIME-Windows/blob/main/PRIVACY.md";
+constexpr char kUpdateManifestUrl[] = "https://api.github.com/repos/daodeqing/Arong-Study-IME/releases/latest";
+constexpr char kReleasesPageUrl[] = "https://github.com/daodeqing/Arong-Study-IME/releases";
+constexpr char kWebsiteUrl[] = "https://github.com/daodeqing/Arong-Study-IME";
+constexpr char kLicenseUrl[] = "https://github.com/daodeqing/Arong-Study-IME/blob/main/LICENSE";
+constexpr char kPrivacyUrl[] = "https://github.com/daodeqing/Arong-Study-IME/blob/main/PRIVACY.md";
 // The version the page shows (partials/about-settings.html).
-constexpr wchar_t kShownVersion[] = L"v0.0.6";
+constexpr wchar_t kShownVersion[] = L"v0.8.0";
 
 struct Version
 {
@@ -76,8 +74,7 @@ std::string HttpGet(const std::string &url)
     if (!WinHttpCrackUrl(wide.c_str(), 0, 0, &parts))
         return {};
     std::string body;
-    HINTERNET session =
-        WinHttpOpen(L"MetasequoiaImeSettings", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, nullptr, nullptr, 0);
+    HINTERNET session = WinHttpOpen(L"ArongStudyImeSettings", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, nullptr, nullptr, 0);
     if (!session)
         return {};
     WinHttpSetTimeouts(session, 10000, 10000, 10000, 10000);
@@ -271,13 +268,13 @@ void ShowUpdateDialog(PageContext &context, const Version &latest, const std::st
     HostServices *host = &context.host;
     auto column = std::make_shared<Column>(0.0f);
     column->Add(MakeLabel(L"发现新版本", DocStyle(16.0f, DWRITE_FONT_WEIGHT_SEMI_BOLD), TextRole::Primary));
-    auto message = MakeLabel(L"水杉 IME v" + Widen(latest.display) + L" 已发布，是否前往下载？",
+    auto message = MakeLabel(L"阿龍学习输入法 v" + Widen(latest.display) + L" 已发布，是否前往下载？",
                              DocStyle(13.0f, DWRITE_FONT_WEIGHT_NORMAL, 1.65f, true), TextRole::Muted);
     message->SetMargin({0.0f, 10.0f, 0.0f, 0.0f});
     column->Add(message);
 
     // describeInstallerTrust
-    static const std::regex installerName(R"(^MetasequoiaIME_Setup_v[\w.-]+\.exe$)", std::regex::icase);
+    static const std::regex installerName(R"(^ArongStudyIme_Setup_v[\w.-]+\.exe$)", std::regex::icase);
     static const std::regex sha256(R"(^[0-9a-f]{64}$)");
     const std::string name = manifest.value("installerName", std::string());
     const std::string digest = manifest.value("installerSha256", std::string());
@@ -296,7 +293,7 @@ void ShowUpdateDialog(PageContext &context, const Version &latest, const std::st
                                TextRole::Muted);
         label->SetMargin({0.0f, 10.0f, 0.0f, 6.0f});
         column->Add(label);
-        const std::wstring file = nameValid ? Widen(name) : L"MetasequoiaIME_Setup_v<版本>.exe";
+        const std::wstring file = nameValid ? Widen(name) : L"ArongStudyIme_Setup_v<版本>.exe";
         TextStyle code = MonoStyle(11.0f);
         code.lineHeight = 1.5f;
         code.wrap = true;
@@ -348,14 +345,39 @@ void CheckForUpdate(PageContext &context, const std::shared_ptr<AboutState> &sta
     state->check->SetText(L"正在检查…");
     setStatus(L"", TextRole::Muted);
     PageContext *ctx = &context;
-    const auto stamp = std::chrono::system_clock::now().time_since_epoch().count();
-    const std::string url = std::string(kUpdateManifestUrl) + "?t=" + std::to_string(stamp);
+    const std::string url = kUpdateManifestUrl;
     RunInBackground(
         context.host.Hwnd(), [url]() { return HttpGet(url); },
         [ctx, state, current, setStatus](const std::string &body) {
             state->check->SetDisabled(false);
             state->check->SetText(L"检查更新");
-            const nlohmann::json manifest = nlohmann::json::parse(body, nullptr, false);
+            nlohmann::json manifest = nlohmann::json::parse(body, nullptr, false);
+            if (manifest.is_object() && manifest.contains("tag_name") && manifest["tag_name"].is_string() &&
+                manifest.contains("html_url") && manifest["html_url"].is_string() && manifest.contains("assets") &&
+                manifest["assets"].is_array())
+            {
+                manifest["version"] = manifest["tag_name"];
+                manifest["releaseUrl"] = manifest["html_url"];
+                manifest["signed"] = false;
+                for (const auto &asset : manifest["assets"])
+                {
+                    if (!asset.is_object() || !asset.contains("name") || !asset["name"].is_string())
+                        continue;
+                    const std::string name = asset["name"].get<std::string>();
+                    if (name.rfind("ArongStudyIme_Setup_v", 0) != 0 || name.size() < 4 ||
+                        name.substr(name.size() - 4) != ".exe")
+                        continue;
+                    manifest["installerName"] = name;
+                    if (asset.contains("digest") && asset["digest"].is_string())
+                    {
+                        std::string digest = asset["digest"].get<std::string>();
+                        if (digest.rfind("sha256:", 0) == 0)
+                            digest.erase(0, 7);
+                        manifest["installerSha256"] = std::move(digest);
+                    }
+                    break;
+                }
+            }
             const std::string releases = kReleasesPageUrl;
             Version latest;
             std::string releaseUrl;
@@ -377,17 +399,8 @@ void CheckForUpdate(PageContext &context, const std::shared_ptr<AboutState> &sta
                 setStatus(L"已是最新版本", TextRole::Accent);
                 return;
             }
-            // mirrorDownloadUrl
-            std::string mirror;
-            static const std::regex tag(R"(^https://github\.com/metasequoiaime/([\w.-]+)/releases/tag/([\w.+-]+)$)");
-            static const std::regex installer(R"(^MetasequoiaIME_Setup_v[\w.-]+\.exe$)", std::regex::icase);
-            std::smatch match;
-            const std::string name = manifest.value("installerName", std::string());
-            if (std::regex_match(releaseUrl, match, tag) && std::regex_match(name, installer))
-                mirror = std::string(kDownloadMirrorPrefix) + "https://github.com/metasequoiaime/" + match[1].str() +
-                         "/releases/download/" + match[2].str() + "/" + name;
             setStatus(L"发现新版本 v" + Widen(latest.display), TextRole::Accent);
-            ShowUpdateDialog(*ctx, latest, releaseUrl, mirror, manifest);
+            ShowUpdateDialog(*ctx, latest, releaseUrl, {}, manifest);
         });
 }
 
@@ -413,8 +426,7 @@ VisualPtr BuildAboutPage(PageContext &context)
     // .about-hero: mark, then eyebrow / title / text, gap 20px. The eyebrow is uppercased.
     auto heroRow = std::make_shared<Row>(20.0f);
     heroRow->Add(std::make_shared<AboutMark>());
-    heroRow->Add(MakeDocumentHero(L"METASEQUOIA IME", L"水杉 IME", L"为现代 Windows 桌面体验打造的开放中文输入法。"),
-                 1.0f);
+    heroRow->Add(MakeDocumentHero(L"ARONG STUDY IME", L"阿龍学习输入法", L"面向 Windows 的本地优先拼音输入法。"), 1.0f);
     page.AddRaw(std::make_shared<PaddedSection>(heroRow, Thickness{28.0f, 26.0f, 28.0f, 26.0f}));
 
     // .about-links: no vertical padding, rows of 66px.
@@ -458,7 +470,7 @@ VisualPtr BuildAboutPage(PageContext &context)
     };
     const Link documents[] = {
         // The space before the detail <span> belongs to the title text.
-        {L"官网 ", L"msime.app", kWebsiteUrl},
+        {L"项目主页 ", L"GitHub", kWebsiteUrl},
         {L"开源许可协议", nullptr, kLicenseUrl},
         {L"隐私政策", nullptr, kPrivacyUrl},
     };
@@ -522,11 +534,11 @@ VisualPtr BuildAboutPage(PageContext &context)
         MakeRow(L"Server 端日志",
                 L"排查 Server "
                 L"通信和输入延迟时开启。记录慢请求阶段、候选窗、悬浮工具栏、菜单、焦点会话和通信状态，不记录按键、输入"
-                L"内容或候选文本。日志默认保存到桌面的“水杉IME诊断日志.log”，复现后可直接发送该文件。",
+                L"内容或候选文本。日志默认保存到桌面的“阿龍学习输入法诊断日志.log”，复现后可直接发送该文件。",
                 BindToggle(context, "general.diagnostic_log")));
     page.AddSection(MakeRow(L"TSF 端日志",
                             L"排查应用内预编辑和输入延迟时开启。TSF "
-                            L"日志会在内存中限量缓冲，并通过独立管道批量汇总到桌面的“水杉IME诊断日志."
+                            L"日志会在内存中限量缓冲，并通过独立管道批量汇总到桌面的“阿龍学习输入法诊断日志."
                             L"log”；不记录按键、输入内容或候选文本。",
                             BindToggle(context, "general.tsf_diagnostic_log")));
     // The button's handler only holds the state weakly (the state holds the button), so

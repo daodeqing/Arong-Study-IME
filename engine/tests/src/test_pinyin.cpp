@@ -49,7 +49,7 @@ class ScopedLocalAppDataOverride
         original_ = current.value_or(L"");
 
         root_ = fs::temp_directory_path() / "msime-regression" / suffix;
-        app_dir_ = root_ / "metasequoiaime";
+        app_dir_ = root_ / "ArongStudyIme";
         fs::remove_all(root_);
         fs::create_directories(app_dir_);
 
@@ -91,7 +91,7 @@ class ScopedLocalAppDataOverride
     }
 
   private:
-    static constexpr const wchar_t *kDataDirectoryVariable = L"METASEQUOIA_IME_DATA_DIR";
+    static constexpr const wchar_t *kDataDirectoryVariable = L"ARONG_STUDY_IME_DATA_DIR";
 
     std::wstring original_;
     fs::path root_;
@@ -345,7 +345,7 @@ void test_shuangpin_dictionary_create_pin_delete()
     expect(ShuangpinUtil::get_local_appdata_path() == local_appdata.local_appdata(),
            fmt::format("Expected shuangpin appdata path '{}', got '{}'.", local_appdata.local_appdata(),
                        ShuangpinUtil::get_local_appdata_path()));
-    const std::string expected_user_db = local_appdata.local_appdata() + "\\metasequoiaime\\msime_user.db";
+    const std::string expected_user_db = local_appdata.local_appdata() + "\\ArongStudyIme\\msime_user.db";
     expect(user_dictionary::default_user_db_path() == expected_user_db,
            fmt::format("Expected user db path '{}', got '{}'.", expected_user_db,
                        user_dictionary::default_user_db_path()));
@@ -354,7 +354,7 @@ void test_shuangpin_dictionary_create_pin_delete()
            "Overriding the data root must not touch the process environment.");
 
     sqlite3 *probe_db = nullptr;
-    const std::string probe_db_path = local_appdata.local_appdata() + "\\metasequoiaime\\msime.db";
+    const std::string probe_db_path = local_appdata.local_appdata() + "\\ArongStudyIme\\msime.db";
     expect(sqlite3_open(probe_db_path.c_str(), &probe_db) == SQLITE_OK,
            fmt::format("Failed to open probe db '{}'.", probe_db_path));
     char *probe_error = nullptr;
@@ -607,7 +607,7 @@ void test_quanpin_single_letter_jianpin_ranking()
     // while context_key stays 'y'.
     const std::string entry_key = selected->canonical_pinyin.empty() ? selected->pinyin : selected->canonical_pinyin;
     bool ranking_changed = false;
-    expect(user_dictionary::adjust_candidate_ranking(local_appdata.local_appdata() + "\\metasequoiaime\\msime.db",
+    expect(user_dictionary::adjust_candidate_ranking(local_appdata.local_appdata() + "\\ArongStudyIme\\msime.db",
                                                      user_dictionary::default_user_db_path(), "y", before, entry_key,
                                                      "有", "promote", 1, 1, true, &ranking_changed),
            "Expected the single-letter ranking adjustment to succeed.");

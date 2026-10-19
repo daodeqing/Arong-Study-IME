@@ -1,5 +1,7 @@
 #include "chat_completions.h"
 
+#include "ai/bearer_auth_header.h"
+#include "ai/openai_compatible_url.h"
 #include "utils/network_proxy.h"
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
@@ -41,13 +43,17 @@ std::optional<std::string> FetchContent(const std::string &endpoint, const std::
 
     // Deliberately exclude the API token and the request body from logs.
     ResponseBuffer response;
-    const std::string authorization = "Authorization: Bearer " + token;
     curl_slist *headers = nullptr;
     headers = curl_slist_append(headers, "Content-Type: application/json; charset=utf-8");
-    headers = curl_slist_append(headers, authorization.c_str());
+    const auto authorization = BearerAuthHeader::ForToken(token);
+    if (authorization)
+        headers = curl_slist_append(headers, authorization->c_str());
 
     curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
-    NetworkProxy::ApplyToCurl(curl);
+    if (OpenAiCompatibleUrl::IsLoopbackUrl(endpoint))
+        curl_easy_setopt(curl, CURLOPT_PROXY, "");
+    else
+        NetworkProxy::ApplyToCurl(curl);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, static_cast<long>(payload.size()));

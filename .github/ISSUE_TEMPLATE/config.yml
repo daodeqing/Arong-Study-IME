@@ -5,7 +5,7 @@ contact_links:
   # -- which is exactly what SECURITY.md forbids. Private vulnerability reporting is enabled on this
   # repository, so the advisory form below is a working channel, not just a document to read.
   - name: 安全漏洞 / Security vulnerability
-    url: https://github.com/metasequoiaime/MSIME-Windows/security/advisories/new
+    url: https://github.com/daodeqing/Arong-Study-IME/security/advisories/new
     about: 疑似漏洞请私下上报，不要提交公开 issue。Report privately; do not open a public issue.
   # The engine moved in-tree, so candidate-order bugs are now this repository's own bugs and belong
   # in the normal bug form. The dictionary data is still built and released elsewhere, so a missing
@@ -17,8 +17,8 @@ contact_links:
     url: https://t.me/msimegroup
     about: 使用问题、讨论与日常交流。Questions and discussions.
   - name: QQ 群 / QQ Group
-    url: https://github.com/metasequoiaime/MSIME-Windows#readme
+    url: https://github.com/daodeqing/Arong-Study-IME#readme
     about: "QQ 群号 829919142（手动搜索群号加入）。QQ Group: 829919142."
   - name: 项目文档 / Documentation
-    url: https://msime.app/docs/
-    about: 水杉输入法用户文档。User documentation for Metasequoia IME.
+    url: https://github.com/daodeqing/Arong-Study-IME#readme
+    about: 阿龍学习输入法用户文档。User documentation for Arong Study IME.
