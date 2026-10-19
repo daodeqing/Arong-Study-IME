@@ -122,7 +122,7 @@ void TraceStartup(const char *stage)
     std::lock_guard lock(mutex);
     wchar_t temp[MAX_PATH]{};
     GetTempPathW(MAX_PATH, temp);
-    const std::filesystem::path path = std::filesystem::path(temp) / L"metasequoia-settings-startup.log";
+    const std::filesystem::path path = std::filesystem::path(temp) / L"ArongStudyIme-settings-startup.log";
     FILE *file = nullptr;
     if (_wfopen_s(&file, path.c_str(), L"a") == 0 && file)
     {

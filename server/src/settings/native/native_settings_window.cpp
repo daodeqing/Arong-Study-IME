@@ -1747,7 +1747,8 @@ bool SettingsWindow::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam, L
             wchar_t temp[MAX_PATH]{};
             GetTempPathW(MAX_PATH, temp);
             FILE *file = nullptr;
-            if (_wfopen_s(&file, (std::wstring(temp) + L"metasequoia-settings-native.log").c_str(), L"a") == 0 && file)
+            if (_wfopen_s(&file, (std::wstring(temp) + L"ArongStudyIme-settings-native.log").c_str(), L"a") == 0 &&
+                file)
             {
                 fprintf(file, "message 0x%04X: %s\n", message, error.what());
                 fclose(file);

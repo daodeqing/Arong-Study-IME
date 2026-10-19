@@ -894,7 +894,7 @@ void AbortPendingStart(const char *reason)
 void ShowVoiceNotice(std::wstring message, unsigned icon = MB_ICONERROR)
 {
     std::thread([message = std::move(message), icon] {
-        MessageBoxW(nullptr, message.c_str(), L"水杉 IME", MB_OK | icon);
+        MessageBoxW(nullptr, message.c_str(), L"阿龍学习输入法", MB_OK | icon);
     }).detach();
 }
 

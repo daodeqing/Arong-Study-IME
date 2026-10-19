@@ -422,7 +422,7 @@ void DoubaoAsrClient::Run()
         request_options["corpus"] = {{"boosting_table_id", boosting_table_id_}};
 
     const nlohmann::json request_json = {
-        {"user", {{"uid", "metasequoia-ime"}}},
+        {"user", {{"uid", "ArongStudyIme"}}},
         {"audio", {{"format", "pcm"}, {"codec", "raw"}, {"rate", 16000}, {"bits", 16}, {"channel", 1}}},
         {"request", std::move(request_options)}};
     const std::string request_text = request_json.dump();
