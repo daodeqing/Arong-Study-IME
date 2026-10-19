@@ -30,6 +30,8 @@ jobs:
     env:
       VERSION: ${{ inputs.version || github.ref_name }}
       VCPKG_INSTALLATION_ROOT: C:\vcpkg
+      SCCACHE_GHA_ENABLED: "true"
+      SCCACHE_IGNORE_SERVER_IO_ERROR: "1"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -59,6 +61,11 @@ jobs:
       - name: Set up MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Set up sccache
+        id: sccache
+        continue-on-error: true
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba
+
       - name: Check release version
         shell: pwsh
         run: |
@@ -80,6 +87,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cmake --build windows/build64-release --config Release --parallel
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./scripts/ci/check-tsf-dll.ps1 -BuildDir windows/build64-release
           ctest --no-tests=error --test-dir windows/build64-release -C Release --output-on-failure
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -92,6 +100,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cmake --build windows/build32-release --config Release --parallel
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./scripts/ci/check-tsf-dll.ps1 -BuildDir windows/build32-release
           ctest --no-tests=error --test-dir windows/build32-release -C Release --output-on-failure
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -102,9 +111,13 @@ jobs:
       - name: Build Server
         shell: pwsh
         run: |
-          cmake -S server -B server/build-release -A x64 `
-            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            -DVCPKG_TARGET_TRIPLET=x64-windows
+          $cmakeArgs = @(
+            '-S', 'server', '-B', 'server/build-release', '-G', 'Ninja Multi-Config',
+            "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake",
+            '-DVCPKG_TARGET_TRIPLET=x64-windows'
+          )
+          $cmakeArgs += @(./scripts/ci/cmake-sccache-args.ps1 -SetupOutcome '${{ steps.sccache.outcome }}')
+          cmake @cmakeArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cmake --build server/build-release --config Release --parallel
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
