@@ -43,8 +43,18 @@ cmake -S server -B server/build -A x64
 cmake --build server/build --config Release
 ```
 
+## GitHub Actions 自动化打包与发布
+
+本项目配置了独立的 GitHub Actions 云端构建工作流（.github/workflows/package-release.yml），支持在 GitHub-hosted windows-2025 环境中全自动编译组件并打包生成 Inno Setup 安装包：
+- **手动触发**：在 GitHub 仓库页面进入 **Actions** -> **Build and Package Release** -> **Run workflow**，可按需选择打包精简版（light）或包含词库模型的完整版（full）。
+- **Release 发布**：推送版本标签（例如 
+0.7.1），工作流将自动编译并在 GitHub Release 中发布安装包文件。
+- **构件下载**：每次成功构建的安装包均会自动上传至 Actions Artifacts 供直接下载测试。
+
 ## 开源协议
 
 本项目采用 **GNU General Public License v3.0 (GPL-3.0)** 许可证。任何修改或派生作品在分发时均须遵循 GPL-3.0 开源并保留原作者版权声明。
+
+
 
 参考源码：https://github.com/metasequoiaime/MSIME-Windows

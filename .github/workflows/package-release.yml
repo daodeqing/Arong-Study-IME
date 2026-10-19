@@ -1,0 +1,137 @@
+name: Build and Package Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version tag (e.g. 0.7.1)'
+        required: true
+        default: '0.7.1'
+      package_type:
+        description: 'Package type: full or light'
+        required: true
+        type: choice
+        options:
+          - full
+          - light
+        default: 'light'
+  push:
+    tags:
+      - 'w*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-package:
+    name: Build & Package Windows Installer
+    runs-on: windows-2025
+    timeout-minutes: 90
+    env:
+      VERSION: ${{ inputs.version || github.ref_name }}
+      VCPKG_INSTALLATION_ROOT: C:\vcpkg
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Trust runner workspace
+        shell: pwsh
+        run: |
+          $workspace = $env:GITHUB_WORKSPACE -replace '\\\\', '/'
+          git config --global --add safe.directory $workspace
+
+      - name: Set up MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Inno Setup Chinese language file
+        shell: pwsh
+        run: ./scripts/ci/install-inno-language.ps1
+
+      - name: Install Boost via vcpkg
+        shell: pwsh
+        run: |
+          Push-Location $env:VCPKG_INSTALLATION_ROOT
+          ./vcpkg install boost-locale:x64-windows-static-md boost-json:x64-windows-static-md
+          Pop-Location
+          "BOOST_ROOT=$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md" >> $env:GITHUB_ENV
+
+      - name: Build 64-bit TSF DLL
+        shell: pwsh
+        run: |
+          cmake -S windows -B windows/build64-release -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          cmake --build windows/build64-release --config Release --parallel
+
+      - name: Build 32-bit TSF DLL
+        shell: pwsh
+        run: |
+          cmake -S windows -B windows/build32-release -A Win32 `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x86-windows-static
+          cmake --build windows/build32-release --config Release --parallel
+
+      - name: Build Server
+        shell: pwsh
+        run: |
+          cmake -S server -B server/build-release -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows
+          cmake --build server/build-release --config Release --target MetasequoiaImeServer --parallel
+
+      - name: Prepare Package Files
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_TYPE: ${{ inputs.package_type || 'light' }}
+        run: |
+          $ver = $env:VERSION -replace '^v', ''
+          if ($env:PKG_TYPE -eq 'light') {
+              write-host "Preparing Light package files for version $ver..."
+              ./installer/Prepare-PackageFiles.ps1 -TargetVersion $ver -Light
+          } else {
+              write-host "Fetching dictionaries and models for full package version $ver..."
+              python scripts/product_lock.py fetch-dictionaries --staging-root .
+              ./scripts/download-neural-model.ps1
+              ./scripts/build-language-model.ps1
+              ./installer/Prepare-PackageFiles.ps1 -TargetVersion $ver
+          }
+
+      - name: Compile Installer with Inno Setup
+        shell: pwsh
+        env:
+          PKG_TYPE: ${{ inputs.package_type || 'light' }}
+        run: |
+          if ($env:PKG_TYPE -eq 'light') {
+              ./installer/Compile-Installer.ps1 -Light
+          } else {
+              ./installer/Compile-Installer.ps1
+          }
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@4
+        with:
+          name: MSIME-Windows-Installer
+          path: installer/Output/*.exe
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEMP_VER: ${{ inputs.version }}
+        run: |
+          $tag = if ($env:TEMP_VER) { (if ($env:TEMP_VER -like 'v*') { $env:TEMP_VER } else { "v{${env:TEMP_VER}" }) } else { $env:GITHUB_REF_NAME }
+          $installer = Get-ChildItem -Path installer/Output/*.exe | Select-Object -First 1
+          if (-not $installer) { Write-Error 'No installer exe found'; exit 1 }
+          Write-Host "Creating release for $tag with $($installer.FullName)"
+          gh release create $tag $installer.FullName --title "MSIME-Windows $tag" --notes "Automated GitHub Actions release package. Built from commit $env:GITHUB_SHA."
