@@ -2,7 +2,7 @@
 
 #include "cloud/ai_translation.h"
 #include "config/ime_config.h"
-#include "engine/common/helpcode_utils.h"
+#include "ipc/output_language_policy.h"
 
 #include <condition_variable>
 #include <mutex>
@@ -61,7 +61,7 @@ void TranslateBatch(const Job &job)
     }
     for (size_t i = 0; i < job.candidates.size(); ++i)
     {
-        if (i < translated.size() && !translated[i].empty() && HelpcodeUtils::count_han_chars(translated[i]) == 0)
+        if (i < translated.size() && OutputLanguagePolicy::IsEnglishTranslation(translated[i]))
             Remember(job.config, job.candidates[i], translated[i]);
         else
         {

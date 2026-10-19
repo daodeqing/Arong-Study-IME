@@ -21,6 +21,7 @@
 #include "engine/user_dictionary/user_dictionary_journal.h"
 #include "cloud/cloud_translation.h"
 #include "cloud/output_translation.h"
+#include "ipc/output_language_policy.h"
 #include "english/english_ime.h"
 #include "config/ime_config.h"
 #include "ai/jev_candidate_policy.h"
@@ -539,7 +540,7 @@ void RequestCurrentOutputTranslations()
     for (int i = 0; i < count; ++i)
     {
         const WordItem &item = ui.items[static_cast<size_t>(start + i)];
-        if (item.source != CandidateSource::EnglishDictionary && HelpcodeUtils::count_han_chars(item.word) > 0)
+        if (item.source != CandidateSource::EnglishDictionary && OutputLanguagePolicy::ContainsHan(item.word))
             candidates.push_back(CandidateTextForOutput(prefix + item.word));
     }
     OutputTranslation::Request(std::move(candidates));

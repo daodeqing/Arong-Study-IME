@@ -109,7 +109,7 @@ std::wstring OutputTextForCandidate(const std::string &chinese, CandidateSource 
     const std::string visible = CandidateTextForOutput(chinese);
     const bool japanese = g_inputSession && g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji;
     const bool chinese_candidate =
-        source != CandidateSource::EnglishDictionary && HelpcodeUtils::count_han_chars(chinese) > 0;
+        source != CandidateSource::EnglishDictionary && OutputLanguagePolicy::ContainsHan(chinese);
     std::optional<std::string> translated;
     if (chinese_candidate && !IsSensitiveInputField())
         translated = OutputTranslation::Lookup(visible);

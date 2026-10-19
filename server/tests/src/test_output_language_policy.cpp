@@ -3,6 +3,16 @@
 #include "ipc/output_language_policy.h"
 #include "cloud/output_translation.h"
 
+TEST_CASE(OutputTranslationRecognizesEnglishWithoutCountingAsciiAsHan)
+{
+    REQUIRE(OutputLanguagePolicy::IsEnglishTranslation("Hello"));
+    REQUIRE(OutputLanguagePolicy::IsEnglishTranslation("Hello, world!"));
+    REQUIRE(!OutputLanguagePolicy::ContainsHan("Hello"));
+    REQUIRE(OutputLanguagePolicy::ContainsHan("你好"));
+    REQUIRE(!OutputLanguagePolicy::IsEnglishTranslation("Hello 你好"));
+    REQUIRE(!OutputLanguagePolicy::IsEnglishTranslation(""));
+}
+
 TEST_CASE(OutputLanguageDefaultsToEnglishAndTogglesIndependently)
 {
     REQUIRE(OutputLanguagePolicy::InitialOutputLanguageIsEnglish());

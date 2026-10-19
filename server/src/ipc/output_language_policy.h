@@ -1,7 +1,19 @@
 #pragma once
 
+#include "ipc/candidate_text_policy.h"
+
 namespace OutputLanguagePolicy
 {
+inline bool ContainsHan(const std::string &text)
+{
+    return FanyImeIpc::ExtractHanCharacter(text, FanyImeIpc::HanCharacterEdge::First).has_value();
+}
+
+inline bool IsEnglishTranslation(const std::string &text)
+{
+    return !text.empty() && !ContainsHan(text);
+}
+
 enum class CommitKind
 {
     ExistingText,

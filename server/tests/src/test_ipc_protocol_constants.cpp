@@ -133,7 +133,7 @@ TEST_CASE(ipc_pipe_ready_is_a_distinct_server_reply)
     REQUIRE(Global::DataFromServerMsgTypeToTsfWorkerThread::HorizontalArrowSelectionChanged >
             Global::DataFromServerMsgTypeToTsfWorkerThread::EnumerationCommaKeysChanged);
     REQUIRE_EQ(Global::DataFromServerMsgTypeToTsfWorkerThread::MaxKnown,
-               Global::DataFromServerMsgTypeToTsfWorkerThread::HorizontalArrowSelectionChanged);
+               Global::DataFromServerMsgTypeToTsfWorkerThread::OutputLanguageChanged);
 }
 
 TEST_CASE(ipc_client_suspension_is_a_distinct_nonterminal_route_reset)
@@ -211,8 +211,8 @@ TEST_CASE(stats_pipe_name_carries_the_decimal_session_suffix)
     // Named pipes are machine-global; a missing or non-decimal suffix would let
     // concurrent sessions fight over one listener, so the DLL and Server must
     // build the exact same name.
-    REQUIRE_EQ(MsimeStats::BuildStatsPipeName(0), std::wstring(L"\\\\.\\pipe\\FanyImeStatsNamedPipe-0"));
-    REQUIRE_EQ(MsimeStats::BuildStatsPipeName(7), std::wstring(L"\\\\.\\pipe\\FanyImeStatsNamedPipe-7"));
-    REQUIRE_EQ(MsimeStats::BuildStatsPipeName(42), std::wstring(L"\\\\.\\pipe\\FanyImeStatsNamedPipe-42"));
+    REQUIRE_EQ(MsimeStats::BuildStatsPipeName(0), std::wstring(L"\\\\.\\pipe\\ArongStudyImeStatsNamedPipe-0"));
+    REQUIRE_EQ(MsimeStats::BuildStatsPipeName(7), std::wstring(L"\\\\.\\pipe\\ArongStudyImeStatsNamedPipe-7"));
+    REQUIRE_EQ(MsimeStats::BuildStatsPipeName(42), std::wstring(L"\\\\.\\pipe\\ArongStudyImeStatsNamedPipe-42"));
     REQUIRE_EQ(std::wstring(FANY_IME_STATS_PIPE_NAME_PREFIX) + L"12", MsimeStats::BuildStatsPipeName(12));
 }
