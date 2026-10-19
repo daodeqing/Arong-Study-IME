@@ -38,8 +38,8 @@ bool IsArongStudyImeEnabledForCurrentUser()
 
     BOOL enabled = FALSE;
     const HRESULT query_result = SUCCEEDED(create_result)
-                                     ? profiles->IsEnabledLanguageProfile(kMetasequoiaImeClsid, kMetasequoiaImeLanguage,
-                                                                          kMetasequoiaImeProfileGuid, &enabled)
+                                     ? profiles->IsEnabledLanguageProfile(kArongStudyImeClsid, kMetasequoiaImeLanguage,
+                                                                          kArongStudyImeProfileGuid, &enabled)
                                      : create_result;
 
     if (profiles)
@@ -60,7 +60,7 @@ bool WaitForMetasequoiaImeEnabledForCurrentUser()
     const ULONGLONG deadline = GetTickCount64() + kProfileReadyTimeoutMilliseconds;
     for (;;)
     {
-        if (IsMetasequoiaImeEnabledForCurrentUser())
+        if (IsArongStudyImeEnabledForCurrentUser())
             return true;
 
         const ULONGLONG now = GetTickCount64();
