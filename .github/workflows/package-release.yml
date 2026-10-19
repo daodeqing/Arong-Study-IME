@@ -43,6 +43,18 @@ jobs:
           $workspace = $env:GITHUB_WORKSPACE -replace '\\\\', '/'
           git config --global --add safe.directory $workspace
 
+      - name: Ensure vendor submodules are populated
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'vendor/opencc/CMakeLists.txt')) {
+              Write-Host 'Cloning vendor/opencc...'
+              git clone --depth 1 https://github.com/byvoid/opencc.git vendor/opencc
+          }
+          if (-not (Test-Path 'vendor/cpp-pinyin/CMakeLists.txt')) {
+              Write-Host 'Cloning vendor/cpp-pinyin...'
+              git clone --depth 1 https://github.com/wolfgitpr/cpp-pinyin.git vendor/cpp-pinyin
+          }
+
       - name: Set up MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
 
