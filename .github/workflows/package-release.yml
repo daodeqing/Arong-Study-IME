@@ -51,6 +51,11 @@ jobs:
       - name: Verify pinned vendor dependencies
         run: python scripts/ci/verify-vendor.py
 
+      - name: Restore Server dependency binaries
+        uses: ./.github/actions/vcpkg-cache
+        with:
+          scope: server-x64-windows-and-static-md
+
       - name: Set up MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
 
@@ -65,15 +70,6 @@ jobs:
       - name: Install Inno Setup Chinese language file
         shell: pwsh
         run: ./scripts/ci/install-inno-language.ps1
-
-      - name: Install Boost via vcpkg
-        shell: pwsh
-        run: |
-          Push-Location $env:VCPKG_INSTALLATION_ROOT
-          ./vcpkg install boost-locale:x64-windows-static-md boost-json:x64-windows-static-md
-          if ($LASTEXITCODE -ne 0) { $installExit = $LASTEXITCODE; Pop-Location; exit $installExit }
-          Pop-Location
-          "BOOST_ROOT=$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static-md" >> $env:GITHUB_ENV
 
       - name: Build 64-bit TSF DLL
         shell: pwsh

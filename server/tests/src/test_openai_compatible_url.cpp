@@ -31,5 +31,7 @@ TEST_CASE(OpenAiCompatibleProviderRequiresLoopbackAndOmitsEmptyAuthorization)
     REQUIRE(!OpenAiCompatibleUrl::IsLoopbackUrl("http://127.0.0.1.example.com/v1/models"));
     REQUIRE(!OpenAiCompatibleUrl::IsLoopbackUrl("http://user@127.0.0.1/v1/models"));
     REQUIRE(!BearerAuthHeader::ForToken(""));
-    REQUIRE_EQ(*BearerAuthHeader::ForToken("local-secret"), std::string("Authorization: Bearer local-secret"));
+    const auto authorization = BearerAuthHeader::ForToken("local-secret");
+    REQUIRE(authorization.has_value());
+    REQUIRE_EQ(*authorization, std::string("Authorization: Bearer local-secret"));
 }

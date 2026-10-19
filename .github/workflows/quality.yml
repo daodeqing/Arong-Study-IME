@@ -31,7 +31,7 @@ jobs:
       # Formatting is platform independent, so it runs here on Ubuntu rather than costing a Windows
       # runner. Cheap and early: a formatting slip fails in seconds instead of after the full compile.
       - name: Check formatting
-        run: scripts/format.sh --check
+        run: bash scripts/format.sh --check
   dependencies:
     name: Dependency review
     runs-on: ubuntu-24.04
