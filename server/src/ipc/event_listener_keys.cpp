@@ -522,6 +522,10 @@ bool ApplyCompositionEditKey(UINT keycode, WCHAR wch, UINT modifiers_down, bool 
         composition.note_raw_inserted();
     }
 
+    if (GetConfiguredSentenceTranslationEnabled() && composition_restored && raw.empty() &&
+        !composition.creating_word.word.empty())
+        keep_creating_word_after_empty_raw = true;
+
     if (raw.empty() && !keep_creating_word_after_empty_raw)
     {
         // Without a kept state, TSF cancels the whole composition as soon as the

@@ -654,10 +654,11 @@ struct AiPage : std::enable_shared_from_this<AiPage>
             auto translation = std::make_shared<Column>(12.0f);
             translation->Add(MakeRow(L"拼音整句翻译成英文（可选）", L"默认关闭；关闭时正常选择中文候选上屏",
                                      BindToggle(context, "general.sentence_translation")));
-            translation->Add(MakeDescription(
-                L"开启后，输入拼音并按空格选择中文字或词，整句会留在输入法中继续积累；"
-                L"输入完整一句后，按 Ctrl+Enter 确认英文。译文未完成时显示“翻译中”并保留中文，"
-                L"完成后再次按 Ctrl+Enter 或选择译文候选确认。Enter 提交中文；Shift 仅切换本次中英文输出。"));
+            translation->Add(
+                MakeDescription(L"开启后，输入拼音并按空格选择中文字或词，整句会留在输入法中继续积累；"
+                                L"输入完整一句后，按 Ctrl+Enter 确认英文。译文未完成时显示“翻译中”并保留中文，"
+                                L"完成后再次按 Ctrl+Enter 或选择译文候选确认。Enter 提交中文；Shift "
+                                L"仅切换本次中英文输出。较长句子请分句输入。"));
             translation->Add(MakeDescription(
                 L"只翻译已选定的中文，不会把原始拼音当作英文句子。使用下方接口与模型配置，"
                 L"无需开启 AI 联想；请先查询模型并测试连接。接口连接失败时保留中文，可重试或按 Enter 提交。"));

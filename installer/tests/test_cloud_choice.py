@@ -13,6 +13,9 @@ def function_body(name: str, kind: str = "function") -> str:
 
 
 class CloudChoiceTests(unittest.TestCase):
+    def test_new_install_does_not_enable_google_cloud_candidates(self):
+        self.assertIn("NetworkPage.Values[CloudCandidatesIndex] := False;", SCRIPT)
+
     def test_migration_conflict_is_checked_before_stop_and_migration(self):
         prepare = function_body("PrepareToInstall")
         migrate = function_body("MigrateUserDataDir")

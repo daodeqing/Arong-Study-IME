@@ -703,6 +703,9 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::OutputLanguageChanged)
         {
             Global::OutputLanguageEnglish.store(buf.data[0] == L'1', std::memory_order_relaxed);
+            const HWND ownerWindow = pIME->_msgWndHandle;
+            if (ownerWindow && IsWindow(ownerWindow))
+                PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::SentenceTranslationChanged)
         {
@@ -713,6 +716,8 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
             const HWND ownerWindow = pIME->_msgWndHandle;
             if (enabled && ownerWindow && IsWindow(ownerWindow))
                 PostMessage(ownerWindow, WM_ApplySentenceTranslation, 0, 0);
+            if (ownerWindow && IsWindow(ownerWindow))
+                PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::TrilingualCycleChanged)
         {

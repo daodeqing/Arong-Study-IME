@@ -11,6 +11,7 @@
 #include "CompositionProcessorEngine.h"
 #include "LanguageBar.h"
 #include "Globals.h"
+#include "FanyDefines.h"
 #include "Compartment.h"
 #include "Ipc.h"
 #include "fmt/xchar.h"
@@ -667,6 +668,10 @@ STDAPI CLangBarItemButton::GetIcon(_Out_ HICON *phIcon)
     {
         lightIconIndex = static_cast<DWORD>(IME_MODE_ON_JP_ICON_INDEX);
     }
+    if (IsSentenceTranslationEnabled() && !(status & TF_LBI_STATUS_DISABLED) &&
+        _onIconIndex == static_cast<DWORD>(IME_MODE_ON_ICON_INDEX) &&
+        !Global::CapsLockEnabled.load(std::memory_order_relaxed))
+        lightIconIndex = Global::OutputLanguageEnglish.load(std::memory_order_relaxed) ? _offIconIndex : _onIconIndex;
     const DWORD iconIndex = ResolveThemeIconIndex(lightIconIndex);
 
     if (Global::dllInstanceHandle)
@@ -686,7 +691,14 @@ STDAPI CLangBarItemButton::GetIcon(_Out_ HICON *phIcon)
 
 STDAPI CLangBarItemButton::GetText(_Out_ BSTR *pbstrText)
 {
-    *pbstrText = SysAllocString(_tfLangBarItemInfo.szDescription);
+    GUID compartment = {};
+    if (_pCompartment)
+        _pCompartment->_GetGUID(&compartment);
+    const bool sentence =
+        IsSentenceTranslationEnabled() && IsEqualGUID(compartment, GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
+    *pbstrText = SysAllocString(
+        sentence ? (Global::OutputLanguageEnglish.load(std::memory_order_relaxed) ? L"英文翻译" : L"中文输出")
+                 : _tfLangBarItemInfo.szDescription);
 
     return (*pbstrText == nullptr) ? E_OUTOFMEMORY : S_OK;
 }

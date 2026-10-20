@@ -205,7 +205,7 @@ void SendInputModeState(const PipeClientActivation &activation)
                                             Global::DataFromServerMsgTypeToTsfWorkerThread::InputModeChanged,
                                             GetActiveInputMode() == "japanese" ? L"1" : L"0");
     SendOutputLanguageState(activation.client_id, activation.epoch);
-    SendSentenceTranslationState(activation.client_id, activation.epoch);
+    FanyNamedPipe::SendSentenceTranslationState(activation.client_id, activation.epoch);
     SendTemporaryJapanesePolicy(activation);
     SendTrilingualCycleState(activation.client_id, activation.epoch);
 }

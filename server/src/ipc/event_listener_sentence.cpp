@@ -40,7 +40,8 @@ bool SelectRemainingSentence(uint64_t client_id, uint64_t activation_epoch)
     for (unsigned step = 0; step < 128 && !g_inputSession->get_pinyin_sequence_with_cases().empty(); ++step)
     {
         const auto before = g_inputSession->get_pinyin_sequence_with_cases();
-        FanyNamedPipe::PrepareCandidateList(client_id, activation_epoch);
+        if (Global::candidate_ui.items.empty())
+            FanyNamedPipe::PrepareCandidateList(client_id, activation_epoch);
         WordItem item;
         if (!FanyNamedPipe::ResolveCandidateItem(Global::candidate_ui.selected_index_in_page + 1, item) ||
             !FanyNamedPipe::AccumulateSentenceCandidate(item, client_id, activation_epoch))
@@ -239,7 +240,7 @@ bool HandleSentencePunctuation(uint64_t client_id, uint64_t activation_epoch, ui
     if (punctuation != 0 && string_to_wstring(GlobalIme::composition.creating_word.word).size() < kMaxSentenceUnits)
     {
         auto &composition = GlobalIme::composition;
-        composition.push_selection_snapshot(std::string(1, ' '));
+        composition.selection_history.push_back({"", composition.creating_word, -1, "", false});
         composition.creating_word.active = true;
         composition.creating_word.word += wstring_to_string(std::wstring(1, punctuation));
         composition.creating_word.preedit = composition.creating_word.word;
