@@ -704,6 +704,16 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
         {
             Global::OutputLanguageEnglish.store(buf.data[0] == L'1', std::memory_order_relaxed);
         }
+        else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::SentenceTranslationChanged)
+        {
+            if ((buf.data[0] != L'0' && buf.data[0] != L'1') || buf.data[1] != L'\0')
+                continue;
+            const bool enabled = buf.data[0] == L'1';
+            Global::SentenceTranslationEnabled.store(enabled, std::memory_order_relaxed);
+            const HWND ownerWindow = pIME->_msgWndHandle;
+            if (enabled && ownerWindow && IsWindow(ownerWindow))
+                PostMessage(ownerWindow, WM_ApplySentenceTranslation, 0, 0);
+        }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::TrilingualCycleChanged)
         {
             Global::TrilingualCycleEnabled.store(buf.data[0] == L'1', std::memory_order_relaxed);

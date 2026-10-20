@@ -54,6 +54,10 @@ set(TEST_SOURCE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_candidate_translation_policy.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_output_language_policy.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/local_output_probe.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sentence_input_probe.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_sentence_translation.cpp"
+    "${CMAKE_SOURCE_DIR}/src/cloud/sentence_translation.cpp"
+    "${CMAKE_SOURCE_DIR}/src/ipc/event_listener_sentence.cpp"
     "${CMAKE_SOURCE_DIR}/src/cloud/output_translation.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_openai_compatible_url.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_ai_context_policy.cpp"
@@ -208,3 +212,7 @@ add_test(NAME webview_contract COMMAND test_webview_contract
     "${MSIME_ENGINE_DIR}/contracts/webview/fixtures.json")
 
 
+
+add_test(NAME sentence_output_translation_http
+    COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_sentence_output_translation.py"
+            $<TARGET_FILE:${TEST_EXECUTABLE_NAME}>)

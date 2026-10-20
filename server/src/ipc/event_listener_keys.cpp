@@ -1012,9 +1012,14 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     {
         if (namedpipeData.keycode == static_cast<unsigned>(FanyImeInputStateShortcuts::Action::OutputLanguage))
         {
+            if (GetConfiguredSentenceTranslationEnabled())
+                SetEnglishInputMode(false);
             ToggleOutputLanguage(client_id, activation_epoch, Global::Point[0], Global::Point[1]);
-            if (IsEnglishOutputEnabled())
-                FanyNamedPipe::RequestCurrentOutputTranslations();
+            if (SentenceModeForClient(client_id))
+            {
+                UpdateSentenceTranslationPreview();
+                RefreshSentenceTranslationPreview();
+            }
         }
         else
         {
@@ -1062,6 +1067,13 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     {
         SetEnglishInputMode(!g_english_input_mode);
         ClearState();
+        return;
+    }
+
+    // 整句模式的回车不走原有“提交原始拼音”路径，也不依赖候选词典释义开关。
+    if (SentenceModeForClient(client_id) && Global::Keycode == VK_RETURN && (Global::ModifiersDown & 0b00000101u) == 0)
+    {
+        HandleSentenceConfirmation(client_id, activation_epoch, request_id, (Global::ModifiersDown & 0b00000010u) == 0);
         return;
     }
 
@@ -1193,6 +1205,15 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         g_r_mode_triggered = true;
     }
 
+    if (SentenceModeForClient(client_id) && Global::Keycode == VK_ESCAPE)
+    {
+        ClearState();
+        Global::MsgTypeToTsf = Global::DataFromServerMsgType::CompositionRestored;
+        Global::candidate_ui.selected_text = BuildCreateWordPipePayload("", "");
+        SendCurrentDataToClient(client_id, activation_epoch, request_id);
+        return;
+    }
+
     if (FanyImeIpc::HasEscapeCreatingWordShape(Global::Keycode, GlobalIme::composition.creating_word.active,
                                                IsUiLessMode(), ClientNegotiatedCompositionRestore(client_id)))
     {
@@ -1233,6 +1254,8 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         GetConfiguredWordToCharacterEnabled() && !is_v_mode_input_key,
         GetConfiguredWordToCharacterKeys() == "minus_equal", is_japanese_long_vowel);
     const bool is_commit_with_highlighted_candidate_punctuation =
+        (SentenceModeForClient(client_id) && Global::Wch != 0 &&
+         std::wstring(L",.!?:;。！？；：()（）").find(Global::Wch) != std::wstring::npos) ||
         word_character_direction != 0 ||
         (!is_manual_pinyin_separator && !is_microsoft_shuangpin_ing_key && !is_mid_sentence_helpcode_marker &&
          !is_direct_helpcode_slash && !is_date_time_input_key && !is_v_mode_input_key &&
@@ -1252,6 +1275,10 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     // Punctuation needs a synchronous highlighted-candidate response on the TSF pipe.
     // Reply before cloud-query and candidate recomputation work so the TSF-side
     // timeout sentinel keeps its original meaning instead of masking latency here.
+    if (is_commit_with_highlighted_candidate_punctuation &&
+        HandleSentencePunctuation(client_id, activation_epoch, request_id, Global::Wch))
+        return;
+
     if (is_commit_with_highlighted_candidate_punctuation)
     {
         Global::MsgTypeToTsf = Global::DataFromServerMsgType::Normal;
@@ -1347,6 +1374,8 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         ScopedKeyStage engine_edit{client_id, activation_epoch, request_id, L"handle-engine"};
         ApplyCompositionEditKey(Global::Keycode, Global::Wch, Global::ModifiersDown, client_supports_restore,
                                 composition_restored);
+        if (SentenceModeForClient(client_id))
+            UpdateSentenceTranslationPreview();
         // 横排候选左右键移的是光标：TSF 不再自己移，等 CompositionRestored 里的光标（原地不动也要回这一帧）。
         if (horizontal_arrow_key)
         {
@@ -1565,7 +1594,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     const bool suppress_async_lookup = is_paging_key || is_selection_key;
 
     const auto cloud_query_state = g_inputSession->get_cloud_query_state();
-    if (!g_english_input_mode && !suppress_async_lookup &&
+    if (!g_english_input_mode && !SentenceModeForClient(client_id) && !suppress_async_lookup &&
         !IsSpecialModeCompositionActive(g_inputSession->get_pinyin_sequence_with_cases()) &&
         cloud_query_state.should_query)
     {
@@ -1573,7 +1602,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         UpdateCloudInput(cloud_query_state.query_text, client_id, activation_epoch);
     }
 
-    const bool ai_eligible = !g_english_input_mode &&
+    const bool ai_eligible = !g_english_input_mode && !SentenceModeForClient(client_id) &&
                              !IsSpecialModeCompositionActive(g_inputSession->get_pinyin_sequence_with_cases()) &&
                              (g_inputSession->current_scheme_type() == SchemeType::Quanpin ||
                               g_inputSession->current_scheme_type() == SchemeType::Shuangpin) &&

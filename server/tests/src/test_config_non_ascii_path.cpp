@@ -1565,6 +1565,66 @@ TEST_CASE(floating_toolbar_auto_hide_defaults_and_round_trips)
     fs::remove_all(unique_root, ec);
 }
 
+// 整句翻译独立于 AI 联想：双模板默认关闭，缺键/非法类型关闭，开关保存与升级模板合并均能往返。
+TEST_CASE(sentence_translation_defaults_off_and_round_trips_independently)
+{
+    {
+        const auto template_path = std::filesystem::path(MSIME_DEFAULT_CONFIG_PATH);
+        const auto working_path =
+            template_path.parent_path().parent_path().parent_path() / "server/assets/config/config.toml";
+        for (const auto &path : {template_path, working_path})
+        {
+            const auto parsed = toml::parse_file(path.string());
+            REQUIRE(parsed["general"]["sentence_translation"].is_boolean());
+            REQUIRE(!parsed["general"]["sentence_translation"].value_or(true));
+        }
+    }
+
+    namespace fs = std::filesystem;
+    const fs::path unique_root = MakeProfileRoot();
+    const fs::path local_app_data = unique_root / L"本地";
+    const fs::path data_dir = local_app_data / L"ArongStudyIme";
+    std::error_code ec;
+    fs::remove_all(unique_root, ec);
+    SeedTemplate(data_dir);
+    {
+        ScopedConfigLocation local_app_data_env(local_app_data);
+
+        InitImeConfig();
+        REQUIRE(!GetConfiguredSentenceTranslationEnabled());
+
+        WriteText(data_dir / L"config.toml", "[general]\ncn_en_mixed_input = true\n");
+        InitImeConfig();
+        REQUIRE(!GetConfiguredSentenceTranslationEnabled());
+
+        WriteText(data_dir / L"config.toml", "[general]\nsentence_translation = \"true\"\n");
+        InitImeConfig();
+        REQUIRE(!GetConfiguredSentenceTranslationEnabled());
+
+        for (const bool enabled : {true, false, true})
+        {
+            REQUIRE(SetConfiguredSentenceTranslationEnabled(enabled));
+            REQUIRE_EQ(GetConfiguredSentenceTranslationEnabled(), enabled);
+            InitImeConfig();
+            REQUIRE_EQ(GetConfiguredSentenceTranslationEnabled(), enabled);
+            const auto parsed = toml::parse(ReadText(data_dir / L"config.toml"));
+            REQUIRE_EQ(parsed["general"]["sentence_translation"].value_or(!enabled), enabled);
+        }
+
+        REQUIRE(SetConfiguredAiAssistantBool("enabled", false));
+        InitImeConfig();
+        REQUIRE(!GetConfiguredAiAssistant().enabled);
+        REQUIRE(GetConfiguredSentenceTranslationEnabled());
+
+        REQUIRE(SetConfiguredSentenceTranslationEnabled(false));
+        REQUIRE(SetConfiguredAiAssistantBool("enabled", true));
+        InitImeConfig();
+        REQUIRE(GetConfiguredAiAssistant().enabled);
+        REQUIRE(!GetConfiguredSentenceTranslationEnabled());
+    }
+    fs::remove_all(unique_root, ec);
+}
+
 // DeepSeek 思考强度：两个出厂模板都带键且默认 disabled（缺键会在升级合并时丢掉用户的选择），
 // 缺键和非法值回退到 disabled，非法写入被拒且不落盘，合法值能往返。
 TEST_CASE(deepseek_thinking_levels_default_disabled_and_round_trip)

@@ -106,25 +106,9 @@ void LearnEnglishSlot(const WordItem &selected, size_t absolute_index, uint64_t 
 
 std::wstring OutputTextForCandidate(const std::string &chinese, CandidateSource source)
 {
-    const std::string visible = CandidateTextForOutput(chinese);
-    const bool japanese = g_inputSession && g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji;
-    const bool chinese_candidate =
-        source != CandidateSource::EnglishDictionary && OutputLanguagePolicy::ContainsHan(chinese);
-    std::optional<std::string> translated;
-    if (chinese_candidate && !IsSensitiveInputField())
-        translated = OutputTranslation::Lookup(visible);
-    switch (OutputLanguagePolicy::ResolveCommit(IsEnglishOutputEnabled() && !g_english_input_mode, chinese_candidate,
-                                                japanese, translated.has_value()))
-    {
-    case OutputLanguagePolicy::CommitKind::EnglishTranslation:
-        return string_to_wstring(*translated);
-    case OutputLanguagePolicy::CommitKind::ChineseFallback:
-        PostOutputTranslationFallbackBadge(Global::Point[0], Global::Point[1]);
-        break;
-    case OutputLanguagePolicy::CommitKind::ExistingText:
-        break;
-    }
-    return string_to_wstring(visible);
+    // 普通拼音输出保持中文。翻译是显式整句功能，不能再逐词替换或用字母回退冒充译文。
+    (void)source;
+    return string_to_wstring(CandidateTextForOutput(chinese));
 }
 } // namespace
 
@@ -204,6 +188,13 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
     static bool isNeedUpdateWeight = false;
     isNeedUpdateWeight = false;
 
+    if (SentenceModeForClient(client_id) && g_inputSession->get_pinyin_sequence_with_cases().empty() &&
+        !GlobalIme::composition.creating_word.word.empty())
+    {
+        PrepareSentenceConfirmation(client_id, activation_epoch);
+        return;
+    }
+
     if (g_translation_candidates_active)
     {
         // 译文页：选中的就是要上屏的完整文本，既不调频也不造词，更不能把译文当候选词学进库。
@@ -261,6 +252,17 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
         EnterDateTimeCandidatePage(metasequoia::local_modes::date_time_menu_keyword(curWordItem));
         Global::candidate_ui.selected_text = L"OutofRange";
         Global::MsgTypeToTsf = Global::DataFromServerMsgType::OutofRange;
+        return;
+    }
+
+    if (is_valid_selection && SentenceModeForClient(client_id))
+    {
+        if (!AccumulateSentenceCandidate(curWordItem, client_id, activation_epoch))
+        {
+            Global::MsgTypeToTsf = Global::DataFromServerMsgType::NeedToCreateWord;
+            Global::candidate_ui.selected_text = BuildCreateWordPipePayload(
+                g_inputSession->get_pinyin_sequence_with_cases(), GlobalIme::composition.creating_word.word);
+        }
         return;
     }
 

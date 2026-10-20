@@ -650,6 +650,20 @@ struct AiPage : std::enable_shared_from_this<AiPage>
         PageBuilder page(L"AI 与云联想");
         std::weak_ptr<AiPage> weak = shared_from_this();
 
+        {
+            auto translation = std::make_shared<Column>(12.0f);
+            translation->Add(MakeRow(L"拼音整句翻译成英文（可选）", L"默认关闭；关闭时正常选择中文候选上屏",
+                                     BindToggle(context, "general.sentence_translation")));
+            translation->Add(MakeDescription(
+                L"开启后，输入拼音并按空格选择中文字或词，整句会留在输入法中继续积累；"
+                L"输入完整一句后，按 Ctrl+Enter 确认英文。译文未完成时显示“翻译中”并保留中文，"
+                L"完成后再次按 Ctrl+Enter 或选择译文候选确认。Enter 提交中文；Shift 仅切换本次中英文输出。"));
+            translation->Add(MakeDescription(
+                L"只翻译已选定的中文，不会把原始拼音当作英文句子。使用下方接口与模型配置，"
+                L"无需开启 AI 联想；请先查询模型并测试连接。接口连接失败时保留中文，可重试或按 Enter 提交。"));
+            page.AddSection(translation);
+        }
+
         page.AddSection(MakeRows({MakeRow(L"启用 AI 联想", L"异步生成候选；Jev 从已有候选中选择并标记推荐项",
                                           BindToggle(context, "ai_assistant.enabled")),
                                   MakeRow(L"启用云联想", L"", BindToggle(context, "general.cloud_candidates"))}));
@@ -661,8 +675,10 @@ struct AiPage : std::enable_shared_from_this<AiPage>
             heading->SetMargin({0.0f, 0.0f, 0.0f, 18.0f});
             column->Add(heading);
             auto description = MakeDescription(
-                L"本地模型用于英文输出翻译；访问密钥可为空。默认英文输出，单按 Shift "
-                L"切换为中文输出。DeepSeek、OpenAI、SiliconFlow、Groq 也使用 OpenAI 兼容的 Chat Completions "
+                L"整句翻译与 AI 联想共用这里的接口和模型配置，各自开关独立。访问密钥可为空，"
+                L"是否需要密钥由接口服务决定。127.0.0.1 只表示访问本机接口；该接口可能继续调用远程模型，"
+                L"请按实际服务配置确认文字会发送到哪里。DeepSeek、OpenAI、SiliconFlow、Groq 使用 OpenAI 兼容的 Chat "
+                L"Completions "
                 L"接口。Custom "
                 L"用于接入兼容服务。Jev 使用 TypeSafe 官方 Choice 接口，将前文、拼音和最多 32 个本地候选发送给服务商。"
                 L"Jev 固定选择一个候选，不使用下方的候选数量、思考强度和自定义提示词。各提供商凭据分开保存。");

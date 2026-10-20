@@ -495,6 +495,9 @@ LRESULT CALLBACK WndProcCandWindow(HWND hwnd, UINT message, WPARAM wParam, LPARA
             if (ReloadImeConfigIfChanged())
             {
                 FanyNamedPipe::EnqueueApplyCandidatePageSizeTask();
+                // 开关变更发给全部已协商 DLL；设置窗口自己夺走焦点时也能在回焦前同步。
+                BroadcastSentenceTranslationState();
+                FanyNamedPipe::EnqueueRefreshCandidatePageTask();
                 // ApplyConfiguredInputScheme broadcasts the policy with the rest of the mode state.
                 if (previous_input_scheme != GetConfiguredActiveInputScheme())
                     ApplyConfiguredInputScheme();

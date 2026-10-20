@@ -129,3 +129,7 @@ add_executable(test_commit_reply_not_ready commit_reply_not_ready.cpp)
 target_include_directories(test_commit_reply_not_ready PRIVATE ../src "${CMAKE_CURRENT_BINARY_DIR}")
 target_compile_features(test_commit_reply_not_ready PRIVATE cxx_std_17)
 add_test(NAME commit_reply_not_ready COMMAND test_commit_reply_not_ready)
+
+add_executable(test_sentence_translation_keys sentence_translation_keys.cpp)
+target_compile_features(test_sentence_translation_keys PRIVATE cxx_std_17)
+add_test(NAME sentence_translation_keys COMMAND test_sentence_translation_keys)

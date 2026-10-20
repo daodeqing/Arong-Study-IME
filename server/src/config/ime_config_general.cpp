@@ -64,6 +64,19 @@ bool SetConfiguredStatisticsRetention(const std::string &retention)
     return true;
 }
 
+bool GetConfiguredSentenceTranslationEnabled()
+{
+    return g_sentence_translation_enabled.load(std::memory_order_relaxed);
+}
+
+bool SetConfiguredSentenceTranslationEnabled(bool enabled)
+{
+    if (!WriteConfiguredValue("general", "sentence_translation", enabled ? "true" : "false"))
+        return false;
+    g_sentence_translation_enabled.store(enabled, std::memory_order_relaxed);
+    return true;
+}
+
 bool GetConfiguredEnglishCandidatesEnabled()
 {
     return g_english_candidates_enabled;

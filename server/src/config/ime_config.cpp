@@ -139,13 +139,14 @@ int g_floating_toolbar_font_size = kFloatingToolbarFontSizeDefault;
 bool g_floating_toolbar_auto_hide = false;
 int g_floating_toolbar_auto_hide_delay = kFloatingToolbarAutoHideDelayDefault;
 bool g_floating_toolbar_shadow = true;
+std::atomic_bool g_sentence_translation_enabled{false};
 bool g_english_candidates_enabled = false;
 bool g_candidate_translations_enabled = false;
 std::atomic_bool g_candidate_translation_show_pos{true};
 std::atomic_bool g_candidate_translation_single_sense{false};
 int g_english_mixed_input_min_chars = kEnglishMixedInputMinCharsDefault;
 int g_english_mixed_input_first_page_count = kEnglishMixedInputFirstPageCountDefault;
-bool g_cloud_candidates_enabled = true;
+bool g_cloud_candidates_enabled = false;
 // 整句候选来源与去重补位开关：词格、Google 和神经速度档默认开，神经效果档与去重补位默认关。
 bool g_assoc_sentence_wordlattice = true;
 bool g_assoc_sentence_google = true;
@@ -596,6 +597,8 @@ bool LoadImeConfig()
                                                      : kFloatingToolbarAutoHideDelayDefault;
             g_floating_toolbar_shadow = tbl["general"]["floating_toolbar_shadow"].value_or(true);
         }
+        g_sentence_translation_enabled.store(tbl["general"]["sentence_translation"].value_or(false),
+                                             std::memory_order_relaxed);
         g_english_candidates_enabled = tbl["general"]["cn_en_mixed_input"].value_or(false);
         g_candidate_translations_enabled = tbl["general"]["candidate_translations"].value_or(false);
         g_candidate_translation_show_pos.store(tbl["general"]["candidate_translation_show_pos"].value_or(true),
@@ -618,7 +621,7 @@ bool LoadImeConfig()
                     ? count
                     : kEnglishMixedInputFirstPageCountDefault;
         }
-        g_cloud_candidates_enabled = tbl["general"]["cloud_candidates"].value_or(true);
+        g_cloud_candidates_enabled = tbl["general"]["cloud_candidates"].value_or(false);
         g_assoc_sentence_wordlattice = tbl["association"]["sentence_wordlattice"].value_or(true);
         g_assoc_sentence_google = tbl["association"]["sentence_google"].value_or(true);
         g_assoc_sentence_neural_desktop = tbl["association"]["sentence_neural_desktop"].value_or(false);

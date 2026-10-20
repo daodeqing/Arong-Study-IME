@@ -507,12 +507,12 @@ bool WritePipeHello(HANDLE hPipeHandle, UINT pipeRole)
     DWORD bytesWritten = 0;
     if (pipeRole == FanyImePipeRole::Main)
     {
-        const auto hello =
-            FanyImeProtocol::Hello(GetPipeClientId(), NextProtocolId(nextRequestId),
-                                   FanyImeProtocol::Capabilities | FanyImeProtocol::CharacterSetShortcut |
-                                       FanyImeProtocol::CompositionRestore | FanyImeProtocol::CaretStateIndicator |
-                                       FanyImeProtocol::TrilingualCycle | FanyImeProtocol::InputStateShortcuts |
-                                       FanyImeProtocol::TemporaryJapaneseLongVowel);
+        const auto hello = FanyImeProtocol::Hello(
+            GetPipeClientId(), NextProtocolId(nextRequestId),
+            FanyImeProtocol::Capabilities | FanyImeProtocol::CharacterSetShortcut |
+                FanyImeProtocol::CompositionRestore | FanyImeProtocol::CaretStateIndicator |
+                FanyImeProtocol::TrilingualCycle | FanyImeProtocol::InputStateShortcuts |
+                FanyImeProtocol::TemporaryJapaneseLongVowel | FanyImeProtocol::SentenceTranslation);
         BOOL ret = WriteFile(hPipeHandle, &hello, sizeof(hello), &bytesWritten, NULL);
         // Never authorize keys from merely writing a hello. An old Server
         // without negotiation times out into the existing raw-input fallback.
@@ -1008,6 +1008,17 @@ bool SupportsInputStateShortcuts()
 {
     return hPipe && hPipe != INVALID_HANDLE_VALUE &&
            (negotiatedServerCapabilities & FanyImeProtocol::InputStateShortcuts) != 0;
+}
+
+bool SupportsSentenceTranslation()
+{
+    return hPipe && hPipe != INVALID_HANDLE_VALUE &&
+           (negotiatedServerCapabilities & FanyImeProtocol::SentenceTranslation) != 0;
+}
+
+bool IsSentenceTranslationEnabled()
+{
+    return SupportsSentenceTranslation() && Global::SentenceTranslationEnabled.load(std::memory_order_relaxed);
 }
 
 HANDLE GetToTsfWorkerThreadNamedpipe()

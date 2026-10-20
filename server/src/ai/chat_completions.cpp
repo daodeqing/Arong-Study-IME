@@ -35,7 +35,8 @@ size_t WriteResponse(char *data, size_t size, size_t count, void *user)
 namespace ChatCompletions
 {
 std::optional<std::string> FetchContent(const std::string &endpoint, const std::string &token,
-                                        const std::string &payload, long timeout_ms)
+                                        const std::string &payload, long timeout_ms,
+                                        const std::function<bool()> &cancelled)
 {
     CURL *curl = curl_easy_init();
     if (!curl)
@@ -62,6 +63,15 @@ std::optional<std::string> FetchContent(const std::string &endpoint, const std::
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, kConnectTimeoutMs);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, timeout_ms);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+    if (cancelled)
+    {
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &cancelled);
+        curl_easy_setopt(
+            curl, CURLOPT_XFERINFOFUNCTION, +[](void *context, curl_off_t, curl_off_t, curl_off_t, curl_off_t) -> int {
+                return (*static_cast<const std::function<bool()> *>(context))() ? 1 : 0;
+            });
+    }
 
     const CURLcode performed = curl_easy_perform(curl);
     long status = 0;

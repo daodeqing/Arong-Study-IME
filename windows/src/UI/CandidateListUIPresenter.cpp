@@ -47,7 +47,7 @@ HRESULT CMetasequoiaIME::_HandleCandidateFinalize(TfEditCookie ec, _In_ ITfConte
     // _pCandidateListUIPresenter is null in uwp/metro apps; the commit path below does not
     // need it, so there is nothing to branch on here.
 
-    if (candidateLen)
+    if (candidateLen || !GlobalIme::word_for_creating_word.empty() || _hasPendingServerCandidate)
     {
         if (!pendingCommitCandidate.empty())
         {
@@ -100,7 +100,12 @@ HRESULT CMetasequoiaIME::_HandleCandidateFinalize(TfEditCookie ec, _In_ ITfConte
         {
             return hr;
         }
-        else if (serverMsgType == Global::DataFromServerMsgType::Normal) // 只有正常情况下才会上屏
+        else if (serverMsgType == Global::DataFromServerMsgType::NavigationIgnored)
+        {
+            return S_OK;
+        }
+        else if (serverMsgType == Global::DataFromServerMsgType::Normal ||
+                 serverMsgType == Global::DataFromServerMsgType::CommitExactText)
         {
             GlobalIme::word_for_creating_word = L"";
             GlobalIme::pending_create_word_preedit.clear();
@@ -116,7 +121,8 @@ HRESULT CMetasequoiaIME::_HandleCandidateFinalize(TfEditCookie ec, _In_ ITfConte
             }
         }
         /* 处理造词的逻辑 */
-        else if (serverMsgType == Global::DataFromServerMsgType::NeedToCreateWord)
+        else if (serverMsgType == Global::DataFromServerMsgType::NeedToCreateWord ||
+                 serverMsgType == Global::DataFromServerMsgType::CompositionRestored)
         {
             CreatingWordPayload payload;
             if (ParseCreatingWordPayload(serverCandidateString, payload))

@@ -528,22 +528,9 @@ namespace FanyNamedPipe
 {
 void RequestCurrentOutputTranslations()
 {
-    if (!IsEnglishOutputEnabled() || g_english_input_mode || !g_inputSession ||
-        g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji || IsSensitiveInputField())
-        return;
-    const auto &ui = Global::candidate_ui;
-    std::vector<std::string> candidates;
-    const int start = ui.current_page_start();
-    const int count = ui.current_page_count();
-    const std::string prefix =
-        GlobalIme::composition.creating_word.active ? GlobalIme::composition.creating_word.word : std::string();
-    for (int i = 0; i < count; ++i)
-    {
-        const WordItem &item = ui.items[static_cast<size_t>(start + i)];
-        if (item.source != CandidateSource::EnglishDictionary && OutputLanguagePolicy::ContainsHan(item.word))
-            candidates.push_back(CandidateTextForOutput(prefix + item.word));
-    }
-    OutputTranslation::Request(std::move(candidates));
+    // 整页逐词批译会挤占模型请求；整句模式只预取已经确认的最新中文。
+    if (GetConfiguredSentenceTranslationEnabled() && !IsSensitiveInputField())
+        UpdateSentenceTranslationPreview();
 }
 
 std::string CurrentRankingContextKey()

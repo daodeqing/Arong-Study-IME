@@ -905,7 +905,33 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
             break;
         }
 
-        if (receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText)
+        if (IsSentenceTranslationEnabled() &&
+            (receivedData->msg_type == Global::DataFromServerMsgType::NeedToCreateWord ||
+             receivedData->msg_type == Global::DataFromServerMsgType::CompositionRestored ||
+             receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText))
+        {
+            pIME->_QueuePendingServerCandidate(receivedData->msg_type, receivedData->candidate_string);
+            ITfDocumentMgr *document = nullptr;
+            ITfContext *context = nullptr;
+            bool dispatched = false;
+            if (SUCCEEDED(pIME->_GetThreadMgr()->GetFocus(&document)) && document)
+            {
+                if (SUCCEEDED(document->GetTop(&context)) && context)
+                {
+                    _KEYSTROKE_STATE state = {};
+                    state.Category = CATEGORY_CANDIDATE;
+                    state.Function = FUNCTION_FINALIZE_CANDIDATELIST;
+                    pIME->_InvokeKeyHandler(context, code, wch, 0, state, request.requestId, {}, 0,
+                                            request.compositionEpoch, request.focusToken, request.deferredReplayToken);
+                    dispatched = true;
+                    context->Release();
+                }
+                document->Release();
+            }
+            if (!dispatched)
+                pIME->_FailDeferredKey(request.deferredReplayToken, DeferredKeyFailureReason::AsyncPostFailed);
+        }
+        else if (receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText)
         {
             pIME->_PostAsyncKeyRequest(WM_AsyncPunctuationCommit, code, wch, request.requestId,
                                        receivedData->candidate_string, request.focusToken, request.compositionEpoch,
@@ -1007,6 +1033,35 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
             engine->SetPunctuationMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
         }
         SendCurrentImeStatusSnapshot(pIME);
+        break;
+    }
+    case WM_ToggleSentenceOutput: {
+        if (!IsSentenceTranslationEnabled() || !pIME->_pThreadMgr)
+            break;
+        ITfDocumentMgr *document = nullptr;
+        ITfContext *context = nullptr;
+        if (SUCCEEDED(pIME->_pThreadMgr->GetFocus(&document)) && document)
+        {
+            if (SUCCEEDED(document->GetTop(&context)) && context)
+            {
+                BOOL eaten = FALSE;
+                pIME->_QueueInputHotkey(context, Global::MetasequoiaIMEGuidImeModePreserveKey, &eaten);
+                context->Release();
+            }
+            document->Release();
+        }
+        break;
+    }
+    case WM_ApplySentenceTranslation: {
+        // COM compartment changes belong to the focused TSF owner thread.
+        BOOL hasThreadFocus = FALSE;
+        if (IsSentenceTranslationEnabled() && pIME->_pThreadMgr && pIME->_pCompositionProcessorEngine &&
+            SUCCEEDED(pIME->_pThreadMgr->IsThreadFocus(&hasThreadFocus)) && hasThreadFocus &&
+            !pIME->_IsKeyboardDisabled())
+        {
+            pIME->_pCompositionProcessorEngine->SetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
+            SendCurrentImeStatusSnapshot(pIME);
+        }
         break;
     }
     case WM_ApplyCapsLockEdge:

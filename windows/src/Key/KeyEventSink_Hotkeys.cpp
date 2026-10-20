@@ -379,10 +379,12 @@ bool CMetasequoiaIME::_QueueInputHotkey(_In_ ITfContext *pContext, REFGUID hotke
         return false;
     }
 
-    if (IsEqualGUID(hotkeyGuid, Global::MetasequoiaIMEGuidImeModePreserveKey))
+    if (IsEqualGUID(hotkeyGuid, Global::MetasequoiaIMEGuidImeModePreserveKey) && IsSentenceTranslationEnabled())
     {
-        // Bare Shift changes the text that a selected Chinese candidate commits.
-        // Queue it behind earlier keystrokes without touching the IME compartment.
+        // Sentence translation always needs the Chinese pinyin lane, even if
+        // the taskbar's ordinary English button closed it earlier.
+        if (_pCompositionProcessorEngine)
+            _pCompositionProcessorEngine->SetIMEMode(_pThreadMgr, _tfClientId, TRUE);
         _KEYSTROKE_STATE state = {};
         state.Category = CATEGORY_COMPOSING;
         state.Function = FUNCTION_TOGGLE_OUTPUT_LANGUAGE;

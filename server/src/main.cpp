@@ -15,6 +15,7 @@
 #include "cloud/cloud_ime.h"
 #include "cloud/cloud_translation.h"
 #include "cloud/output_translation.h"
+#include "cloud/sentence_translation.h"
 #include "ai/ai_assistant.h"
 #include "english/english_ime.h"
 #include "mixed/mixed_candidates.h"
@@ -197,6 +198,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/,
                                 FanyNamedPipe::EnqueueCandidateTranslations(std::move(results), generation, true);
                             });
     OutputTranslation::Start();
+    SentenceTranslation::Start();
     MixedCandidates::Start(CommonUtils::get_ime_data_path() + "\\english.db",
                            CommonUtils::get_ime_data_path() + "\\others.db",
                            [](MixedCandidates::Result result, const std::string &input, uint64_t generation) {
@@ -220,6 +222,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/,
 
     FanyNamedPipe::RegisterStatusSnapshotWindow(nullptr);
 
+    SentenceTranslation::Stop();
     OutputTranslation::Stop();
     EnglishIme::Stop();
     CloudTranslation::Stop();

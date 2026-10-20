@@ -483,7 +483,8 @@ constexpr std::uint32_t HorizontalArrowSelectionChanged = 39;
 // Payload "0" selects Chinese output, "1" selects English output. This is
 // independent of the TSF IME-open compartment.
 constexpr std::uint32_t OutputLanguageChanged = 40;
-constexpr std::uint32_t MaxKnown = OutputLanguageChanged;
+constexpr std::uint32_t SentenceTranslationChanged = 41;
+constexpr std::uint32_t MaxKnown = SentenceTranslationChanged;
 // Source compatibility for the Server's historical spellings.
 constexpr std::uint32_t SwitchToEn = SwitchToEnglish;
 constexpr std::uint32_t SwitchToCn = SwitchToChinese;

@@ -53,6 +53,9 @@ paging_mouse_wheel = false
 candidate_arrow_navigation = true
 # 横排候选时左右方向键移动高亮：光标在拼音串尾时右键移高亮，左键回到第一个候选后再按才移动光标（默认关闭）
 candidate_horizontal_arrow_navigation = false
+# 拼音整句翻译成英文（可选，默认关闭）：空格选词积累中文，Ctrl+Enter 确认英文，Enter 提交中文。
+# 使用下方 AI 接口配置，与 AI 联想开关独立；仅保留未提交整句，不自动翻译已经上屏的文字。
+sentence_translation = false
 # 中文输入状态下显示英文前缀候选
 cn_en_mixed_input = true
 # 中英混输触发所需的最少字母数，范围 1–8
@@ -72,7 +75,7 @@ kaomoji_mixed_input = false
 # 中文输入状态下输入恰好等于符号编码（alpha、infinity、szq、xl，数字读音 yi → ① ⑴ ⒈，标点读音 dian → · 、、shuminghao → 《》 〈〉）时显示符号候选，首个紧跟首选，其余排在颜文字之后
 symbol_mixed_input = false
 # 云候选
-cloud_candidates = true
+cloud_candidates = false
 # TODO: 极简模式。极简模式下，候选窗口使用 d2d 绘制，界面只作展示候选项，无其他功能。
 clean_mode = false
 

@@ -609,7 +609,7 @@ begin
     '联网功能',
     '选择安装后哪些功能可以联网',
     '拼音切分、候选排序和词频学习全部在本机完成，不联网。' + #13#10 +
-    '下面这一项是唯一一个装完就会生效的联网功能。AI 联想、候选翻译、语音输入都需要你自己填入 API token 之后才会发出任何请求。' + #13#10#13#10 +
+    '下面这一项是唯一一个装完就会生效的联网功能。AI 联想、整句翻译、语音输入只会在你配置并主动启用相应功能后请求所选接口；匿名本地服务可不填写访问密钥。' + #13#10#13#10 +
     '安装后随时可以在「设置 → 输入」里改变这个选择。',
     False,
     False
@@ -617,7 +617,7 @@ begin
   CloudCandidatesIndex := NetworkPage.Add(
     '启用云候选：输入过程中把当前正在输入的拼写通过 HTTPS 发送给 Google 的 input-tools 服务' +
     '（inputtools.google.com），换回一条额外候选。已上屏的文本、词库内容和学习到的词频都不会发送。');
-  NetworkPage.Values[CloudCandidatesIndex] := True;
+  NetworkPage.Values[CloudCandidatesIndex] := False;
 #endif
 end;
 

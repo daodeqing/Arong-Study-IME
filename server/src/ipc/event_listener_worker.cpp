@@ -828,6 +828,14 @@ void WorkerThread()
         }
 
         case TaskType::RefreshCandidatePage: {
+            BroadcastSentenceTranslationState();
+            const auto owner = SnapshotCandidateUiOwner();
+            if (owner && IsPipeActivationCurrent(owner.client_id, owner.activation_epoch))
+            {
+                SendSentenceTranslationState(owner.client_id, owner.activation_epoch);
+                if (RefreshSentenceTranslationPreview())
+                    break;
+            }
             if (!Global::candidate_ui.items.empty())
             {
                 Global::candidate_ui.clear_page();

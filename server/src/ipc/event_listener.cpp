@@ -37,6 +37,7 @@
 #include "conversion/chinese_converter.h"
 #include "log/candidate_diag_log.h"
 #include "ipc/event_listener_internal.h"
+#include "cloud/sentence_translation.h"
 #include "ipc/output_language_policy.h"
 #include "ai/jev_candidate_policy.h"
 
@@ -787,8 +788,8 @@ void RegisterStatusSnapshotWindow(HWND toolbar_window)
 bool SendCurrentDataToClient(uint64_t client_id, uint64_t activation_epoch, uint64_t request_id)
 {
     const UINT msg_type = Global::MsgTypeToTsf;
-    FANY_IPC_LOGF(L"[msime]: [ipc] send-current-data: msg_type={}, text={}", msg_type,
-                  ::Global::candidate_ui.selected_text);
+    FANY_IPC_LOGF(L"[msime]: [ipc] send-current-data: msg_type={}, units={}", msg_type,
+                  ::Global::candidate_ui.selected_text.size());
     const ULONGLONG send_started_at_ms = GetTickCount64();
     const bool sent = SendToTsfClientViaNamedpipe(client_id, activation_epoch, msg_type, request_id,
                                                   ::Global::candidate_ui.selected_text);
@@ -854,6 +855,7 @@ void PushUiLessCandidatesToOwner()
 
 void ClearState()
 {
+    SentenceTranslation::Cancel();
     const auto r_mode_original_session = g_r_mode_original_session;
     ClearSpecialModeTriggers();
     ClearCandidateUiOwner();

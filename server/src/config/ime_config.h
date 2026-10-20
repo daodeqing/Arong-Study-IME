@@ -487,6 +487,9 @@ bool SetConfiguredFloatingToolbarAutoHideDelay(int seconds);
 // sit flush with a screen edge; the shadow margin may hang off the screen.
 bool GetConfiguredFloatingToolbarShadow();
 bool SetConfiguredFloatingToolbarShadow(bool enabled);
+// Optional Chinese sentence composition followed by English translation; off by default.
+bool GetConfiguredSentenceTranslationEnabled();
+bool SetConfiguredSentenceTranslationEnabled(bool enabled);
 bool GetConfiguredEnglishCandidatesEnabled();
 bool SetConfiguredEnglishCandidatesEnabled(bool enabled);
 bool GetConfiguredCandidateTranslationsEnabled();

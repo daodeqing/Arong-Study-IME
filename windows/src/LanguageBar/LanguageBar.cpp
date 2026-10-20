@@ -500,7 +500,13 @@ STDAPI CLangBarItemButton::Show(BOOL fShow)
 
 STDAPI CLangBarItemButton::GetTooltipString(_Out_ BSTR *pbstrToolTip)
 {
-    *pbstrToolTip = SysAllocString(_pTooltipText);
+    GUID compartment = {};
+    if (_pCompartment)
+        _pCompartment->_GetGUID(&compartment);
+    const bool sentence =
+        IsSentenceTranslationEnabled() && IsEqualGUID(compartment, GUID_COMPARTMENT_KEYBOARD_OPENCLOSE);
+    *pbstrToolTip =
+        SysAllocString(sentence ? L"拼音整句翻译：点击切换中英文输出，Ctrl+Enter 确认，Enter 中文" : _pTooltipText);
 
     return (*pbstrToolTip == nullptr) ? E_OUTOFMEMORY : S_OK;
 }
@@ -521,6 +527,16 @@ STDAPI CLangBarItemButton::OnClick(TfLBIClick click, POINT /*pt*/, _In_ const RE
 
     if (click == TF_LBI_CLK_LEFT && _pCompartment)
     {
+        GUID compartment = {};
+        _pCompartment->_GetGUID(&compartment);
+        if (IsSentenceTranslationEnabled() && IsEqualGUID(compartment, GUID_COMPARTMENT_KEYBOARD_OPENCLOSE))
+        {
+            _pCompartment->_SetCompartmentBOOL(TRUE);
+            const HWND owner = Global::msgWndHandle;
+            if (owner && IsWindow(owner))
+                PostMessage(owner, WM_ToggleSentenceOutput, 0, 0);
+            return S_OK;
+        }
         BOOL isOn = FALSE;
 
         _pCompartment->_GetCompartmentBOOL(isOn);

@@ -133,6 +133,7 @@ bool ClientNegotiatedCaretStateIndicator(uint64_t client_id);
 bool ClientNegotiatedTrilingualCycle(uint64_t client_id);
 bool ClientNegotiatedInputStateShortcuts(uint64_t client_id);
 bool ClientNegotiatedTemporaryJapanese(uint64_t client_id);
+bool ClientNegotiatedSentenceTranslation(uint64_t client_id);
 uint64_t RegisterToTsfWorkerThreadPipeClient(uint64_t client_id, HANDLE pipe);
 uint64_t BeginPipeClientHandler(HANDLE pipe);
 void EndPipeClientHandler(uint64_t handler_id);
@@ -187,6 +188,7 @@ void BroadcastConfiguredInputModeState(uint64_t excluded_input_mode_client_id = 
 // A non-zero activation_epoch also requires that activation to be current.
 bool SendTrilingualCycleState(uint64_t client_id, uint64_t activation_epoch = 0);
 void BroadcastTrilingualCycleState();
+void BroadcastSentenceTranslationState();
 
 namespace Global
 {

@@ -6,6 +6,7 @@
 #include "KeyHandlerEditSession.h"
 #include "KeyFocusRecovery.h"
 #include "KeyRepeatGuard.h"
+#include "SentenceTranslationKeyPolicy.h"
 #include "CapsLockInputPolicy.h"
 #include "stats_collector.h"
 #include "stats_passthrough.h"
@@ -517,6 +518,25 @@ BOOL CMetasequoiaIME::_IsKeyEaten(         //
             {
                 pKeyState->Category = CATEGORY_COMPOSING;
                 pKeyState->Function = FUNCTION_TOGGLE_ENGLISH_CANDIDATES;
+            }
+            return TRUE;
+        }
+
+        const bool sentenceInput =
+            Global::SentenceTranslationEnabled.load(std::memory_order_relaxed) &&
+            (pCompositionProcessorEngine->GetVirtualKeyLength() > 0 || !GlobalIme::word_for_creating_word.empty());
+        const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
+        const bool sentencePunctuation = sentenceInput && !windowsKey && (shortcutModifiers & 6u) == 0 && wch != 0 &&
+                                         std::wstring(L",.!?:;。！？；：()（）").find(wch) != std::wstring::npos;
+        if (SentenceTranslationKeyPolicy::OwnsCommitKey(
+                Global::SentenceTranslationEnabled.load(std::memory_order_relaxed), sentenceInput, *pCodeOut,
+                shortcutModifiers, windowsKey) ||
+            sentencePunctuation)
+        {
+            if (pKeyState)
+            {
+                pKeyState->Category = CATEGORY_CANDIDATE;
+                pKeyState->Function = FUNCTION_SERVER_CANDIDATE_KEY;
             }
             return TRUE;
         }

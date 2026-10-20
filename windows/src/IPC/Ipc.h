@@ -59,6 +59,8 @@ bool UsesHorizontalArrowSelection();
 bool SupportsCaretStateIndicator();
 bool SupportsTrilingualCycle();
 bool SupportsInputStateShortcuts();
+bool SupportsSentenceTranslation();
+bool IsSentenceTranslationEnabled();
 bool FlushNamedpipeFocusSessionReset();
 bool FlushNamedpipeImeDeactivation(uint64_t focusToken = 0);
 
@@ -312,6 +314,7 @@ inline std::atomic_bool DirectHelpcodeSlashEnabled{true};
 inline std::atomic<FanyImeVModeInput::Trigger> VModeTrigger{FanyImeVModeInput::Trigger::Off};
 inline std::atomic_bool JapaneseInputModeEnabled{false};
 inline std::atomic_bool OutputLanguageEnglish{true};
+inline std::atomic_bool SentenceTranslationEnabled{false};
 // Enabled only after a supporting Server sends the persisted setting.
 inline std::atomic_bool TrilingualCycleEnabled{false};
 inline std::atomic_bool CapsLockEnabled{false};

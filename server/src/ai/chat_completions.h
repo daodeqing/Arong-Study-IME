@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <functional>
 #include <string>
 
 // AI 联想与 AI 候选词翻译共用的 OpenAI 兼容 Chat Completions 传输层。
@@ -13,5 +14,6 @@ constexpr long kDefaultTimeoutMs = 8000;
 // POST 一次请求并返回 choices[0].message.content。网络错误、非 2xx、响应超过 1 MiB
 // 或响应结构不对都返回 nullopt。
 std::optional<std::string> FetchContent(const std::string &endpoint, const std::string &token,
-                                        const std::string &payload, long timeout_ms);
+                                        const std::string &payload, long timeout_ms,
+                                        const std::function<bool()> &cancelled = {});
 } // namespace ChatCompletions

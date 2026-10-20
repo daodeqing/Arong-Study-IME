@@ -9,6 +9,7 @@
 #include "KeyHandlerEditSession.h"
 #include "KeyFocusRecovery.h"
 #include "KeyRepeatGuard.h"
+#include "SentenceTranslationKeyPolicy.h"
 #include "CapsLockInputPolicy.h"
 #include "stats_collector.h"
 #include "stats_passthrough.h"
@@ -453,6 +454,21 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
     const bool projectedInputActive = _deferredKeyProjectionValid
                                           ? _deferredProjectedInputLength > 0
                                           : _pCompositionProcessorEngine->GetVirtualKeyLength() > 0;
+    const bool sentenceInput = projectedInputActive || !GlobalIme::word_for_creating_word.empty() ||
+                               (_deferredKeyProjectionValid && _deferredProjectedCandidateActive);
+    const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
+    const bool sentencePunctuation = IsSentenceTranslationEnabled() && sentenceInput && !windowsKey &&
+                                     (capturedModifiers & 6u) == 0 && *classifiedWch != 0 &&
+                                     std::wstring(L",.!?:;。！？；：()（）").find(*classifiedWch) != std::wstring::npos;
+    if (projectedImeOpen && !_IsKeyboardDisabled() &&
+        (SentenceTranslationKeyPolicy::OwnsCommitKey(Global::SentenceTranslationEnabled.load(std::memory_order_relaxed),
+                                                     sentenceInput, *classifiedCode, capturedModifiers, windowsKey) ||
+         sentencePunctuation))
+    {
+        keyState->Category = CATEGORY_CANDIDATE;
+        keyState->Function = FUNCTION_SERVER_CANDIDATE_KEY;
+        return true;
+    }
     if (projectedImeOpen && !_IsKeyboardDisabled() &&
         ((projectedCandidateActive && (IsTranslationCommitShortcut(*classifiedCode, capturedModifiers) ||
                                        IsTranslationDigitShortcut(*classifiedCode, capturedModifiers))) ||
@@ -1106,6 +1122,13 @@ void CMetasequoiaIME::_DrainOneDeferredKeyDown()
     if (_serverUnavailableFallbackActive)
     {
         _KEYSTROKE_STATE offlineState = key.keyState;
+        if (Global::SentenceTranslationEnabled.load(std::memory_order_relaxed) &&
+            (offlineState.Function == FUNCTION_SERVER_CANDIDATE_KEY ||
+             offlineState.Function == FUNCTION_TOGGLE_OUTPUT_LANGUAGE))
+        {
+            _CompleteDeferredKeyReplay(replayToken);
+            return;
+        }
         // The English-candidate toggle cannot switch Server modes offline;
         // it only clears the local composition.
         if (offlineState.Function == FUNCTION_TOGGLE_ENGLISH_CANDIDATES)
