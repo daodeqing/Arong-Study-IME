@@ -278,6 +278,7 @@ void ApplyEnglishCandidates(std::vector<WordItem> candidates, const std::string 
 void ApplyCandidateTranslations(std::vector<EnglishIme::TranslationResult> results, uint64_t generation, bool merge);
 void ApplyMixedCandidates(MixedCandidates::Result result, const std::string &input, uint64_t generation);
 void EnqueueStoreUserPhraseTask(const std::string &pinyin, const std::string &word, bool pinyin_is_canonical = false);
+void HoldSentenceComposition();
 bool SentenceModeForClient(uint64_t client_id);
 void SendSentenceTranslationState(uint64_t client_id, uint64_t activation_epoch);
 void UpdateSentenceTranslationPreview();

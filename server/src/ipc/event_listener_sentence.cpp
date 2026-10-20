@@ -24,8 +24,9 @@ void SentenceNotice(const wchar_t *text)
 
 void HoldSentence()
 {
-    const auto payload = event_listener_detail::BuildCreateWordPipePayload(
-        g_inputSession->get_pinyin_sequence_with_cases(), GlobalIme::composition.creating_word.word);
+    const auto raw = string_to_wstring(g_inputSession->get_pinyin_sequence_with_cases());
+    const auto word = string_to_wstring(GlobalIme::composition.creating_word.word);
+    const auto payload = raw + L'\t' + word + L'\t' + word + raw;
     // 旧协议长度固定，绝不把截断的中文/拼音送给 DLL 覆盖现有组合。
     Global::MsgTypeToTsf = payload.size() < FanyImePipeLimits::CandidateTextCapacity
                                ? Global::DataFromServerMsgType::NeedToCreateWord
@@ -56,6 +57,11 @@ bool SelectRemainingSentence(uint64_t client_id, uint64_t activation_epoch)
 namespace FanyNamedPipe
 {
 using namespace event_listener_detail;
+void HoldSentenceComposition()
+{
+    HoldSentence();
+}
+
 bool SentenceModeForClient(uint64_t client_id)
 {
     if (!GetConfiguredSentenceTranslationEnabled() || !ClientNegotiatedSentenceTranslation(client_id) ||
@@ -71,7 +77,10 @@ void SendSentenceTranslationState(uint64_t client_id, uint64_t activation_epoch)
 {
     if (!ClientNegotiatedSentenceTranslation(client_id))
         return;
-    const std::wstring payload = GetConfiguredSentenceTranslationEnabled() ? L"1" : L"0";
+    const auto scheme = GetConfiguredActiveInputScheme();
+    const bool enabled =
+        GetConfiguredSentenceTranslationEnabled() && (scheme == SchemeType::Quanpin || scheme == SchemeType::Shuangpin);
+    const std::wstring payload = enabled ? L"1" : L"0";
     if (activation_epoch != 0)
         SendToTsfWorkerThreadClientViaNamedpipe(client_id, activation_epoch,
                                                 FanyImeWorkerReplyType::SentenceTranslationChanged, payload);
@@ -167,6 +176,8 @@ bool AccumulateSentenceCandidate(const WordItem &item, uint64_t client_id, uint6
     if (!transition.continues_composition)
         g_inputSession->reset_state();
     composition.raw_input_with_cases = g_inputSession->get_pinyin_sequence_with_cases();
+    composition.segmented_pinyin = g_inputSession->get_pinyin_segmentation_with_cases();
+    composition.shuangpin_forms_source.clear();
     composition.caret_position = composition.raw_input_with_cases.size();
     event_listener_detail::PublishCandidateUiOwner(client_id, activation_epoch);
     event_listener_detail::UpdateCloudInput("");

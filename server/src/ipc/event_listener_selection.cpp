@@ -259,9 +259,7 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
     {
         if (!AccumulateSentenceCandidate(curWordItem, client_id, activation_epoch))
         {
-            Global::MsgTypeToTsf = Global::DataFromServerMsgType::NeedToCreateWord;
-            Global::candidate_ui.selected_text = BuildCreateWordPipePayload(
-                g_inputSession->get_pinyin_sequence_with_cases(), GlobalIme::composition.creating_word.word);
+            HoldSentenceComposition();
         }
         return;
     }
