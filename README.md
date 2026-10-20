@@ -14,6 +14,8 @@
 
 模型翻译耗时受模型和服务负载影响，后台预览不会阻塞选字。功能不会自动改写应用中已经正式提交的文字；句子应在组合区选完后再确认。
 
+当前发布：**0.8.2 API 接口测试版**。本版沿用 0.8.1 的翻译实现，不包含 HY-MT 翻译模型或 llama.cpp；配置步骤、按键和未完成项见 [API 接口测试说明](docs/api-translation-testing.md)。
+
 ## 项目概述
 
 本项目专注于提供纯净、高效、现代化的 Windows 输入体验，采用端侧优先与模块化解耦架构：
@@ -59,7 +61,7 @@ cmake --build server/build --config Release
 
 本项目配置了独立的 GitHub Actions 云端构建工作流（.github/workflows/package-release.yml），支持在 GitHub-hosted windows-2025 环境中全自动编译组件并打包生成 Inno Setup 安装包：
 - **手动触发**：在 GitHub 仓库页面进入 **Actions** -> **Build and Package Release** -> **Run workflow**，可按需选择打包精简版（light）或包含词库模型的完整版（full）。
-- **Release 发布**：推送版本标签（例如 `v0.8.1`），工作流将自动编译并在 GitHub Release 中发布安装包文件。
+- **Release 发布**：推送版本标签（例如 `v0.8.2`），工作流将自动编译并在 GitHub Release 中发布安装包文件。
 - **构件下载**：每次成功构建的安装包均会自动上传至 Actions Artifacts 供直接下载测试。
 
 ## 开源协议

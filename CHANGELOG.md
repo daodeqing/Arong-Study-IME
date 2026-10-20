@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.2](https://github.com/daodeqing/Arong-Study-IME/compare/v0.8.1...v0.8.2) (2026-10-20)
+
+- 发布现有密钥/API 接口测试版，同步版本资源并补充配置、当前按键与限制说明。
+- 输入与翻译实现沿用 0.8.1；本版未加入单次 Enter 自动等待提交或本机翻译组件。
+
+
 ## [0.6.7](https://github.com/metasequoiaime/MSIME-Windows/compare/v0.6.6...v0.6.7) (2026-09-08)
 
 
