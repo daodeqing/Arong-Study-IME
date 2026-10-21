@@ -480,7 +480,8 @@ void CandidateSkinScene::Build(bool horizontal, bool pageArrows, bool expandPane
     }
     // Optional business-supplied text uses the existing native, wrapping layout.
     supplementary_ = std::make_shared<msimeui::TextBlock>(L"", 14.0f, D2D1::ColorF(0xF5F5F5));
-    supplementary_->SetVisible(false);
+    supplementary_->SetHeight(0.0f);
+    supplementary_->SetMargin({0.0f, 0.0f, 0.0f, -kCandidateBodyRowSpacingDip});
     supplementary_->SetTextLayoutPadding({5.0f, 4.0f, 5.0f, 4.0f});
     body_->AddChild(supplementary_);
     msimeui::Brush brush;

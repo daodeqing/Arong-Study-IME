@@ -984,20 +984,21 @@ void CandidatePresenter::ShowFromGlobalState(POINT caret)
     const auto sentencePage = Global::LoadCandidatePageSnapshot();
     const bool sentenceVisible = sentencePage && !sentencePage->sentence_source.empty();
     const auto &supplementary = impl_->scene.SupplementaryText();
-    supplementary->SetVisible(sentenceVisible);
     if (sentenceVisible)
+    {
+        supplementary->ClearHeight();
+        supplementary->SetMargin({0.0f, 0.0f, 0.0f, 0.0f});
         supplementary->SetText(
             L"中文：" + sentencePage->sentence_source + L"\n英文：" +
             (sentencePage->sentence_preview.empty() ? L"等待整句译文" : sentencePage->sentence_preview) + L"\n" +
             sentencePage->sentence_status);
+    }
     else
+    {
         supplementary->SetText(L"");
-    const bool bufferOnly = sentenceVisible && sentencePage->sentence_buffer_only;
-    impl_->list->SetVisible(!bufferOnly);
-    if (impl_->expandBody)
-        impl_->expandBody->SetVisible(!bufferOnly);
-    if (impl_->pager)
-        impl_->pager->SetVisible(!bufferOnly);
+        supplementary->SetHeight(0.0f);
+        supplementary->SetMargin({0.0f, 0.0f, 0.0f, -kCandidateBodyRowSpacingDip});
+    }
     const std::uint64_t renderedGeneration = FillItemsFromUi();
     impl_->list->SetHoverEnabled(hoverArmed_);
     if (impl_->pager)
