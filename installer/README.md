@@ -34,7 +34,7 @@ pwsh -File ./Prepare-PackageFiles.ps1 -TargetVersion 1.2.3 -RepoRoot .. `
 
 ## 数据目录
 
-程序本体固定装在 `Program Files\ArongStudyIme`（Server 带 `uiAccess=true`，只有装在受信任目录里这个标志才生效），**用户数据目录可以在安装向导里改**：词库、`config.toml`、用户词库、皮肤和设置窗口的图片资源都在那里，整包几百 MB，装 C 盘吃紧的用户可以放到别的盘。
+程序本体默认装在 `Program Files\ArongStudyIme`，也可用 `/DIR=` 指定 D 盘等安装位置；程序、快捷方式、ServerPath 注册表值与看门狗任务均使用同一安装目录。带 `uiAccess=true` 的签名构建仍要求受信任安装位置，其他位置的候选窗不能保证覆盖管理员权限窗口。**用户数据目录可以在安装向导里改**：词库、`config.toml`、用户词库、皮肤和设置窗口的图片资源都在那里，整包几百 MB，装 C 盘吃紧的用户可以放到别的盘。
 
 - 默认值 `%LOCALAPPDATA%\ArongStudyIme`；升级安装时默认沿用上次的位置
 - 选择写进 `HKLM\Software\ArongStudyIme\ArongStudyIme` 的 `DataDir`。这是运行期唯一的权威来源：Server（`server/src/utils/ime_paths.cpp`）、TSF DLL（`windows/src/Utils/FanyUtils.cpp`）和引擎（`engine/core/data_path.h`）各自按 `ARONG_STUDY_IME_DATA_DIR` 环境变量 → 该注册表值 → `%LOCALAPPDATA%\ArongStudyIme` 的顺序解析，三处必须保持一致。32 位 TSF DLL 用 `KEY_WOW64_64KEY` 读，所以这个值必须写在 64 位视图里
