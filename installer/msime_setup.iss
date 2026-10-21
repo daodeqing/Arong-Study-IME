@@ -78,7 +78,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Dirs]
 Name: "{#MyTsfRoot32}\{code:GetVersionDir}"
 Name: "{#MyTsfRoot64}\{code:GetVersionDir}"
-Name: "{app}\server"
+Name: "{code:GetAppDir}\server"
 ; 用户数据（词库、配置、皮肤、界面资源）。默认在 LocalAppData，安装时可以改到别的盘，
 ; 选择写进 HKLM 的 DataDir，Server / TSF DLL / 引擎三方都从那里读。
 Name: "{code:GetDataDir}"; Permissions: users-modify
@@ -90,18 +90,18 @@ Name: "{code:GetDataDir}\shuangpin\custom"
 [Files]
 ; 独立安装应用图标，供 Windows“已安装的应用”列表稳定显示。
 Source: "{#MySourceRoot}\ArongStudyIme.ico"; \
-    DestDir: "{app}"; DestName: "ArongStudyIme.ico"; Flags: ignoreversion
+    DestDir: "{code:GetAppDir}"; DestName: "ArongStudyIme.ico"; Flags: ignoreversion
 
 ; 第三方声明随包安装。词库主体含 rime-ice（GPL-3.0）内容，其许可要求保留署名，
 ; 因此这份文件必须落到用户磁盘上，而不能只存在于源码仓库里。
 Source: "{#MySourceRoot}\THIRD_PARTY_NOTICES.txt"; \
-    DestDir: "{app}"; Flags: ignoreversion
+    DestDir: "{code:GetAppDir}"; Flags: ignoreversion
 
 ; GPLv3 第 4、6 条要求分发时向接收者提供许可证副本，而 THIRD_PARTY_NOTICES.txt 只是指向
 ; "the LICENSE file"、本身不含 GPL 正文。macOS 与 Linux 的 CMake 安装规则早已随包装入许可证，
 ; Windows 是唯一大规模分发却漏掉这一步的平台。
 Source: "{#MySourceRoot}\LICENSE.txt"; \
-    DestDir: "{app}"; Flags: ignoreversion
+    DestDir: "{code:GetAppDir}"; Flags: ignoreversion
 
 ; 输入法语言配置（profile）的图标放在固定路径。TSF DLL 每次升级都换版本目录，图标若指向 DLL，
 ; 注册表里的图标路径就跟着变；任务栏恰好在换目录时取不到图标，就改显示「简体」文字并一直沿用到
@@ -134,7 +134,7 @@ Source: "{#MySourceRoot}\tsf_dll\64\*.pdb"; \
     Flags: ignoreversion skipifsourcedoesntexist
 
 Source: "{#MySourceRoot}\server_exe\*"; \
-    DestDir: "{app}\server"; \
+    DestDir: "{code:GetAppDir}\server"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; 内置皮肤的出厂清单（开关与完整外观）每次安装都整份覆盖：用户技术上能改，但不建议，升级会冲掉改动。
@@ -173,8 +173,8 @@ Source: "{#MySourceRoot}\app_data\config.default.toml"; \
 
 [Icons]
 Name: "{group}\{#MyAppName}"; \
-    Filename: "{app}\server\{#MySettingsExeName}"; \
-    WorkingDir: "{app}\server"
+    Filename: "{code:GetAppDir}\server\{#MySettingsExeName}"; \
+    WorkingDir: "{code:GetAppDir}\server"
 Name: "{group}\卸载 {#MyAppName}"; Filename: "{uninstallexe}"
 
 [Registry]
@@ -183,7 +183,7 @@ Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     Flags: uninsdeletevalue
 Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     ValueType: string; ValueName: "ServerPath"; \
-    ValueData: "{app}\server\{#MyAppExeName}"; \
+    ValueData: "{code:GetAppDir}\server\{#MyAppExeName}"; \
     Flags: uninsdeletevalue
 ; 用户数据目录的唯一权威来源。Server、TSF DLL 和引擎都按
 ; ARONG_STUDY_IME_DATA_DIR → 这个键 → %LOCALAPPDATA%\ArongStudyIme 的顺序解析；
@@ -194,6 +194,11 @@ Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     Flags: uninsdeletevalue
 
 [Code]
+function GetAppDir(Param: String): String;
+begin
+  Result := WizardDirValue;
+end;
+
 const
   { 放在数据目录里，标记「输入法用过这个目录」。}
   DataDirMarkerName = '.ArongStudyIme-data';
@@ -500,7 +505,7 @@ begin
   { 覆盖安装会清理数据目录里的旧资源，卸载会整个删掉它。
     因此它既不能落在程序目录里，也不能反过来包住系统或用户的关键目录。}
   if
-    IsPathInside(Directory, ExpandConstant('{app}')) or
+    IsPathInside(Directory, GetAppDir('')) or
     IsPathInside(Directory, ExpandConstant('{commonpf64}\ArongStudyIme')) or
     IsPathInside(Directory, ExpandConstant('{commonpf32}\ArongStudyIme'))
   then
@@ -639,7 +644,7 @@ begin
     完成页点击 Finish 后，以原用户身份执行 ShellExecute（等同双击）。}
   ShellExecAsOriginalUser(
     '',
-    ExpandConstant('{app}\server\{#MyAppExeName}'),
+    GetAppDir('') + '\server\{#MyAppExeName}',
     '',
     '',
     SW_SHOWNORMAL,
@@ -648,7 +653,7 @@ begin
   );
   ShellExecAsOriginalUser(
     '',
-    ExpandConstant('{app}\server\{#MyWatchdogName}'),
+    GetAppDir('') + '\server\{#MyWatchdogName}',
     '',
     '',
     SW_SHOWNORMAL,
@@ -1039,8 +1044,7 @@ var
   ResultCode: Integer;
 begin
   ResultCode := -1;
-  WatchdogPath := ExpandConstant(
-    '{app}\server\{#MyWatchdogName}');
+  WatchdogPath := GetAppDir('') + '\server\{#MyWatchdogName}';
   { /F replaces the same fixed-name task during an upgrade. /IT keeps the
     task in the interactive user's session; LIMITED avoids an elevated token. }
   Params :=
@@ -1309,8 +1313,7 @@ begin
     exit;
   end;
 
-  ReplayPath := ExpandConstant(
-    '{app}\server\{#MyReplayName}');
+  ReplayPath := GetAppDir('') + '\server\{#MyReplayName}';
   Log('Starting user dictionary replay.');
   if not Exec(
     ReplayPath,
@@ -1642,8 +1645,7 @@ begin
   CleanAppDataExceptUserFiles;
 #endif
   RemoveLegacyWebView2UserData;
-  TryDeleteTree(ExpandConstant(
-    '{app}\server'));
+  TryDeleteTree(GetAppDir('') + '\server');
   TryDeleteOldVersionDirs(TsfRoot32);
   TryDeleteOldVersionDirs(TsfRoot64);
   { 旧版把 TSF DLL 装在 Program Files 下，升级上来时一并清掉。}
