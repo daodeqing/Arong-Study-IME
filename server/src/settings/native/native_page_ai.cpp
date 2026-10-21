@@ -656,12 +656,13 @@ struct AiPage : std::enable_shared_from_this<AiPage>
                                      BindToggle(context, "general.sentence_translation")));
             translation->Add(
                 MakeDescription(L"开启后，输入拼音并按空格选择中文字或词，整句会留在输入法中继续积累；"
-                                L"输入完整一句后，按 Ctrl+Enter 确认英文。译文未完成时显示“翻译中”并保留中文，"
-                                L"完成后再次按 Ctrl+Enter 或选择译文候选确认。Enter 提交中文；Shift "
-                                L"仅切换本次中英文输出。较长句子请分句输入。"));
+                                L"空格和数字只用于选词，不能提交英文碎片。输入完整一句后，按 Enter 确认英文；"
+                                L"译文未完成时等待，完成后自动上屏，不需要再按回车。Ctrl+Enter 提交中文；Shift "
+                                L"切换中英文输出并保持拼音输入。可对照中文原句与整句英文预览学习。"));
             translation->Add(MakeDescription(
                 L"只翻译已选定的中文，不会把原始拼音当作英文句子。使用下方接口与模型配置，"
-                L"无需开启 AI 联想；请先查询模型并测试连接。接口连接失败时保留中文，可重试或按 Enter 提交。"));
+                L"无需开启 AI 联想；请先查询模型并测试连接。等待时继续编辑、切换模式或离开输入框会撤销自动提交。"
+                L"失败或等待超过 5 秒保留中文；Enter 重试，Ctrl+Enter 提交中文。较长句子请分句输入。"));
             page.AddSection(translation);
         }
 
@@ -687,7 +688,7 @@ struct AiPage : std::enable_shared_from_this<AiPage>
             column->Add(description);
 
             auto grid = std::make_shared<FormGrid>();
-            providerDropdown = GridDropdown(Options({{"local", L"本地模型"},
+            providerDropdown = GridDropdown(Options({{"local", L"本机接口（兼容 API）"},
                                                      {"deepseek", L"DeepSeek"},
                                                      {"openai", L"OpenAI"},
                                                      {"siliconflow", L"SiliconFlow"},

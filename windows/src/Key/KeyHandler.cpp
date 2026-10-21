@@ -140,6 +140,7 @@ VOID CMetasequoiaIME::_DeleteCandidateList(BOOL isForce, _In_opt_ ITfContext *pC
 
 HRESULT CMetasequoiaIME::_HandleComplete(TfEditCookie ec, _In_ ITfContext *pContext)
 {
+    _CancelSentenceTranslationCommit();
     g_toggleImeFallbackBuffer.clear();
     // The composition ends here, so the creating-word prefix must not survive
     // into the next one: a leftover word would be prepended to its preedit.

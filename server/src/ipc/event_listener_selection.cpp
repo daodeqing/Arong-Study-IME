@@ -188,12 +188,9 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
     static bool isNeedUpdateWeight = false;
     isNeedUpdateWeight = false;
 
-    if (SentenceModeForClient(client_id) && g_inputSession->get_pinyin_sequence_with_cases().empty() &&
-        !GlobalIme::composition.creating_word.word.empty())
-    {
-        PrepareSentenceConfirmation(client_id, activation_epoch);
+    // Space/digit/mouse never confirm a translated sentence.
+    if (RetainSelectedSentence(client_id))
         return;
-    }
 
     if (g_translation_candidates_active)
     {

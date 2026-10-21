@@ -356,7 +356,9 @@ constexpr std::uint32_t CompositionRestored = 14;
 constexpr std::uint32_t TrilingualCycle = 15;
 // Highest opcode a live Server may send. Local-only sentinels are larger and
 // must never be accepted as a Server frame.
-constexpr std::uint32_t MaxKnown = TrilingualCycle;
+// Same composition payload as NeedToCreateWord. The Enter request is accepted for async translation.
+constexpr std::uint32_t SentenceTranslationPending = 16;
+constexpr std::uint32_t MaxKnown = SentenceTranslationPending;
 // Local-only result. It is never sent over the pipe and must never be
 // interpreted as candidate text to commit.
 constexpr std::uint32_t TransportUnavailable = static_cast<std::uint32_t>(-1);
@@ -484,7 +486,11 @@ constexpr std::uint32_t HorizontalArrowSelectionChanged = 39;
 // independent of the TSF IME-open compartment.
 constexpr std::uint32_t OutputLanguageChanged = 40;
 constexpr std::uint32_t SentenceTranslationChanged = 41;
-constexpr std::uint32_t MaxKnown = SentenceTranslationChanged;
+// Framed result for an accepted Enter; see sentence_translation.h. No unsolicited text commits.
+constexpr std::uint32_t SentenceTranslationReady = 42;
+// Decimal Enter request ID. Retain the Chinese composition on failure/timeout.
+constexpr std::uint32_t SentenceTranslationFailed = 43;
+constexpr std::uint32_t MaxKnown = SentenceTranslationFailed;
 // Source compatibility for the Server's historical spellings.
 constexpr std::uint32_t SwitchToEn = SwitchToEnglish;
 constexpr std::uint32_t SwitchToCn = SwitchToChinese;

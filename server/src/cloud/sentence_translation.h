@@ -20,11 +20,12 @@ struct Snapshot
     Status status = Status::Idle;
     std::uint64_t revision = 0;
     long elapsed_ms = 0;
+    bool cache_hit = false;
 };
 void Start();
 void Stop();
 void Cancel();
-void Request(std::string source);
+void Request(std::string source, bool immediate = false, bool retry = false);
 Snapshot Current();
 namespace detail
 {

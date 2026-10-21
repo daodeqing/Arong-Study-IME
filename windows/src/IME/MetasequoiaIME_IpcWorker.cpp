@@ -355,7 +355,9 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
             buf.msg_type == Global::DataToTsfWorkerThreadMsgType::CommitCandidateAndContinue ||
             buf.msg_type == Global::DataToTsfWorkerThreadMsgType::InsertText ||
             buf.msg_type == Global::DataToTsfWorkerThreadMsgType::CancelVoiceComposition ||
-            buf.msg_type == Global::DataToTsfWorkerThreadMsgType::UiLessCandidatesChanged)
+            buf.msg_type == Global::DataToTsfWorkerThreadMsgType::UiLessCandidatesChanged ||
+            buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationReady ||
+            buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationFailed)
         {
             bool hasTerminator = false;
             for (const wchar_t ch : buf.data)
@@ -705,7 +707,18 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
             Global::OutputLanguageEnglish.store(buf.data[0] == L'1', std::memory_order_relaxed);
             const HWND ownerWindow = pIME->_msgWndHandle;
             if (ownerWindow && IsWindow(ownerWindow))
+            {
+                PostMessage(ownerWindow, WM_CancelSentenceTranslationCommit, 0, 0);
                 PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
+            }
+        }
+        else if (buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationReady ||
+                 buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationFailed)
+        {
+            pIME->_PostServerTextDelivery(buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationReady
+                                              ? WM_SentenceTranslationResult
+                                              : WM_SentenceTranslationFailed,
+                                          buf.data);
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::SentenceTranslationChanged)
         {
@@ -714,8 +727,13 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
             const bool enabled = buf.data[0] == L'1';
             Global::SentenceTranslationEnabled.store(enabled, std::memory_order_relaxed);
             const HWND ownerWindow = pIME->_msgWndHandle;
-            if (enabled && ownerWindow && IsWindow(ownerWindow))
-                PostMessage(ownerWindow, WM_ApplySentenceTranslation, 0, 0);
+            if (ownerWindow && IsWindow(ownerWindow))
+            {
+                if (enabled)
+                    PostMessage(ownerWindow, WM_ApplySentenceTranslation, 0, 0);
+                else
+                    PostMessage(ownerWindow, WM_CancelSentenceTranslationCommit, 0, 0);
+            }
             if (ownerWindow && IsWindow(ownerWindow))
                 PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
         }

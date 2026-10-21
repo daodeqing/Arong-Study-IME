@@ -15,6 +15,11 @@ on:
           - full
           - light
         default: 'full'
+      publish_release:
+        description: 'Publish on GitHub (disable to build a reviewable candidate artifact only)'
+        type: boolean
+        required: true
+        default: true
   push:
     tags:
       - 'v*'
@@ -194,7 +199,7 @@ jobs:
           if-no-files-found: error
 
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.publish_release)
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

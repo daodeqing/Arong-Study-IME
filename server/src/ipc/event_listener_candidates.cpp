@@ -413,7 +413,9 @@ std::string BuildCurrentCandidatePage()
 void PrepareCandidateTranslationRequest()
 {
     const bool japanese = g_inputSession && g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji;
-    const bool enabled = GetConfiguredCandidateTranslationsEnabled() && !IsUiLessMode() && !japanese;
+    // Whole-sentence learning must not launch separate word-gloss requests.
+    const bool enabled = GetConfiguredCandidateTranslationsEnabled() && !IsUiLessMode() && !japanese &&
+                         !GetConfiguredSentenceTranslationEnabled();
     auto &ui = Global::candidate_ui;
     if (IsCandidateSubPageActive())
     {
@@ -475,6 +477,7 @@ void PublishBuiltCandidatePage(const std::wstring &candidate_string)
 {
     const auto &ui = Global::candidate_ui;
     auto snapshot = std::make_shared<Global::CandidatePageSnapshot>();
+    FanyNamedPipe::PopulateSentencePreview(*snapshot);
     snapshot->page_views = ui.page_views;
     snapshot->page_words = ui.page_words;
     snapshot->candidate_string = candidate_string;
@@ -529,7 +532,8 @@ namespace FanyNamedPipe
 void RequestCurrentOutputTranslations()
 {
     // 整页逐词批译会挤占模型请求；整句模式只预取已经确认的最新中文。
-    if (GetConfiguredSentenceTranslationEnabled() && !IsSensitiveInputField())
+    const auto owner = SnapshotCandidateUiOwner();
+    if (owner && SentenceModeForClient(owner.client_id))
         UpdateSentenceTranslationPreview();
 }
 

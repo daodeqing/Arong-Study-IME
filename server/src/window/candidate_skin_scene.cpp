@@ -478,6 +478,11 @@ void CandidateSkinScene::Build(bool horizontal, bool pageArrows, bool expandPane
         if (pager_)
             body_->AddChild(pager_);
     }
+    // Optional business-supplied text uses the existing native, wrapping layout.
+    supplementary_ = std::make_shared<msimeui::TextBlock>(L"", 14.0f, D2D1::ColorF(0xF5F5F5));
+    supplementary_->SetVisible(false);
+    supplementary_->SetTextLayoutPadding({5.0f, 4.0f, 5.0f, 4.0f});
+    body_->AddChild(supplementary_);
     msimeui::Brush brush;
     brush.fill = D2D1::ColorF(0x202020);
     brush.stroke = D2D1::ColorF(0x9B9B9B, 0x2E / 255.0f);
@@ -780,6 +785,10 @@ CandidateSkinScene::Result CandidateSkinScene::Apply(const Settings &settings)
                                  scrollAppearance.reservedWidth);
         result.expandRowStepDip = appearance.itemHeight + appearance.itemGap;
     }
+    supplementary_->SetFontFamily(appearance.fontFamily);
+    supplementary_->SetFallbackFontFamilies(appearance.fallbackFontFamilies);
+    supplementary_->SetFontSize(settings.preeditFontSize);
+    supplementary_->SetColor(palette.preeditText);
     preedit_->SetFontFamily(appearance.fontFamily);
     preedit_->SetFallbackFontFamilies(appearance.fallbackFontFamilies);
     preedit_->SetFontSize(settings.preeditFontSize);

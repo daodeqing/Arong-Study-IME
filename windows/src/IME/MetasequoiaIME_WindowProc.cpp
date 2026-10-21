@@ -400,6 +400,12 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         break;
     }
     case WM_TIMER: {
+        if (wParam == TIMER_SENTENCE_TRANSLATION)
+        {
+            if (!pIME->_sentenceCommit.Current(pIME->_SentenceSession(), GetTickCount64()))
+                pIME->_CancelSentenceTranslationCommit();
+            break;
+        }
         if (wParam == TIMER_COMMIT_REPLY_POLL)
         {
             // A committing key could not settle its reply in the last slice, so
@@ -908,6 +914,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         if (IsSentenceTranslationEnabled() &&
             (receivedData->msg_type == Global::DataFromServerMsgType::NeedToCreateWord ||
              receivedData->msg_type == Global::DataFromServerMsgType::CompositionRestored ||
+             receivedData->msg_type == FanyImeReplyType::SentenceTranslationPending ||
              receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText))
         {
             pIME->_QueuePendingServerCandidate(receivedData->msg_type, receivedData->candidate_string);
@@ -1035,6 +1042,18 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         SendCurrentImeStatusSnapshot(pIME);
         break;
     }
+    case WM_SentenceTranslationResult:
+        pIME->_ReceiveSentenceTranslationResult(static_cast<UINT>(wParam), false);
+        break;
+    case WM_SentenceTranslationFailed:
+        pIME->_ReceiveSentenceTranslationResult(static_cast<UINT>(wParam), true);
+        break;
+    case WM_TrySentenceTranslationCommit:
+        pIME->_TrySentenceTranslationCommit();
+        break;
+    case WM_CancelSentenceTranslationCommit:
+        pIME->_CancelSentenceTranslationCommit();
+        break;
     case WM_ToggleSentenceOutput: {
         if (!IsSentenceTranslationEnabled() || !pIME->_pThreadMgr)
             break;

@@ -46,7 +46,7 @@ int main()
            FanyImeProtocol::TemporaryJapaneseLongVowel) == 0);
     CHECK(FanyImeWorkerReplyType::TemporaryJapanesePolicyChanged == 36);
     CHECK(FanyImeWorkerReplyType::OutputLanguageChanged == 40);
-    CHECK(FanyImeWorkerReplyType::MaxKnown == 41);
+    CHECK(FanyImeWorkerReplyType::MaxKnown == 43);
     for (wchar_t payload = L'0'; payload <= L'3'; ++payload)
     {
         CHECK(FanyImeTemporaryJapanese::IsValidPayload(payload));
@@ -130,7 +130,7 @@ int main()
           0); // old client/new server
     CHECK(FanyImeReplyType::CompositionRestored == 14);
     CHECK(FanyImeReplyType::TrilingualCycle == 15);
-    CHECK(FanyImeReplyType::MaxKnown == FanyImeReplyType::TrilingualCycle);
+    CHECK(FanyImeReplyType::MaxKnown == FanyImeReplyType::SentenceTranslationPending);
     CHECK(FanyImeReplyType::TransportUnavailable > FanyImeReplyType::MaxKnown);
 
     const auto cycleCapabilities = FanyImeProtocol::Capabilities | FanyImeProtocol::TrilingualCycle;
@@ -243,7 +243,7 @@ int main()
     CHECK(FanyImeWorkerReplyType::EndHelpcodeTriggersChanged == 37);
     CHECK(FanyImeWorkerReplyType::EnumerationCommaKeysChanged == 38);
     CHECK(FanyImeWorkerReplyType::HorizontalArrowSelectionChanged == 39);
-    CHECK(FanyImeWorkerReplyType::MaxKnown == FanyImeWorkerReplyType::SentenceTranslationChanged);
+    CHECK(FanyImeWorkerReplyType::MaxKnown == FanyImeWorkerReplyType::SentenceTranslationFailed);
     // EnumerationCommaKeysChanged 的载荷：\ 和 / 各一位，两个都没勾按只有 \ 发。
     CHECK(FanyImeEnumerationComma::PayloadFor(true, false) == L'1' &&
           FanyImeEnumerationComma::PayloadFor(false, true) == L'2' &&

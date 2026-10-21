@@ -454,16 +454,30 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
     const bool projectedInputActive = _deferredKeyProjectionValid
                                           ? _deferredProjectedInputLength > 0
                                           : _pCompositionProcessorEngine->GetVirtualKeyLength() > 0;
-    const bool sentenceInput = projectedInputActive || !GlobalIme::word_for_creating_word.empty() ||
-                               (_deferredKeyProjectionValid && _deferredProjectedCandidateActive);
+    const auto sentenceRawLength = _deferredKeyProjectionValid ? _deferredProjectedInputLength
+                                                               : _pCompositionProcessorEngine->GetVirtualKeyLength();
+    const bool sentenceInput = SentenceTranslationKeyPolicy::HasLiveComposition(
+        static_cast<std::uint32_t>(sentenceRawLength), !GlobalIme::word_for_creating_word.empty(),
+        projectedCandidateActive);
     const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
+    if (projectedImeOpen && !_IsKeyboardDisabled() &&
+        SentenceTranslationKeyPolicy::KeepsPinyinChannel(IsSentenceTranslationEnabled(), sentenceInput, *classifiedCode,
+                                                         capturedModifiers, windowsKey))
+    {
+        keyState->Category = CATEGORY_COMPOSING;
+        keyState->Function = FUNCTION_INPUT;
+        return true;
+    }
     const bool sentencePunctuation = IsSentenceTranslationEnabled() && sentenceInput && !windowsKey &&
                                      (capturedModifiers & 6u) == 0 && *classifiedWch != 0 &&
                                      std::wstring(L",.!?:;。！？；：()（）").find(*classifiedWch) != std::wstring::npos;
     if (projectedImeOpen && !_IsKeyboardDisabled() &&
         (SentenceTranslationKeyPolicy::OwnsCommitKey(Global::SentenceTranslationEnabled.load(std::memory_order_relaxed),
                                                      sentenceInput, *classifiedCode, capturedModifiers, windowsKey) ||
-         sentencePunctuation))
+         sentencePunctuation ||
+         SentenceTranslationKeyPolicy::OwnsBufferedEdit(
+             IsSentenceTranslationEnabled(), !GlobalIme::word_for_creating_word.empty(),
+             static_cast<std::uint32_t>(sentenceRawLength), *classifiedCode, capturedModifiers, windowsKey)))
     {
         keyState->Category = CATEGORY_CANDIDATE;
         keyState->Function = FUNCTION_SERVER_CANDIDATE_KEY;
@@ -809,6 +823,7 @@ bool CMetasequoiaIME::_QueueDeferredPreservedKey(_In_ ITfContext *pContext, REFG
 
 void CMetasequoiaIME::_ClearDeferredKeyDowns()
 {
+    _CancelSentenceTranslationCommit();
     const size_t queuedCount = _deferredKeyDowns.size();
     const bool hadInFlight = _hasDeferredKeyInFlight;
     const uint64_t inFlightToken = _deferredKeyReplayToken;

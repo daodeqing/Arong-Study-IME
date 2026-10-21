@@ -73,7 +73,44 @@ std::optional<std::string> FetchContent(const std::string &endpoint, const std::
             });
     }
 
-    const CURLcode performed = curl_easy_perform(curl);
+    CURLcode performed = CURLE_FAILED_INIT;
+    if (!cancelled)
+        performed = curl_easy_perform(curl);
+    else
+    {
+        // A progress callback alone can sleep for a second on an idle socket.
+        // Drive cancellable requests in small waits so a new sentence starts promptly.
+        CURLM *multi = curl_multi_init();
+        if (multi)
+        {
+            if (curl_multi_add_handle(multi, curl) == CURLM_OK)
+            {
+                int running = 0;
+                CURLMcode status = CURLM_OK;
+                do
+                {
+                    if (cancelled())
+                    {
+                        performed = CURLE_ABORTED_BY_CALLBACK;
+                        break;
+                    }
+                    status = curl_multi_perform(multi, &running);
+                    if (status != CURLM_OK || !running)
+                        break;
+                    status = curl_multi_poll(multi, nullptr, 0, 25, nullptr);
+                } while (status == CURLM_OK);
+                if (performed != CURLE_ABORTED_BY_CALLBACK && status == CURLM_OK)
+                {
+                    int remaining = 0;
+                    while (auto *message = curl_multi_info_read(multi, &remaining))
+                        if (message->msg == CURLMSG_DONE)
+                            performed = message->data.result;
+                }
+                curl_multi_remove_handle(multi, curl);
+            }
+            curl_multi_cleanup(multi);
+        }
+    }
     long status = 0;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status);
     curl_slist_free_all(headers);

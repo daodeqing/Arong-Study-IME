@@ -79,6 +79,7 @@ void EnqueueReloadInputSessionTask();
 void EnqueueEnsureInputSessionMatchesConfigTask();
 void EnqueueApplyCandidatePageSizeTask();
 void EnqueueRefreshCandidatePageTask();
+void EnqueueSentenceTranslationResultTask();
 void EnqueueResetInputSessionCacheTask();
 void EnqueueExitEnglishInputModeTask();
 // from_ime_enabled: the clicked toolbar icon showed the IME open (中/日) rather than English.

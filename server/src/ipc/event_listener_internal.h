@@ -193,6 +193,7 @@ enum class TaskType
     EnsureInputSessionMatchesConfig,
     ApplyCandidatePageSize,
     RefreshCandidatePage,
+    SentenceTranslationResult,
     ResetInputSessionCache,
     ExitEnglishInputMode,
     ToolbarLanguageToggle,
@@ -278,13 +279,18 @@ void ApplyEnglishCandidates(std::vector<WordItem> candidates, const std::string 
 void ApplyCandidateTranslations(std::vector<EnglishIme::TranslationResult> results, uint64_t generation, bool merge);
 void ApplyMixedCandidates(MixedCandidates::Result result, const std::string &input, uint64_t generation);
 void EnqueueStoreUserPhraseTask(const std::string &pinyin, const std::string &word, bool pinyin_is_canonical = false);
+void CancelSentenceConfirmation();
+void DeliverSentenceTranslationIfReady();
+void PopulateSentencePreview(Global::CandidatePageSnapshot &page);
 void HoldSentenceComposition();
+bool RetainSelectedSentence(uint64_t client_id);
 bool SentenceModeForClient(uint64_t client_id);
 void SendSentenceTranslationState(uint64_t client_id, uint64_t activation_epoch);
 void UpdateSentenceTranslationPreview();
 bool RefreshSentenceTranslationPreview();
 bool AccumulateSentenceCandidate(const WordItem &item, uint64_t client_id, uint64_t activation_epoch);
-void PrepareSentenceConfirmation(uint64_t client_id, uint64_t activation_epoch, bool force_chinese = false);
+void PrepareSentenceConfirmation(uint64_t client_id, uint64_t activation_epoch, bool force_chinese = false,
+                                 uint64_t request_id = 0);
 void HandleSentenceConfirmation(uint64_t client_id, uint64_t activation_epoch, uint64_t request_id,
                                 bool force_chinese = false);
 bool HandleSentencePunctuation(uint64_t client_id, uint64_t activation_epoch, uint64_t request_id, WCHAR punctuation);

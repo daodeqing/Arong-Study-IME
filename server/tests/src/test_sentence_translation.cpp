@@ -11,6 +11,19 @@ TEST_CASE(sentence_translation_requests_complete_sentence_instead_of_dictionary_
     REQUIRE_EQ(request["stream"].get<bool>(), false);
     REQUIRE(request["max_tokens"].get<int>() <= 512);
 }
+TEST_CASE(sentence_translation_routed_deepseek_disables_reasoning_and_openai_uses_compatible_parameters)
+{
+    AiTranslation::Config routed{"local", "http://127.0.0.1:8317/v1/chat/completions", "", "cn/deepseek-v4.1-flash"};
+    const auto request = SentenceTranslation::detail::BuildRequest(routed, "明天不去。");
+    REQUIRE_EQ(request["thinking"]["type"].get<std::string>(), std::string("disabled"));
+    AiTranslation::Config reasoning{"openai", "https://example.invalid/v1/chat/completions", "", "gpt-5"};
+    const auto openai = SentenceTranslation::detail::BuildRequest(reasoning, "两杯咖啡。");
+    REQUIRE(openai.contains("max_completion_tokens"));
+    REQUIRE(!openai.contains("max_tokens"));
+    REQUIRE(!openai.contains("temperature"));
+    REQUIRE(openai.contains("reasoning_effort"));
+}
+
 TEST_CASE(sentence_translation_rejects_empty_chinese_numeric_and_oversized_answers)
 {
     REQUIRE_EQ(SentenceTranslation::detail::ParseResult("  I am very happy today.  "),

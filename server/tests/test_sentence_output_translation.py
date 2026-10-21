@@ -38,6 +38,7 @@ class Handler(BaseHTTPRequestHandler):
             "你好": "Hello.",
             "我今天很高兴": "I am very happy today.",
             "旧句测试": "Stale sentence.",
+            "新句测试": "New sentence.",
         }
         content = translations.get(text, "")
         result = json.dumps({"choices": [{"message": {"content": content}}]}).encode()
