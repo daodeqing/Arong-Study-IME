@@ -22,7 +22,7 @@ inline bool ParseNumber(std::wstring_view value, std::uint64_t &number)
         return false;
     for (const auto ch : value)
     {
-        if (ch < L'0' || ch > L'9' || number > (std::numeric_limits<std::uint64_t>::max() - (ch - L'0')) / 10)
+        if (ch < L'0' || ch > L'9' || number > ((std::numeric_limits<std::uint64_t>::max)() - (ch - L'0')) / 10)
             return false;
         number = number * 10 + (ch - L'0');
     }
@@ -49,7 +49,7 @@ inline Frame ParseFrame(std::wstring_view payload)
     std::uint64_t offset = 0, total = 0;
     if (first == payload.npos || colon == payload.npos || second == payload.npos ||
         !ParseNumber(payload.substr(0, first), frame.request) || frame.request == 0 ||
-        frame.request == std::numeric_limits<std::uint64_t>::max() ||
+        frame.request == (std::numeric_limits<std::uint64_t>::max)() ||
         !ParseNumber(payload.substr(first + 1, colon - first - 1), offset) ||
         !ParseNumber(payload.substr(colon + 1, second - colon - 1), total) || total == 0 || total > MaxTextUnits ||
         offset >= total || payload.size() - second - 1 > total - offset || payload.size() == second + 1 ||
@@ -65,7 +65,7 @@ inline Frame ParseFrame(std::wstring_view payload)
 inline std::vector<std::wstring> EncodeResult(std::uint64_t request, const std::wstring &text)
 {
     std::vector<std::wstring> frames;
-    if (request == 0 || request == std::numeric_limits<std::uint64_t>::max() || text.empty() ||
+    if (request == 0 || request == (std::numeric_limits<std::uint64_t>::max)() || text.empty() ||
         text.size() > MaxTextUnits || text.find(L'\0') != text.npos)
         return frames;
     for (std::size_t offset = 0; offset < text.size();)

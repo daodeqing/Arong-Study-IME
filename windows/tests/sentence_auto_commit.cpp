@@ -1,5 +1,9 @@
+#include <algorithm>
+#include <limits>
+#define max(a, b) windows_max_macro(a, b)
 #include "../src/Key/SentenceAutoCommitState.h"
 #include "../src/Key/SentenceTranslationKeyPolicy.h"
+#undef max
 #include <iostream>
 
 #define CHECK(value)                                                                                                   \
