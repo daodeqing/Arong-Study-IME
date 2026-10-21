@@ -994,6 +994,8 @@ void CandidatePresenter::ShowFromGlobalState(POINT caret)
         supplementary->SetText(L"");
     const bool bufferOnly = sentenceVisible && sentencePage->sentence_buffer_only;
     impl_->list->SetVisible(!bufferOnly);
+    if (impl_->expandBody)
+        impl_->expandBody->SetVisible(!bufferOnly);
     if (impl_->pager)
         impl_->pager->SetVisible(!bufferOnly);
     const std::uint64_t renderedGeneration = FillItemsFromUi();

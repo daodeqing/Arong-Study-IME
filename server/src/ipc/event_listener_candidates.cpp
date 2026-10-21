@@ -413,9 +413,10 @@ std::string BuildCurrentCandidatePage()
 void PrepareCandidateTranslationRequest()
 {
     const bool japanese = g_inputSession && g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji;
+    const auto owner = event_listener_detail::SnapshotCandidateUiOwner();
+    const bool sentence_mode = owner && FanyNamedPipe::SentenceModeForClient(owner.client_id);
     // Whole-sentence learning must not launch separate word-gloss requests.
-    const bool enabled = GetConfiguredCandidateTranslationsEnabled() && !IsUiLessMode() && !japanese &&
-                         !GetConfiguredSentenceTranslationEnabled();
+    const bool enabled = GetConfiguredCandidateTranslationsEnabled() && !IsUiLessMode() && !japanese && !sentence_mode;
     auto &ui = Global::candidate_ui;
     if (IsCandidateSubPageActive())
     {

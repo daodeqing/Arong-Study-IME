@@ -472,8 +472,8 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
                                      (capturedModifiers & 6u) == 0 && *classifiedWch != 0 &&
                                      std::wstring(L",.!?:;。！？；：()（）").find(*classifiedWch) != std::wstring::npos;
     if (projectedImeOpen && !_IsKeyboardDisabled() &&
-        (SentenceTranslationKeyPolicy::OwnsCommitKey(Global::SentenceTranslationEnabled.load(std::memory_order_relaxed),
-                                                     sentenceInput, *classifiedCode, capturedModifiers, windowsKey) ||
+        (SentenceTranslationKeyPolicy::OwnsCommitKey(IsSentenceTranslationEnabled(), sentenceInput, *classifiedCode,
+                                                     capturedModifiers, windowsKey) ||
          sentencePunctuation ||
          SentenceTranslationKeyPolicy::OwnsBufferedEdit(
              IsSentenceTranslationEnabled(), !GlobalIme::word_for_creating_word.empty(),

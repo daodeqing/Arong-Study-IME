@@ -28,6 +28,8 @@ int main()
     CHECK(OwnsBufferedEdit(true, true, 0, 0x08, 0, false));
     CHECK(OwnsBufferedEdit(true, true, 0, 0x08, 2, false));
     CHECK(OwnsBufferedEdit(true, true, 0, 0x1B, 0, false));
+    CHECK(OwnsBufferedEdit(true, true, 0, '1', 0, false));
+    CHECK(!OwnsBufferedEdit(true, true, 0, '1', 2, false));
     CHECK(!OwnsBufferedEdit(true, true, 1, 0x08, 0, false));
     CHECK(!OwnsBufferedEdit(false, true, 0, 0x08, 0, false));
 
