@@ -29,6 +29,11 @@ template <typename... Args> int FanyIpcDiscardLogArgs(const Args &...);
 #define FANY_IPC_LOGW(message) ((void)sizeof(FanyIpcDiscardLogArgs(message)))
 #define FANY_IPC_LOGF(...) ((void)sizeof(FanyIpcDiscardLogArgs(__VA_ARGS__)))
 
+namespace Global
+{
+struct CandidatePageSnapshot;
+}
+
 namespace event_listener_detail
 {
 void ClearJevSelection();
