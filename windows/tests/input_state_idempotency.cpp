@@ -39,6 +39,7 @@ struct CompositionEngine
 {
     BOOL imeOpen = FALSE;
     int setModeCalls = 0;
+    bool acceptModeChange = true;
     BOOL GetIMEMode(ThreadManager *, int)
     {
         return imeOpen;
@@ -46,7 +47,8 @@ struct CompositionEngine
     void SetIMEMode(ThreadManager *, int, BOOL open)
     {
         ++setModeCalls;
-        imeOpen = open;
+        if (acceptModeChange)
+            imeOpen = open;
     }
 };
 
@@ -227,6 +229,17 @@ int main()
     backgroundWorker.SentenceTranslation(&background, Value(true));
     CHECK(PumpMessages(background, backgroundWorker));
     CHECK(background.engine.imeOpen && background.engine.setModeCalls == 1);
+    CHECK(statusSnapshots == 2);
+
+    // A host may reject the compartment write. Do not publish a false change
+    // that an older Server would answer with another identical apply request.
+    CMetasequoiaIME rejecting;
+    WorkerSnapshots rejectingWorker;
+    rejectingWorker.ResetGeneration(1);
+    rejecting.engine.acceptModeChange = false;
+    rejectingWorker.SentenceTranslation(&rejecting, Value(true));
+    CHECK(PumpMessages(rejecting, rejectingWorker));
+    CHECK(!rejecting.engine.imeOpen && rejecting.engine.setModeCalls == 1);
     CHECK(statusSnapshots == 2);
 
     // Disabled state cancels once, while repeated disabled snapshots stay inert.

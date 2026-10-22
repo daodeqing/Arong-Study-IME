@@ -1082,7 +1082,10 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
             // Repeated state frames must not echo another full status snapshot
             // when the required Chinese composition mode is already applied.
             pIME->_pCompositionProcessorEngine->SetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
-            SendCurrentImeStatusSnapshot(pIME);
+            // Some hosts reject compartment changes. Do not announce a change
+            // that never took effect and invite another identical apply frame.
+            if (pIME->_pCompositionProcessorEngine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
+                SendCurrentImeStatusSnapshot(pIME);
         }
         break;
     }

@@ -39,5 +39,20 @@
   "notes": [
     "Full TSF DLL build and real-host behavior are not established by these standalone state fixtures.",
     "Zig bundled libunwind emitted DLL attribute redeclaration warnings during first cache build."
-  ]
+  ],
+  "input_state_idempotency": {
+    "compile_exit": 0,
+    "run_exit": 0,
+    "coverage": [
+      "Actual production InputMode/OutputLanguage/SentenceTranslation branches and generation reset",
+      "Actual owner-thread WM_ApplySentenceTranslation case",
+      "Unguarded old Server full state echo terminates after one real mode change",
+      "1000 unchanged state echoes preserve confirmation and avoid redundant set/status/theme",
+      "Output language true change cancels confirmation once",
+      "First sync and physical generation resync do not synthesize output mode change",
+      "Background first sync followed by focused activation still forces Chinese mode",
+      "Rejected compartment write does not publish fictitious change or restart feedback",
+      "1000 disabled snapshots stay inert"
+    ]
+  }
 }
