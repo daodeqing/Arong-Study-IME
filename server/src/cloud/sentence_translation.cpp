@@ -87,8 +87,8 @@ void Loop()
         try
         {
             const auto content = ChatCompletions::FetchContent(
-                config.endpoint, config.token, SentenceTranslation::detail::BuildRequest(config, source).dump(), 120000L,
-                [revision] { return state.revision.load(std::memory_order_acquire) != revision; });
+                config.endpoint, config.token, SentenceTranslation::detail::BuildRequest(config, source).dump(),
+                120000L, [revision] { return state.revision.load(std::memory_order_acquire) != revision; });
             if (content)
                 translated = SentenceTranslation::detail::ParseResult(*content);
         }

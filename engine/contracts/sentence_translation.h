@@ -53,9 +53,9 @@ inline Frame ParseFrame(std::wstring_view payload)
         !ParseNumber(payload.substr(0, first), frame.request) || frame.request == 0 ||
         frame.request == (std::numeric_limits<std::uint64_t>::max)() ||
         !ParseNumber(payload.substr(first + 1, colon - first - 1), offset) ||
-        !ParseNumber(payload.substr(colon + 1, second - colon - 1), total) || total == 0 || total > MaxSentenceTranslationUnits ||
-        offset >= total || payload.size() - second - 1 > total - offset || payload.size() == second + 1 ||
-        payload.find(L'\0') != payload.npos)
+        !ParseNumber(payload.substr(colon + 1, second - colon - 1), total) || total == 0 ||
+        total > MaxSentenceTranslationUnits || offset >= total || payload.size() - second - 1 > total - offset ||
+        payload.size() == second + 1 || payload.find(L'\0') != payload.npos)
         return {};
     frame.offset = static_cast<std::size_t>(offset);
     frame.total = static_cast<std::size_t>(total);
