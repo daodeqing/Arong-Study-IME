@@ -13,7 +13,7 @@ FILES = ("ai_providers.json", "user_dict.dat", "clipboard_history.json")
 
 
 def body(source, name, kind="function"):
-    start = source.index(f"{kind} {name}(")
+    start = source.index(f"{kind} {name}")
     return source[start:source.index("\nend;", start) + len("\nend;")]
 
 
