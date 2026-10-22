@@ -197,6 +197,7 @@ int RunSentenceOutputProbe(int argc, char **argv)
     try
     {
         const bool offline = std::string(argv[1]) == "offline";
+        const bool incomplete = std::string(argv[1]) == "incomplete";
         const bool configured = std::string(argv[1]) == "configured";
         InitImeConfig();
         REQUIRE(GetConfiguredSentenceTranslationEnabled());
@@ -214,7 +215,7 @@ int RunSentenceOutputProbe(int argc, char **argv)
         REQUIRE(waiting || (offline && Global::MsgTypeToTsf == FanyImeReplyType::NeedToCreateWord));
         REQUIRE_EQ(GlobalIme::composition.creating_word.word, std::string("你好"));
 
-        if (offline)
+        if (offline || incomplete)
         {
             REQUIRE(WaitFor(SentenceTranslation::Status::Failed));
             FanyNamedPipe::DeliverSentenceTranslationIfReady();
@@ -264,7 +265,7 @@ int RunSentenceOutputProbe(int argc, char **argv)
         FanyNamedPipe::PrepareSentenceConfirmation(1, 1, true);
         REQUIRE(Global::MsgTypeToTsf == Global::DataFromServerMsgType::CommitExactText);
         REQUIRE_EQ(Global::candidate_ui.selected_text, std::wstring(L"你好"));
-        if (!offline)
+        if (!offline && !incomplete)
         {
             ResetSentence();
             TypeAndSelect("wo", "我");

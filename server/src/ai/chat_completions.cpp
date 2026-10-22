@@ -121,7 +121,13 @@ std::optional<std::string> FetchContent(const std::string &endpoint, const std::
     try
     {
         const auto outer = nlohmann::json::parse(response.text);
-        return outer.at("choices").at(0).at("message").at("content").get<std::string>();
+        const auto &choice = outer.at("choices").at(0);
+        const auto finish = choice.find("finish_reason");
+        // Missing reasons remain compatible with older endpoints. An explicit
+        // incomplete/filtered/tool result must never become committed text.
+        if (finish != choice.end() && (!finish->is_string() || finish->get<std::string>() != "stop"))
+            return std::nullopt;
+        return choice.at("message").at("content").get<std::string>();
     }
     catch (const std::exception &)
     {

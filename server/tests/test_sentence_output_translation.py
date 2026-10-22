@@ -15,6 +15,7 @@ import time
 class Handler(BaseHTTPRequestHandler):
     requests_seen = []
     delay = 0
+    finish_reason = "legacy_no_reason"
 
     def log_message(self, *_):
         pass
@@ -41,7 +42,12 @@ class Handler(BaseHTTPRequestHandler):
             "新句测试": "New sentence.",
         }
         content = translations.get(text, "")
-        result = json.dumps({"choices": [{"message": {"content": content}}]}).encode()
+        choice = {"message": {"content": content}}
+        if self.finish_reason != "legacy_no_reason":
+            choice["finish_reason"] = self.finish_reason
+            if self.finish_reason != "stop":
+                choice["message"]["content"] = "Partial translation"
+        result = json.dumps({"choices": [choice]}).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(result)))
@@ -89,12 +95,20 @@ def main():
         Handler.delay = 0.25
         subprocess.run([executable, "--sentence-output-probe", "online"], env=env, check=True, timeout=30)
         assert "你好" in Handler.requests_seen
+        for reason in ("length", "content_filter", None):
+            Handler.finish_reason = reason
+            subprocess.run([executable, "--sentence-output-probe", "incomplete"],
+                           env=env, check=True, timeout=30)
+        # Both explicit stop and the legacy omitted field remain supported.
+        Handler.finish_reason = "stop"
+        subprocess.run([executable, "--sentence-output-probe", "online"], env=env, check=True, timeout=30)
+        Handler.finish_reason = "legacy_no_reason"
         server.shutdown()
         server.server_close()
         thread.join(timeout=3)
         subprocess.run([executable, "--sentence-output-probe", "offline"], env=env, check=True, timeout=30)
         print("sentence flow passed: separate selections, retained Chinese, English sentence, pending/offline retention, "
-              "Chinese confirmation, undo, stale owner protection, empty Authorization and proxy bypass")
+              "Chinese confirmation, undo, stale owner protection, incomplete response rejection, empty Authorization and proxy bypass")
     finally:
         server.shutdown()
         server.server_close()
