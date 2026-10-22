@@ -1,4 +1,4 @@
-; ArongStudyIme — Inno Setup script
+﻿; ArongStudyIme — Inno Setup script
 ; 源文件根目录：本脚本所在目录
 ;
 ; 编译方法：
@@ -779,6 +779,15 @@ begin
     (CompareText(FileName, 'config.base.toml') = 0);
 end;
 
+function IsUserStateFile(const FileName: String): Boolean;
+begin
+  { 服务商配置、旧式用户词典和剪贴板历史都不能从安装包重建。 }
+  Result :=
+    (CompareText(FileName, 'ai_providers.json') = 0) or
+    (CompareText(FileName, 'user_dict.dat') = 0) or
+    (CompareText(FileName, 'clipboard_history.json') = 0);
+end;
+
 function IsUserTranslationFile(const FileName: String): Boolean;
 begin
   { 候选窗中英翻译的人工覆盖表，由用户手工放在数据目录根下（README「自定义候选窗翻译」一节），
@@ -818,6 +827,7 @@ begin
     IsUserDatabaseFile(FileName) or
     IsUserStatisticsDatabase(FileName) or
     IsUserConfigFile(FileName) or
+    IsUserStateFile(FileName) or
     IsUserTranslationFile(FileName) or
     IsUserSkinDirectory(FileName) or
     IsUserShuangpinDirectory(FileName) or
@@ -861,8 +871,6 @@ begin
     (CompareText(FileName, 'others.db-wal') = 0) or
     (CompareText(FileName, 'others.db-shm') = 0) or
     (CompareText(FileName, 'others.db-journal') = 0) or
-    (CompareText(FileName, 'user_dict.dat') = 0) or
-    (CompareText(FileName, 'clipboard_history.json') = 0) or
     (CompareText(FileName, 'voice_system_audio_mute_state.txt') = 0) or
     (CompareText(FileName, 'config.toml.tmp') = 0) or
     (CompareText(FileName, 'config.base.toml.tmp') = 0) or
@@ -1375,7 +1383,8 @@ begin
     '"' + RemoveBackslashUnlessRoot(OldDir) + '" "' + RemoveBackslashUnlessRoot(NewDir) + '" ' +
     'msime_user.db msime_user.db-wal msime_user.db-shm msime_user.db-journal ' +
     'stats.db stats.db-wal stats.db-shm stats.db-journal ' +
-    'config.toml config.base.toml custom_translations.txt /MOVE /R:2 /W:1 /NJH /NJS /NP /NFL /NDL',
+    'config.toml config.base.toml custom_translations.txt ' +
+    'ai_providers.json user_dict.dat clipboard_history.json /MOVE /R:2 /W:1 /NJH /NJS /NP /NFL /NDL',
     '',
     SW_HIDE,
     ewWaitUntilTerminated,
@@ -1452,6 +1461,8 @@ begin
       Result := ConfigMigrationFailure(OldDir, NewDir);
       if Result = '' then
         Result := TranslationMigrationFailure(OldDir, NewDir);
+      if Result = '' then
+        Result := UserStateMigrationFailure(OldDir, NewDir);
     end;
     exit;
   end;

@@ -349,6 +349,8 @@ jobs:
         run: ./installer/tests/preserve-user-data.ps1
       - name: Check installer cloud choice and config preservation
         run: python ./installer/tests/test_cloud_choice.py
+      - name: Test production upgrade cleanup and private state migration
+        run: python -B ./installer/tests/test_user_state.py
       - name: Test program and data path separation
         run: python -B ./installer/tests/test_install_paths.py
       - name: Test cloud choice with Inno Setup
