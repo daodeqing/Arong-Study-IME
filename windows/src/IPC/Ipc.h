@@ -50,7 +50,7 @@ void MarkNamedpipeFocusLost();
 void RequireNamedpipeFocusActivation();
 void MarkNamedpipeSessionDirty();
 bool MarkNamedpipeSessionDirtyForOwner(_In_ const void *owner);
-bool EnsureNamedpipeFocusSessionActivated();
+bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement = true, bool *pending = nullptr);
 bool SupportsCharacterSetShortcut();
 bool SupportsCompositionRestore();
 // 候选态下的普通左右键交给 Server 决定移高亮还是移光标：Server 打开了横排左右键选词、协商过 CompositionRestore

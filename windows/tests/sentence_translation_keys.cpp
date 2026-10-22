@@ -26,5 +26,16 @@ int main()
         return 11;
     if (SentenceTranslationKeyPolicy::KeepsComposition(10))
         return 12;
+    using SentenceTranslationKeyPolicy::CanCommitRawLetters;
+    if (!CanCommitRawLetters(true, L"cpu", false, false))
+        return 13;
+    if (CanCommitRawLetters(true, L"", false, false) || CanCommitRawLetters(true, L"cpu", true, false) ||
+        CanCommitRawLetters(true, L"cpu", false, true) || CanCommitRawLetters(false, L"cpu", false, false) ||
+        CanCommitRawLetters(true, L"Uzi", false, false) || CanCommitRawLetters(true, L"ni'hao", false, false))
+        return 14;
+    if (SentenceTranslationKeyPolicy::KeepsPinyinChannel(true, true, 'A', 0, false, true))
+        return 15;
+    if (!SentenceTranslationKeyPolicy::KeepsPinyinChannel(true, true, 'A', 0, false, false))
+        return 16;
     return 0;
 }

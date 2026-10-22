@@ -717,8 +717,11 @@ void InvalidateNamedpipeWorkerGeneration()
     }
 }
 
+thread_local ULONGLONG focusActivationStartedAtMs = 0;
+
 void RequireNamedpipeFocusActivation()
 {
+    focusActivationStartedAtMs = 0;
     if (boundActivationRequired)
     {
         *boundActivationRequired = true;
@@ -1921,8 +1924,10 @@ bool FlushNamedpipeImeDeactivation(uint64_t focusToken)
     return true;
 }
 
-bool EnsureNamedpipeFocusSessionActivated()
+bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement, bool *pending)
 {
+    if (pending)
+        *pending = false;
     if (IsLocalSessionResetPending())
     {
         return false;
@@ -1979,6 +1984,7 @@ bool EnsureNamedpipeFocusSessionActivated()
         if (tokenStillCurrent && boundActivationRequired)
         {
             *boundActivationRequired = false;
+            focusActivationStartedAtMs = GetTickCount64();
         }
         if ((!boundFocusResetPending || !*boundFocusResetPending) &&
             (!boundActivationRequired || !*boundActivationRequired))
@@ -1992,6 +1998,20 @@ bool EnsureNamedpipeFocusSessionActivated()
     // markers that were buffered before OnKill.
     if (boundWorkerCommitReady)
     {
+        // The window reconnect handlers and FIFO drain must never stall the
+        // host while another Server task delays the exact-token echo. Retain
+        // ownership of queued keys; the worker posts a reconnect when it arrives.
+        if (!waitForAcknowledgement && !IsExpectedWorkerFocusAcknowledged())
+        {
+            if (focusActivationStartedAtMs != 0 && GetTickCount64() - focusActivationStartedAtMs < 150)
+            {
+                if (pending)
+                    *pending = true;
+                return false;
+            }
+            MarkNamedpipeSessionDirty();
+            return false;
+        }
         const ULONGLONG deadline = GetTickCount64() + 150;
         for (;;)
         {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 namespace SentenceTranslationKeyPolicy
 {
@@ -10,10 +11,21 @@ inline bool HasLiveComposition(std::uint32_t rawLength, bool selectedChinese, bo
 {
     return rawLength != 0 || selectedChinese || candidates;
 }
-inline bool KeepsPinyinChannel(bool enabled, bool composing, std::uint32_t key, std::uint32_t modifiers,
-                               bool windowsKeyDown)
+// Raw shortcuts only claim ordinary unselected spelling. Uppercase mode
+// prefixes, separators, selected Chinese and Japanese retain their own actions.
+inline bool CanCommitRawLetters(bool enabled, const std::wstring &raw, bool selectedChinese, bool japanese)
 {
-    return enabled && composing && !windowsKeyDown && (modifiers & 6u) == 0 && key >= 'A' && key <= 'Z';
+    if (!enabled || selectedChinese || japanese || raw.empty())
+        return false;
+    for (wchar_t ch : raw)
+        if (ch < L'a' || ch > L'z')
+            return false;
+    return true;
+}
+inline bool KeepsPinyinChannel(bool enabled, bool composing, std::uint32_t key, std::uint32_t modifiers,
+                               bool windowsKeyDown, bool capsLock = false)
+{
+    return enabled && composing && !capsLock && !windowsKeyDown && (modifiers & 6u) == 0 && key >= 'A' && key <= 'Z';
 }
 inline bool OwnsBufferedEdit(bool enabled, bool selectedChinese, std::uint32_t rawLength, std::uint32_t key,
                              std::uint32_t modifiers, bool windowsKeyDown)

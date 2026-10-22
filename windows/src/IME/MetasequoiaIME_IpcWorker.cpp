@@ -566,6 +566,8 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
                 {
                     SetEvent(pIME->_workerAckEvent);
                 }
+                if (pIME->_msgWndHandle)
+                    PostMessage(pIME->_msgWndHandle, WM_IpcReconnect, 0, 0);
             }
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::CommitCurCandidate)

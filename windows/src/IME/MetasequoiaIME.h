@@ -295,6 +295,7 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     HRESULT _HandleEscapeCancel(TfEditCookie ec, _In_ ITfContext *pContext, uint64_t requestId);
     HRESULT _HandleToogleIMEMode(TfEditCookie ec, _In_ ITfContext *pContext);
     void _ClearCreatingWordState();
+    HRESULT _HandleCommitRawLetters(TfEditCookie ec, _In_ ITfContext *pContext, bool uppercase);
     HRESULT _HandleInsertText(TfEditCookie ec, _In_ ITfContext *pContext, const std::wstring &text);
     HRESULT _HandleCycleInputMode(TfEditCookie ec, _In_ ITfContext *pContext, const std::wstring &payload);
     HRESULT _HandleCommitCandidateAndContinue(TfEditCookie ec, _In_ ITfContext *pContext, const std::wstring &payload);
@@ -682,6 +683,7 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     void _TrackModifierHotkeyArming(WPARAM wParam, LPARAM lParam, bool isKeyUp);
     bool _MatchChordInputHotkey(WPARAM wParam, _Out_ GUID *hotkeyGuid) const;
     bool _MatchModifierReleaseHotkey(WPARAM wParam, _Out_ GUID *hotkeyGuid);
+    bool _QueueRawLetterCommit(_In_ ITfContext *pContext, bool uppercase);
     bool _QueueInputHotkey(_In_ ITfContext *pContext, REFGUID hotkeyGuid, _Out_ BOOL *pIsEaten);
 
     // mintty routes composition over the legacy IMM bridge and never offers a

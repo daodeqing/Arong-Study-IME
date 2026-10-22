@@ -1,3 +1,4 @@
+#include "SentenceTranslationKeyPolicy.h"
 #include "Private.h"
 #include "Globals.h"
 #include "EditSession.h"
@@ -279,6 +280,22 @@ HRESULT CMetasequoiaIME::_HandleToogleIMEMode(TfEditCookie ec, _In_ ITfContext *
 
     _pCompositionProcessorEngine->ApplyPendingImeModeAfterCompositionCommit(_GetThreadMgr(), _GetClientId());
     return S_OK;
+}
+
+HRESULT CMetasequoiaIME::_HandleCommitRawLetters(TfEditCookie ec, _In_ ITfContext *pContext, bool uppercase)
+{
+    if (!_pCompositionProcessorEngine)
+        return S_OK;
+    const auto buffer = _pCompositionProcessorEngine->GetKeystrokeBuffer();
+    std::wstring raw(buffer.Get(), buffer.GetLength());
+    if (!SentenceTranslationKeyPolicy::CanCommitRawLetters(
+            IsSentenceTranslationEnabled(), raw, !GlobalIme::word_for_creating_word.empty(),
+            Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed)))
+        return S_OK;
+    if (uppercase)
+        for (wchar_t &ch : raw)
+            ch = ch - L'a' + L'A';
+    return _HandleInsertText(ec, pContext, raw);
 }
 
 HRESULT CMetasequoiaIME::_HandleInsertText(TfEditCookie ec, _In_ ITfContext *pContext, const std::wstring &text)

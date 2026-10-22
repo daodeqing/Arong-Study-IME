@@ -386,6 +386,21 @@ bool CMetasequoiaIME::_ApplyBackspaceHoldGuard(WPARAM wParam, LPARAM lParam)
 void CMetasequoiaIME::_ApplyCapsLockKeyDownSideEffects(bool capsLockEnabled)
 {
     Global::CapsLockEnabled.store(capsLockEnabled, std::memory_order_relaxed);
+    if (capsLockEnabled && _pThreadMgr)
+    {
+        ITfDocumentMgr *document = nullptr;
+        ITfContext *context = nullptr;
+        if (SUCCEEDED(_pThreadMgr->GetFocus(&document)) && document)
+        {
+            if (SUCCEEDED(document->GetTop(&context)) && context)
+            {
+                _QueueRawLetterCommit(context, true);
+                context->Release();
+            }
+            document->Release();
+        }
+    }
+
     _RequestLanguageBarCapsIconRefresh();
     if (_deferredKeyProjectionValid)
     {
@@ -529,7 +544,8 @@ BOOL CMetasequoiaIME::_IsKeyEaten(         //
                                                           _candidateMode != CANDIDATE_NONE);
         const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
         if (SentenceTranslationKeyPolicy::KeepsPinyinChannel(sentenceEnabled, sentenceInput, *pCodeOut,
-                                                             shortcutModifiers, windowsKey))
+                                                             shortcutModifiers, windowsKey,
+                                                             (GetKeyState(VK_CAPITAL) & 0x0001) != 0))
         {
             if (pKeyState)
             {
@@ -1303,6 +1319,14 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
                         *pIsEaten ? S_OK : E_FAIL, resetToken);
         _RequestLocalSessionReset(pContext, resetToken);
         return KeyDownDispatchResult::Complete;
+    }
+
+    if (*pIsEaten && (KeystrokeState.Function == FUNCTION_COMMIT_RAW_LETTERS ||
+                      KeystrokeState.Function == FUNCTION_COMMIT_RAW_UPPERCASE))
+    {
+        _InvokeKeyHandler(pContext, code, wch, static_cast<DWORD>(lParam), KeystrokeState, FANY_IME_NO_REQUEST_ID, {},
+                          0, 0, 0, deferredReplayToken);
+        return deferredReplayToken != 0 ? KeyDownDispatchResult::AwaitingCompletion : KeyDownDispatchResult::Complete;
     }
 
     if (canDefer && *pIsEaten && (KeystrokeState.Category != CATEGORY_NONE || KeystrokeState.Function != FUNCTION_NONE))

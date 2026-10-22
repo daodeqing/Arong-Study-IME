@@ -202,6 +202,8 @@ void ApplyDeferredKeyState(DeferredShadowState &shadow, const _KEYSTROKE_STATE &
             ++shadow.caret;
         }
         break;
+    case FUNCTION_COMMIT_RAW_LETTERS:
+    case FUNCTION_COMMIT_RAW_UPPERCASE:
     case FUNCTION_FINALIZE_TEXTSTORE:
     case FUNCTION_FINALIZE_CANDIDATELIST:
     case FUNCTION_FINALIZE_CANDIDATELISTForVKReturn:
@@ -462,7 +464,8 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
     const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
     if (projectedImeOpen && !_IsKeyboardDisabled() &&
         SentenceTranslationKeyPolicy::KeepsPinyinChannel(IsSentenceTranslationEnabled(), sentenceInput, *classifiedCode,
-                                                         capturedModifiers, windowsKey))
+                                                         capturedModifiers, windowsKey,
+                                                         (GetKeyState(VK_CAPITAL) & 0x0001) != 0))
     {
         keyState->Category = CATEGORY_COMPOSING;
         keyState->Function = FUNCTION_INPUT;
@@ -651,8 +654,9 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
         if (ShouldPassCapsLockAlphabet((GetKeyState(VK_CAPITAL) & 0x0001) != 0, inputInProgress, *classifiedCode,
                                        *classifiedWch))
         {
-            // Match the normal fresh-composition path for CapsLock with or without Shift
-            isInputKey = false;
+            // Preserve FIFO order if CapsLock follows a queued raw commit.
+            // CATEGORY_NONE/FUNCTION_NONE inserts this character through TSF.
+            return true;
         }
     }
 
@@ -1071,13 +1075,24 @@ void CMetasequoiaIME::_DrainOneDeferredKeyDown()
         // composition owns the keystroke stream, so count the key itself.
         _NoteKeyEventIpcFailure();
     }
-    else if (!EnsureNamedpipeFocusSessionActivated())
+    else
     {
-        // Do not strand an eaten key when the Server cannot establish a
-        // focus session. The queued FIFO becomes an isolated local/raw-input
-        // lane until its composition has been finalized.
-        _serverUnavailableFallbackActive = true;
-        _NoteKeyEventIpcFailure();
+        bool activationPending = false;
+        if (!EnsureNamedpipeFocusSessionActivated(false, &activationPending))
+        {
+            if (activationPending)
+            {
+                // Keep the original FIFO entry until the echo or bounded retry.
+                // Pending is not evidence that the Server is unavailable.
+                SetTimer(_msgWndHandle, TIMER_CONNECT_ALL_NAMEDPIPE, CONNECT_NAMEDPIPE_RETRY_INTERVAL_MS, nullptr);
+                return;
+            }
+            // Do not strand an eaten key when the Server cannot establish a
+            // focus session. The queued FIFO becomes an isolated local/raw-input
+            // lane until its composition has been finalized.
+            _serverUnavailableFallbackActive = true;
+            _NoteKeyEventIpcFailure();
+        }
     }
 
     _deferredKeyInFlight = _deferredKeyDowns.front();

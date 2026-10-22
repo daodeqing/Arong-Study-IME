@@ -37,6 +37,13 @@ STDAPI CMetasequoiaIME::OnActivated(_In_ REFCLSID clsid, _In_ REFGUID guidProfil
         // their package identity to the Server.
         _WakeServerIfNeeded();
         _AddTextProcessorEngine();
+        if (Global::g_connected && _msgWndHandle)
+        {
+            // Profile reactivation need not produce another thread-focus edge.
+            // Start its new focus session before the first typed key.
+            RequireNamedpipeFocusActivation();
+            PostMessage(_msgWndHandle, WM_ConnectNamedpipe, 0, 0);
+        }
     }
     else
     {

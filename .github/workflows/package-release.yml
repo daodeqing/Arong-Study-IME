@@ -158,6 +158,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/ci/test-engine.ps1 -BuildDir engine/build-release -StagingRoot "$env:RUNNER_TEMP/product-data"
 
+      - name: Build and test UI layout reuse
+        shell: pwsh
+        run: |
+          cmake -S ui -B ui/build-release -A x64 -DBUILD_TESTING=ON
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build ui/build-release --config Release --parallel --target msimeui-tests
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir ui/build-release -C Release --output-on-failure
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Prepare Package Files
         shell: pwsh
         env:
@@ -262,6 +272,7 @@ jobs:
           name: backspace-probes
           path: |
             engine/build-release/Release/*.exe
-            server/build-release/bin/Release/*
+            server/build-release/bin/Release/*.exe
+            server/build-release/bin/Release/*.dll
             engine/build-release/vcpkg_installed/x64-windows/bin/*.dll
           if-no-files-found: error

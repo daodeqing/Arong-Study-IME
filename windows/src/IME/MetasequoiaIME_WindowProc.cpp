@@ -383,7 +383,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         if (Global::g_connected)
         {
             const bool resetPending = pIME->_localSessionResetPending.load(std::memory_order_acquire);
-            const bool activated = !resetPending && EnsureNamedpipeFocusSessionActivated();
+            const bool activated = !resetPending && EnsureNamedpipeFocusSessionActivated(false);
             if (activated)
             {
                 KillTimer(hWnd, TIMER_CONNECT_ALL_NAMEDPIPE);
@@ -472,7 +472,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
                 }
             }
 
-            if (EnsureNamedpipeFocusSessionActivated())
+            if (EnsureNamedpipeFocusSessionActivated(false))
             {
                 KillTimer(hWnd, TIMER_CONNECT_ALL_NAMEDPIPE);
                 pIME->_ipcReconnectDelayMs = CONNECT_NAMEDPIPE_RETRY_INTERVAL_MS;
