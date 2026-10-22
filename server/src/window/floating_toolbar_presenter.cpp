@@ -79,6 +79,8 @@ constexpr ToolbarIcon kIconTraditional = {0xE88C, L"繁"};
 constexpr ToolbarIcon kIconEmoji = {0xE76E, L"表"};
 constexpr ToolbarIcon kIconKeyboard = {0xE765, L"键"};
 constexpr ToolbarIcon kIconSettings = {0xE713, L"设"};
+constexpr ToolbarIcon kIconMinimize = {0xE921, L"−"};
+constexpr ToolbarIcon kIconExpand = {0xE76C, L"›"};
 
 float ToolbarUserScale()
 {
@@ -366,6 +368,7 @@ struct FloatingToolbarPresenter::Impl
     float iconRadius = 6.0f;
     bool light = false;
     bool shadow = false;
+    bool minimized = false;
     float cardHeightDip = 0.0f;
     float opacity = 1.0f;
     int cnEn = 1;
@@ -462,80 +465,91 @@ void FloatingToolbarPresenter::RebuildScene()
         return button;
     };
 
-    if (impl_->capsLock == 1)
+    if (impl_->minimized)
     {
-        addText(L"A", false, [this]() {
-            if (impl_->englishInputMode == 1)
-            {
-                FanyNamedPipe::EnqueueExitEnglishInputModeTask();
-            }
-            else
-            {
-                FanyNamedPipe::EnqueueToolbarLanguageToggleTask(impl_->cnEn == 1);
-            }
-        });
-    }
-    else if (impl_->cnEn != 1)
-    {
-        addGlyph(kIconEn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(false); });
-    }
-    else if (impl_->englishInputMode == 1)
-    {
-        addText(L"En", true, []() { FanyNamedPipe::EnqueueExitEnglishInputModeTask(); });
-    }
-    else if (impl_->japaneseInputMode == 1)
-    {
-        addGlyph(kIconJa, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
+        addGlyph(kIconExpand, [this]() { PostMessage(hwnd_, WM_SYSCOMMAND, SC_RESTORE, 0); });
     }
     else
     {
-        addGlyph(kIconCn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
-    }
+        if (impl_->capsLock == 1)
+        {
+            addText(L"A", false, [this]() {
+                if (impl_->englishInputMode == 1)
+                {
+                    FanyNamedPipe::EnqueueExitEnglishInputModeTask();
+                }
+                else
+                {
+                    FanyNamedPipe::EnqueueToolbarLanguageToggleTask(impl_->cnEn == 1);
+                }
+            });
+        }
+        else if (impl_->cnEn != 1)
+        {
+            addGlyph(kIconEn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(false); });
+        }
+        else if (impl_->englishInputMode == 1)
+        {
+            addText(L"En", true, []() { FanyNamedPipe::EnqueueExitEnglishInputModeTask(); });
+        }
+        else if (impl_->japaneseInputMode == 1)
+        {
+            addGlyph(kIconJa, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
+        }
+        else
+        {
+            addGlyph(kIconCn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
+        }
 
-    const FloatingToolbarItemsConfig &items = GetConfiguredFloatingToolbarItems();
-    if (items.fullwidth)
-    {
-        if (impl_->doubleSingleByte == 1)
+        const FloatingToolbarItemsConfig &items = GetConfiguredFloatingToolbarItems();
+        if (items.fullwidth)
         {
-            addGlyph(kIconFullWidth,
-                     []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToHalfwidth); });
+            if (impl_->doubleSingleByte == 1)
+            {
+                addGlyph(kIconFullWidth,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToHalfwidth); });
+            }
+            else
+            {
+                addGlyph(kIconHalfWidth,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToFullwidth); });
+            }
         }
-        else
+        if (items.punctuation)
         {
-            addGlyph(kIconHalfWidth,
-                     []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToFullwidth); });
+            if (impl_->punctuation == 1)
+            {
+                addGlyph(kIconPuncCn,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncEn); });
+            }
+            else
+            {
+                addGlyph(kIconPuncEn,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncCn); });
+            }
         }
-    }
-    if (items.punctuation)
-    {
-        if (impl_->punctuation == 1)
+        if (items.character_set)
         {
-            addGlyph(kIconPuncCn, []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncEn); });
+            const bool traditional = GetConfiguredCharacterSet() == "traditional";
+            addGlyph(traditional ? kIconTraditional : kIconSimplified, []() {
+                const std::string next = GetConfiguredCharacterSet() == "traditional" ? "simplified" : "traditional";
+                SetConfiguredCharacterSet(next);
+            });
         }
-        else
+        if (items.emoji)
         {
-            addGlyph(kIconPuncEn, []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncCn); });
+            addGlyph(kIconEmoji, []() { OpenEmojiPanelApplication(); });
         }
-    }
-    if (items.character_set)
-    {
-        const bool traditional = GetConfiguredCharacterSet() == "traditional";
-        addGlyph(traditional ? kIconTraditional : kIconSimplified, []() {
-            const std::string next = GetConfiguredCharacterSet() == "traditional" ? "simplified" : "traditional";
-            SetConfiguredCharacterSet(next);
-        });
-    }
-    if (items.emoji)
-    {
-        addGlyph(kIconEmoji, []() { OpenEmojiPanelApplication(); });
-    }
-    if (items.screen_keyboard)
-    {
-        addGlyph(kIconKeyboard, []() { OpenKeyboardPanelApplication(); });
-    }
-    if (items.settings)
-    {
-        addGlyph(kIconSettings, []() { OpenSettingsApplication(); });
+        if (items.screen_keyboard)
+        {
+            addGlyph(kIconKeyboard, []() { OpenKeyboardPanelApplication(); });
+        }
+        if (items.settings)
+        {
+            addGlyph(kIconSettings, []() { OpenSettingsApplication(); });
+        }
+        // Defer the rebuild until the button's mouse dispatch has returned.
+        addGlyph(kIconMinimize, [this]() { PostMessage(hwnd_, WM_SYSCOMMAND, SC_MINIMIZE, 0); });
     }
 
     row->AddChild(leading);
@@ -811,6 +825,20 @@ bool FloatingToolbarPresenter::HandleMessage(UINT message, WPARAM wParam, LPARAM
     }
     switch (message)
     {
+    case WM_SYSCOMMAND: {
+        const UINT command = static_cast<UINT>(wParam & 0xFFF0);
+        if (command != SC_MINIMIZE && command != SC_RESTORE)
+        {
+            return false;
+        }
+        const bool minimized = command == SC_MINIMIZE;
+        if (impl_->minimized != minimized)
+        {
+            impl_->minimized = minimized;
+            ApplyAppearance();
+        }
+        return true;
+    }
     case WM_ERASEBKGND:
         return true;
     case WM_PAINT: {
