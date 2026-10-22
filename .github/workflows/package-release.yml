@@ -15,6 +15,10 @@ on:
           - full
           - light
         default: 'full'
+      diagnostics_only:
+        description: Build portable Backspace probes without packaging or publishing
+        type: boolean
+        default: false
       publish_release:
         description: 'Publish on GitHub (disable to build a reviewable candidate artifact only)'
         type: boolean
@@ -29,6 +33,7 @@ permissions:
 
 jobs:
   build-and-package:
+    if: ${{ !inputs.diagnostics_only }}
     name: Build & Package Windows Installer
     runs-on: windows-2025
     timeout-minutes: 180
@@ -218,3 +223,29 @@ jobs:
               gh release create $tag $installer.FullName $checksum.FullName --target $env:GITHUB_SHA --title "阿龍学习输入法 $tag" --latest --notes "Windows x64/x86 installer, built and tested by GitHub Actions from commit $env:GITHUB_SHA. The unsigned installer SHA-256 is published in the sidecar file."
           }
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  backspace-diagnostics:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.diagnostics_only }}
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/vcpkg-cache
+        with:
+          scope: server-x64-windows-and-static-md
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Configure engine
+        shell: pwsh
+        run: cmake -S engine -B engine/build-release -A x64 -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows
+      - name: Build probes
+        run: cmake --build engine/build-release --config Release --parallel --target bench_backspace eval_quanpin_sentence test_input_session test_segmentation_contract
+      - name: Upload portable probes
+        uses: actions/upload-artifact@v4
+        with:
+          name: backspace-probes
+          path: |
+            engine/build-release/Release/*.exe
+            engine/build-release/vcpkg_installed/x64-windows/bin/*.dll
+          if-no-files-found: error
