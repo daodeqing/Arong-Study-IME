@@ -1,0 +1,650 @@
+[
+  {
+    "sample": 0,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 3.337,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.34375
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.140625
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.078125
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 1,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 3.45,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.375
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.125
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.109375
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 2,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 3.987,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.53125
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.125
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.109375
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 3,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 4.775,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.59375
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.140625
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.140625
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 4,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 4.431,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.546875
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.171875
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.109375
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 5,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 4.156,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.453125
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.21875
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.125
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 6,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 4.469,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.515625
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.171875
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.109375
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 7,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 4.794,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.578125
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.203125
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.0625
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 8,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 4.45,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.546875
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.1875
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.046875
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 9,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 4.013,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.515625
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.140625
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.0625
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 10,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 3.9,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.515625
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.15625
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.125
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sample": 11,
+    "processes": [
+      {
+        "pid": 11988,
+        "name": "ArongStudyImeWatchdog.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 11984,
+            "cpu_seconds": 0.0
+          }
+        ]
+      },
+      {
+        "pid": 13156,
+        "name": "ArongStudyImeServer.exe",
+        "machine_cpu_percent": 4.075,
+        "top_threads": [
+          {
+            "id": 13804,
+            "cpu_seconds": 0.53125
+          },
+          {
+            "id": 13052,
+            "cpu_seconds": 0.171875
+          },
+          {
+            "id": 38228,
+            "cpu_seconds": 0.046875
+          }
+        ]
+      },
+      {
+        "pid": 13232,
+        "name": "ArongStudyImeSettings.exe",
+        "machine_cpu_percent": 0.0,
+        "top_threads": [
+          {
+            "id": 27016,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 26584,
+            "cpu_seconds": 0.0
+          },
+          {
+            "id": 30948,
+            "cpu_seconds": 0.0
+          }
+        ]
+      }
+    ]
+  }
+]

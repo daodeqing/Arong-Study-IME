@@ -5,7 +5,10 @@
     "Preserve unsent FIFO during healthy delayed focus acknowledgement; nonblocking normal probes",
     "Retry idempotent same-token activation with 250/500/1000/2000ms pacing if initial activation is ignored",
     "Suppress duplicate focus-ready owner wakeups",
-    "Narrow foreground/location WinEvent subscriptions; unchanged callback behavior"
+    "Narrow foreground/location WinEvent subscriptions; unchanged callback behavior",
+    "Bound ordinary full-mode status responses per main registration and focus epoch, protecting older DLLs",
+    "Apply enabled sentence mode only when Chinese mode actually changes, closing the status feedback loop",
+    "Treat identical output-language frames as snapshots; only real changes cancel pending translation confirmation"
   ],
   "candidate_benchmark_before": {
     "type": {
@@ -24,15 +27,53 @@
   "limits": [
     "Baseline isolates candidate construction from host focus and UI",
     "60000 unrelated-event stress used only 0.46875 server CPU seconds over141.24s; this does not establish event subscriptions as the main source of the user screenshot CPU spike",
-    "No new claim of everyday CPU reduction until paired live measurements",
-    "Native test host initially selected WeChat input method; its samples are not Arong input benchmarks"
+    "Native test host initially selected WeChat input method; its samples are not Arong input benchmarks",
+    "Existing cold pipe registration can still use bounded waits; this change makes healthy focus-echo probes nonblocking, without claiming every startup path is asynchronous",
+    "Native pre-fix typing results confirm a feedback loop; post-fix paired measurements are still required"
   ],
   "quality_preservation": [
     "No candidate algorithm, candidate count, model, prompt, temperature or token capacity changes"
   ],
   "pending": [
-    "Native compile/regression execution",
-    "Actions CI/full package",
-    "Real host acceptance with Arong selected"
-  ]
+    "Final Actions CI and real Server pipe regression",
+    "Full package release",
+    "Post-fix paired host typing/CPU acceptance"
+  ],
+  "source_commit": "cca419a128aecc97d39fa57b4a16b7e0e5f62cb6",
+  "checks": {
+    "local_native_focus_regression": "passed, Zig 0.13.0 C++17",
+    "format": "clang-format 18.1.8 passed",
+    "focus_delays_ms": [
+      149,
+      150,
+      500,
+      1500,
+      5000
+    ],
+    "duplicates": {
+      "ready_frames": 1000,
+      "owner_wakeups": 1
+    },
+    "ci_run_id": 39789221715,
+    "ci_status": "in_progress",
+    "local_native_state_idempotency": "passed, source-extracted worker and owner handlers",
+    "previous_ci_all11": "39789221715 succeeded before feedback-loop additions; final CI pending"
+  },
+  "live_reproduction": {
+    "host": "Standalone Win32 EDIT, loaded ArongStudyIme_v0.8.7/ArongStudyImeTsf.dll verified",
+    "input": "nihaojintiantianqibucuo",
+    "key_count": 23,
+    "injection": "physical keys via Computer Use, about7 keys/s; this is not a human typing study",
+    "result": "Input visibly stalled at nihao after all23 keys; additional idle sample remained high",
+    "logical_processors": 16,
+    "server_machine_cpu_percent": {
+      "range": [
+        3.337,
+        4.794
+      ],
+      "median": 4.1155
+    },
+    "settings_cpu_percent_in_samples": 0,
+    "finding": "StatusSnapshot -> full mode state -> enabled SentenceTranslationChanged -> WM_ApplySentenceTranslation -> StatusSnapshot forms a nonterminating feedback cycle. Repeated OutputLanguageChanged also cancels pending confirmation."
+  }
 }

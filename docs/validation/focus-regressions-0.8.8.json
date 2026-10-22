@@ -1,0 +1,43 @@
+{
+  "compiler": "Zig0.13.0 c++ -std=c++17 -O0 (Windows x86_64)",
+  "focus_activation_pending": {
+    "compile_exit": 0,
+    "run_exit": 0,
+    "coverage": [
+      "healthy pending149/150/500/1500/5000ms",
+      "exact/stale focus tokens",
+      "default nonblocking probe",
+      "ignored first activation written, same-token retry recovers",
+      "250/500/1000/2000ms retry backoff",
+      "1000 repeated probes do not flood writes",
+      "exact-once FIFO gate surrogate",
+      "1000 duplicate FocusSessionReady markers wake once",
+      "ready-cleared and next token wake again",
+      "real transport/setup failure stays unavailable"
+    ]
+  },
+  "additional_tests": [
+    {
+      "test": "reconnect_recovery",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "stdout": "Reconnect recovery and offline-composition guards passed"
+    },
+    {
+      "test": "deferred_key_failure_policy",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "stdout": ""
+    },
+    {
+      "test": "key_focus_recovery",
+      "compile_exit": 0,
+      "run_exit": 0,
+      "stdout": ""
+    }
+  ],
+  "notes": [
+    "Full TSF DLL build and real-host behavior are not established by these standalone state fixtures.",
+    "Zig bundled libunwind emitted DLL attribute redeclaration warnings during first cache build."
+  ]
+}

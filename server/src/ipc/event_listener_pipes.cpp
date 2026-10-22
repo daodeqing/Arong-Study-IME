@@ -418,6 +418,10 @@ void MainPipeClientThread(HANDLE clientPipe, uint64_t handlerId)
     ScopedPipeClientHandler handler(handlerId);
     uint64_t clientId = 0;
     uint64_t mainRegistrationId = 0;
+    // The first status snapshot also covers hosts that report only thread focus.
+    // Repeating the full policy reply for every snapshot makes older DLLs echo
+    // sentence-mode application back forever, flooding both message pumps.
+    uint64_t lastModeSnapshotEpoch = 0;
     bool helloReceived = false;
     if (!SetPipeWaitMode(clientPipe, false))
     {
@@ -640,11 +644,14 @@ void MainPipeClientThread(HANDLE clientPipe, uint64_t handlerId)
             // identical, so both feed the same toolbar update.
             EnqueueTask(TaskType::StatusSnapshot, pipeData, activation.epoch);
             // A plain StatusSnapshot is also emitted by OnSetThreadFocus in
-            // hosts that do not produce a document-focus transition.  Replying
-            // here makes that path converge too.  FocusRestored was already
-            // answered above, so avoid a duplicate worker frame.
-            if (pipeData.event_type == FanyImePipeEventType::StatusSnapshot)
+            // hosts that do not produce a document-focus transition. Sync it once
+            // per activation on this pinned connection, including old DLLs whose
+            // sentence-mode reply produces another snapshot. Explicit activation,
+            // FocusRestored and config broadcasts still sync policy independently.
+            if (pipeData.event_type == FanyImePipeEventType::StatusSnapshot && activation.client_id != 0 &&
+                activation.epoch != 0 && activation.epoch != lastModeSnapshotEpoch)
             {
+                lastModeSnapshotEpoch = activation.epoch;
                 SendInputModeState(activation);
             }
             break;

@@ -1076,8 +1076,11 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         BOOL hasThreadFocus = FALSE;
         if (IsSentenceTranslationEnabled() && pIME->_pThreadMgr && pIME->_pCompositionProcessorEngine &&
             SUCCEEDED(pIME->_pThreadMgr->IsThreadFocus(&hasThreadFocus)) && hasThreadFocus &&
-            !pIME->_IsKeyboardDisabled())
+            !pIME->_IsKeyboardDisabled() &&
+            !pIME->_pCompositionProcessorEngine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
         {
+            // Repeated state frames must not echo another full status snapshot
+            // when the required Chinese composition mode is already applied.
             pIME->_pCompositionProcessorEngine->SetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
             SendCurrentImeStatusSnapshot(pIME);
         }

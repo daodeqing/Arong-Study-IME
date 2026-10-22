@@ -115,6 +115,23 @@ target_include_directories(test_focus_activation_pending PRIVATE "${CMAKE_CURREN
 target_compile_features(test_focus_activation_pending PRIVATE cxx_std_17)
 add_test(NAME focus_activation_pending COMMAND test_focus_activation_pending)
 
+# Compile the actual worker snapshot branches and owner-thread apply case.
+set(input_state_worker_source "${CMAKE_CURRENT_SOURCE_DIR}/../src/IME/MetasequoiaIME_IpcWorker.cpp")
+set(input_state_window_source "${CMAKE_CURRENT_SOURCE_DIR}/../src/IME/MetasequoiaIME_WindowProc.cpp")
+set(input_state_fixture_generator "${CMAKE_CURRENT_SOURCE_DIR}/generate_input_state_fixture.py")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${input_state_worker_source}" "${input_state_window_source}" "${input_state_fixture_generator}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/generate_commit_reply_fixture.py")
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}" "${input_state_fixture_generator}"
+        "${input_state_worker_source}" "${input_state_window_source}"
+        "${CMAKE_CURRENT_BINARY_DIR}/input_state_source.h"
+    COMMAND_ERROR_IS_FATAL ANY)
+add_executable(test_input_state_idempotency input_state_idempotency.cpp)
+target_include_directories(test_input_state_idempotency PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_features(test_input_state_idempotency PRIVATE cxx_std_17)
+add_test(NAME input_state_idempotency COMMAND test_input_state_idempotency)
+
 # Link the same inline key classifier used by normal and queued TSF paths.
 if(WIN32)
     add_executable(test_temporary_japanese_input temporary_japanese_input.cpp)
