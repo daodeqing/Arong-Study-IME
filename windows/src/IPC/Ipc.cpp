@@ -49,6 +49,17 @@ static thread_local std::atomic<UINT> *boundWorkerPipeGeneration = nullptr;
 static thread_local HANDLE boundWorkerAckEvent = nullptr;
 static thread_local HANDLE boundWorkerPipePublishedEvent = nullptr;
 
+constexpr DWORD FOCUS_ACTIVATION_RETRY_INITIAL_MS = 250;
+constexpr DWORD FOCUS_ACTIVATION_RETRY_MAX_MS = 2000;
+static thread_local ULONGLONG focusActivationRetryAtMs = 0;
+static thread_local DWORD focusActivationRetryDelayMs = FOCUS_ACTIVATION_RETRY_INITIAL_MS;
+
+static void ResetFocusActivationRetry()
+{
+    focusActivationRetryAtMs = 0;
+    focusActivationRetryDelayMs = FOCUS_ACTIVATION_RETRY_INITIAL_MS;
+}
+
 /* Data size transfered from Server process */
 static const int ServerDtPipeDataSize = 512;
 
@@ -643,6 +654,8 @@ void BindNamedpipeFocusState(const void *owner, bool *focusResetPending, bool *a
                              std::atomic<HANDLE> *workerPipeHandle, std::atomic<UINT> *workerPipeGeneration,
                              std::atomic<FanyImeTemporaryJapanese::Policy> *temporaryJapanesePolicy)
 {
+    if (boundFocusStateOwner != owner)
+        ResetFocusActivationRetry();
     boundFocusStateOwner = owner;
     boundFocusResetPending = focusResetPending;
     boundActivationRequired = activationRequired;
@@ -677,6 +690,7 @@ void UnbindNamedpipeFocusState(const void *owner)
     {
         return;
     }
+    ResetFocusActivationRetry();
     boundFocusStateOwner = nullptr;
     boundFocusResetPending = nullptr;
     boundActivationRequired = nullptr;
@@ -717,11 +731,9 @@ void InvalidateNamedpipeWorkerGeneration()
     }
 }
 
-thread_local ULONGLONG focusActivationStartedAtMs = 0;
-
 void RequireNamedpipeFocusActivation()
 {
-    focusActivationStartedAtMs = 0;
+    ResetFocusActivationRetry();
     if (boundActivationRequired)
     {
         *boundActivationRequired = true;
@@ -743,6 +755,7 @@ void RequireNamedpipeFocusActivation()
 
 void MarkNamedpipeFocusLost()
 {
+    ResetFocusActivationRetry();
     if (boundFocusResetPending)
     {
         *boundFocusResetPending = true;
@@ -1942,6 +1955,15 @@ bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement, bool *pen
         return false;
     }
 
+    // A write can succeed before Server reverse-route registration is ready.
+    // Retry only the idempotent activation with the SAME focus token, spaced
+    // out even if UI/control probes run on every key. Never replay typed keys.
+    if (boundActivationRequired && !*boundActivationRequired && !IsExpectedWorkerFocusAcknowledged() &&
+        focusActivationRetryAtMs != 0 && GetTickCount64() >= focusActivationRetryAtMs)
+    {
+        *boundActivationRequired = true;
+    }
+
     // A lifecycle write can itself discover a stale Main handle and mark the
     // session dirty. Iterate a small bounded number of times so the newly
     // generated token is the one ultimately acknowledged by the worker pipe.
@@ -1963,6 +1985,7 @@ bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement, bool *pen
         {
             if (IsExpectedWorkerFocusAcknowledged())
             {
+                ResetFocusActivationRetry();
                 return true;
             }
             break;
@@ -1984,7 +2007,10 @@ bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement, bool *pen
         if (tokenStillCurrent && boundActivationRequired)
         {
             *boundActivationRequired = false;
-            focusActivationStartedAtMs = GetTickCount64();
+            focusActivationRetryAtMs = GetTickCount64() + focusActivationRetryDelayMs;
+            focusActivationRetryDelayMs = focusActivationRetryDelayMs < FOCUS_ACTIVATION_RETRY_MAX_MS / 2
+                                              ? focusActivationRetryDelayMs * 2
+                                              : FOCUS_ACTIVATION_RETRY_MAX_MS;
         }
         if ((!boundFocusResetPending || !*boundFocusResetPending) &&
             (!boundActivationRequired || !*boundActivationRequired))
@@ -2003,13 +2029,12 @@ bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement, bool *pen
         // ownership of queued keys; the worker posts a reconnect when it arrives.
         if (!waitForAcknowledgement && !IsExpectedWorkerFocusAcknowledged())
         {
-            if (focusActivationStartedAtMs != 0 && GetTickCount64() - focusActivationStartedAtMs < 150)
-            {
-                if (pending)
-                    *pending = true;
-                return false;
-            }
-            MarkNamedpipeSessionDirty();
+            // A delayed echo on a healthy pipe is not a transport failure.
+            // Resetting here used to erase the never-sent FIFO after 150 ms,
+            // especially while switching profiles under Server load. Keep the
+            // same token and let the worker wake the owner when it is ready.
+            if (pending)
+                *pending = true;
             return false;
         }
         const ULONGLONG deadline = GetTickCount64() + 150;
@@ -2021,6 +2046,7 @@ bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement, bool *pen
             }
             if (IsExpectedWorkerFocusAcknowledged())
             {
+                ResetFocusActivationRetry();
                 return true;
             }
             const ULONGLONG now = GetTickCount64();
@@ -2041,7 +2067,10 @@ bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement, bool *pen
                 Sleep(1);
             }
         }
-        MarkNamedpipeSessionDirty();
+        // This optional bounded wait only ends this probe, not the focus
+        // session. A missing echo alone cannot justify discarding input.
+        if (pending)
+            *pending = true;
     }
     return !boundWorkerCommitReady;
 }

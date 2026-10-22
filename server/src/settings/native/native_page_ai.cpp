@@ -662,7 +662,8 @@ struct AiPage : std::enable_shared_from_this<AiPage>
             translation->Add(MakeDescription(
                 L"只翻译已选定的中文，不会把原始拼音当作英文句子。使用下方接口与模型配置，"
                 L"无需开启 AI 联想；请先查询模型并测试连接。等待时继续编辑、切换模式或离开输入框会撤销自动提交。"
-                L"失败或等待超过 5 秒保留中文；Enter 重试，Ctrl+Enter 提交中文。较长句子请分句输入。"));
+                L"请求超时为 120 秒，确认等待上限为 125 秒，均在后台等待。失败时保留中文；Enter 重试，Ctrl+Enter "
+                L"提交中文。"));
             page.AddSection(translation);
         }
 

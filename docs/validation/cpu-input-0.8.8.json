@@ -1,0 +1,38 @@
+{
+  "version": "0.8.8",
+  "baseline_version": "0.8.7",
+  "changes": [
+    "Preserve unsent FIFO during healthy delayed focus acknowledgement; nonblocking normal probes",
+    "Retry idempotent same-token activation with 250/500/1000/2000ms pacing if initial activation is ignored",
+    "Suppress duplicate focus-ready owner wakeups",
+    "Narrow foreground/location WinEvent subscriptions; unchanged callback behavior"
+  ],
+  "candidate_benchmark_before": {
+    "type": {
+      "samples": 115,
+      "median_ms": 0.5496,
+      "p95_ms": 4.316,
+      "max_ms": 5.6093
+    },
+    "backspace": {
+      "samples": 115,
+      "median_ms": 0.0838,
+      "p95_ms": 0.2696,
+      "max_ms": 0.5324
+    }
+  },
+  "limits": [
+    "Baseline isolates candidate construction from host focus and UI",
+    "60000 unrelated-event stress used only 0.46875 server CPU seconds over141.24s; this does not establish event subscriptions as the main source of the user screenshot CPU spike",
+    "No new claim of everyday CPU reduction until paired live measurements",
+    "Native test host initially selected WeChat input method; its samples are not Arong input benchmarks"
+  ],
+  "quality_preservation": [
+    "No candidate algorithm, candidate count, model, prompt, temperature or token capacity changes"
+  ],
+  "pending": [
+    "Native compile/regression execution",
+    "Actions CI/full package",
+    "Real host acceptance with Arong selected"
+  ]
+}

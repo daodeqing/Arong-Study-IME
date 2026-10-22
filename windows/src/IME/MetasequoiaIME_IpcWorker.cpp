@@ -559,15 +559,22 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
             const uint64_t expectedToken = pIME->_expectedWorkerFocusToken.load(std::memory_order_acquire);
             if (expectedToken != 0 && focusToken == expectedToken)
             {
+                const bool alreadyAcknowledged =
+                    pIME->_workerCommitReady.load(std::memory_order_acquire) &&
+                    pIME->_acknowledgedWorkerFocusToken.load(std::memory_order_acquire) == focusToken;
                 pIME->_acknowledgedWorkerFocusToken.store(focusToken, std::memory_order_release);
                 pIME->_workerCommitReady.store(true, std::memory_order_release);
-                // Wake the UI thread waiting in EnsureNamedpipeFocusSessionActivated.
-                if (pIME->_workerAckEvent)
+                // Duplicate ready frames must not turn every key into another
+                // reconnect/status round trip on the host UI thread.
+                if (!alreadyAcknowledged)
                 {
-                    SetEvent(pIME->_workerAckEvent);
+                    if (pIME->_workerAckEvent)
+                    {
+                        SetEvent(pIME->_workerAckEvent);
+                    }
+                    if (pIME->_msgWndHandle)
+                        PostMessage(pIME->_msgWndHandle, WM_IpcReconnect, 0, 0);
                 }
-                if (pIME->_msgWndHandle)
-                    PostMessage(pIME->_msgWndHandle, WM_IpcReconnect, 0, 0);
             }
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::CommitCurCandidate)
