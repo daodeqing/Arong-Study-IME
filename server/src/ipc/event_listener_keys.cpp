@@ -4,6 +4,8 @@
 #include <string>
 #include <algorithm>
 #include <cstdint>
+#include <chrono>
+#include <cstdio>
 #include <utility>
 #include "ipc.h"
 #include "ipc/candidate_text_policy.h"
@@ -606,6 +608,46 @@ struct ScopedKeyStage
 
 namespace FanyNamedPipe
 {
+// This diagnostic entry does not initialize pipes, windows or online providers.
+// The caller requires isolated resource/config roots before creating a session.
+int RunBackspaceBenchmark()
+{
+    using Clock = std::chrono::steady_clock;
+    const std::vector<std::string> inputs = {
+        "nihao",
+        "zhongguo",
+        "jintiantianqibucuo",
+        "zhegewentiyinggaizenmejiejue",
+        "womenjintianyiqiqutushuguanxuexizhongwen",
+        "ni'hao'zhong'guo",
+    };
+    std::puts("input,operation,units,engine_ms,candidate_ms,candidates");
+    for (size_t index = 0; index < inputs.size(); ++index)
+    {
+        g_inputSession->reset_state();
+        GlobalIme::composition.clear();
+        const auto measure = [&](UINT key, WCHAR ch, const char *operation) {
+            bool restored = false;
+            const auto start = Clock::now();
+            ApplyCompositionEditKey(key, ch, 0, true, restored);
+            const auto decoded = Clock::now();
+            Global::PinyinString = string_to_wstring(g_inputSession->get_pinyin_sequence_with_cases());
+            PrepareCandidateList(0, 0);
+            const auto end = Clock::now();
+            std::printf(
+                "%zu,%s,%zu,%.6f,%.6f,%zu\n", index, operation, g_inputSession->get_pinyin_sequence_with_cases().size(),
+                std::chrono::duration<double, std::milli>(decoded - start).count(),
+                std::chrono::duration<double, std::milli>(end - decoded).count(), Global::candidate_ui.items.size());
+            std::fflush(stdout);
+        };
+        for (char ch : inputs[index])
+            measure(ch == '\'' ? VK_OEM_7 : static_cast<UINT>(ch - 'a' + 'A'), static_cast<WCHAR>(ch), "type");
+        while (!g_inputSession->get_pinyin_sequence_with_cases().empty())
+            measure(VK_BACK, 0, "backspace");
+    }
+    return 0;
+}
+
 struct ScopedServerKeyLatency
 {
     uint64_t client_id;

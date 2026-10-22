@@ -88,3 +88,8 @@ void EnqueueToolbarLanguageToggleTask(bool from_ime_enabled);
 // stops their thread. Call after the worker thread has been joined, so nothing posts new writes.
 void ShutdownDictionaryWriter();
 } // namespace FanyNamedPipe
+
+namespace FanyNamedPipe
+{
+int RunBackspaceBenchmark();
+}

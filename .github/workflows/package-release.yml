@@ -241,11 +241,27 @@ jobs:
         run: cmake -S engine -B engine/build-release -A x64 -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows
       - name: Build probes
         run: cmake --build engine/build-release --config Release --parallel --target bench_backspace eval_quanpin_sentence test_input_session test_segmentation_contract
+      - name: Set up server compiler cache
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba
+      - name: Install Server Boost
+        shell: pwsh
+        run: ./scripts/ci/install-boost.ps1
+      - name: Build Server probe
+        shell: pwsh
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          SCCACHE_IGNORE_SERVER_IO_ERROR: "1"
+        run: |
+          cmake -S server -B server/build-release -G "Ninja Multi-Config" -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build server/build-release --config Release --parallel --target ArongStudyImeServer
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload portable probes
         uses: actions/upload-artifact@v4
         with:
           name: backspace-probes
           path: |
             engine/build-release/Release/*.exe
+            server/build-release/bin/Release/*
             engine/build-release/vcpkg_installed/x64-windows/bin/*.dll
           if-no-files-found: error
