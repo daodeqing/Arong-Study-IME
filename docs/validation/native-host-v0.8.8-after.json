@@ -1,0 +1,66 @@
+{
+  "standalone_win32_edit": true,
+  "closed": true,
+  "snapshots": [
+    {
+      "elapsed_ms": 120.3,
+      "text": ""
+    },
+    {
+      "elapsed_ms": 264785.2,
+      "text": "n"
+    },
+    {
+      "elapsed_ms": 360374.2,
+      "text": ""
+    },
+    {
+      "elapsed_ms": 429171.8,
+      "text": "nasa"
+    },
+    {
+      "elapsed_ms": 446670.3,
+      "text": ""
+    },
+    {
+      "elapsed_ms": 446892.3,
+      "text": "N"
+    },
+    {
+      "elapsed_ms": 447004.7,
+      "text": "NA"
+    },
+    {
+      "elapsed_ms": 447218.0,
+      "text": "NAS"
+    },
+    {
+      "elapsed_ms": 447332.0,
+      "text": "NASA"
+    },
+    {
+      "elapsed_ms": 463082.3,
+      "text": ""
+    },
+    {
+      "elapsed_ms": 473361.7,
+      "text": "你好"
+    },
+    {
+      "elapsed_ms": 482986.4,
+      "text": ""
+    },
+    {
+      "elapsed_ms": 484209.4,
+      "text": "Hello."
+    },
+    {
+      "elapsed_ms": 506611.6,
+      "text": ""
+    },
+    {
+      "elapsed_ms": 512659.7,
+      "text": "Hello, the weather is nice today."
+    }
+  ]
+}

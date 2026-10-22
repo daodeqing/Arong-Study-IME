@@ -1,0 +1,283 @@
+{
+  "label": "v0.8.8 Arong physical typing",
+  "logical_processors": 16,
+  "measurement": "process CPU seconds / elapsed seconds / logical processors",
+  "samples": [
+    {
+      "sample": 0,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.109375,
+          "wall_seconds": 1.809718,
+          "machine_cpu_percent": 0.3777,
+          "rss_bytes": 107220992
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.809718,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22048768
+        }
+      ]
+    },
+    {
+      "sample": 1,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.171875,
+          "wall_seconds": 1.000554,
+          "machine_cpu_percent": 1.0736,
+          "rss_bytes": 107626496
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000554,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22048768
+        }
+      ]
+    },
+    {
+      "sample": 2,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.203125,
+          "wall_seconds": 1.000531,
+          "machine_cpu_percent": 1.2689,
+          "rss_bytes": 109264896
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000531,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22048768
+        }
+      ]
+    },
+    {
+      "sample": 3,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000315,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109264896
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000315,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22048768
+        }
+      ]
+    },
+    {
+      "sample": 4,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000074,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109264896
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000074,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22048768
+        }
+      ]
+    },
+    {
+      "sample": 5,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000514,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109264896
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000514,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22048768
+        }
+      ]
+    },
+    {
+      "sample": 6,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000424,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109264896
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000424,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22048768
+        }
+      ]
+    },
+    {
+      "sample": 7,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000647,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109228032
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000647,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22007808
+        }
+      ]
+    },
+    {
+      "sample": 8,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000388,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109228032
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000388,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22007808
+        }
+      ]
+    },
+    {
+      "sample": 9,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000551,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109228032
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000551,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22007808
+        }
+      ]
+    },
+    {
+      "sample": 10,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000196,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109228032
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.000196,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22007808
+        }
+      ]
+    },
+    {
+      "sample": 11,
+      "processes": [
+        {
+          "pid": 14120,
+          "name": "ArongStudyImeServer.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.00018,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 109228032
+        },
+        {
+          "pid": 14184,
+          "name": "ArongStudyImeWatchdog.exe",
+          "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+          "cpu_seconds": 0.0,
+          "wall_seconds": 1.00018,
+          "machine_cpu_percent": 0.0,
+          "rss_bytes": 22007808
+        }
+      ]
+    }
+  ]
+}

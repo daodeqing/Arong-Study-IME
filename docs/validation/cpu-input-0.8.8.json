@@ -28,18 +28,16 @@
     "Baseline isolates candidate construction from host focus and UI",
     "60000 unrelated-event stress used only 0.46875 server CPU seconds over141.24s; this does not establish event subscriptions as the main source of the user screenshot CPU spike",
     "Native test host initially selected WeChat input method; its samples are not Arong input benchmarks",
-    "Existing cold pipe registration can still use bounded waits; this change makes healthy focus-echo probes nonblocking, without claiming every startup path is asynchronous",
-    "Native pre-fix typing results confirm a feedback loop; post-fix paired measurements are still required"
+    "Existing cold pipe registration can still use bounded waits; this change makes healthy focus-echo probes nonblocking, without claiming every startup path is asynchronous"
   ],
   "quality_preservation": [
     "No candidate algorithm, candidate count, model, prompt, temperature or token capacity changes"
   ],
   "pending": [
-    "Final Actions CI and real Server pipe regression",
-    "Full package release",
-    "Post-fix paired host typing/CPU acceptance"
+    "Notepad, browser, WeChat and QQ acceptance",
+    "Post-install v0.8.9 toolbar acceptance after Windows elevation"
   ],
-  "source_commit": "cca419a128aecc97d39fa57b4a16b7e0e5f62cb6",
+  "source_commit": "179b09c1ab7cf27fe37a725d267430017b4a1090",
   "checks": {
     "local_native_focus_regression": "passed, Zig 0.13.0 C++17",
     "format": "clang-format 18.1.8 passed",
@@ -54,10 +52,13 @@
       "ready_frames": 1000,
       "owner_wakeups": 1
     },
-    "ci_run_id": 39789221715,
-    "ci_status": "in_progress",
+    "ci_run_id": 39792680640,
+    "ci_status": "success",
     "local_native_state_idempotency": "passed, source-extracted worker and owner handlers",
-    "previous_ci_all11": "39789221715 succeeded before feedback-loop additions; final CI pending"
+    "ci_jobs": 11,
+    "package_run_id": 39794617097,
+    "real_server_pipe_regression": "passed in Server CI for x64/Win32 probes and legacy client",
+    "package_status": "success; attempt2 after transient dependency DNS failure"
   },
   "live_reproduction": {
     "host": "Standalone Win32 EDIT, loaded ArongStudyIme_v0.8.7/ArongStudyImeTsf.dll verified",
@@ -71,9 +72,78 @@
         3.337,
         4.794
       ],
-      "median": 4.1155
+      "median": 4.1155,
+      "samples": 12,
+      "mean": 4.1531
     },
     "settings_cpu_percent_in_samples": 0,
     "finding": "StatusSnapshot -> full mode state -> enabled SentenceTranslationChanged -> WM_ApplySentenceTranslation -> StatusSnapshot forms a nonterminating feedback cycle. Repeated OutputLanguageChanged also cancels pending confirmation."
+  },
+  "post_fix_acceptance": {
+    "version": "0.8.8",
+    "host": "Standalone Win32 EDIT; loaded ArongStudyIme_v0.8.8/ArongStudyImeTsf.dll verified by process memory map",
+    "logical_processors": 16,
+    "input": "nihaojintiantianqibucuo",
+    "physical_key_count": 23,
+    "typing_duration_ms": 3667,
+    "typing_result": "Complete raw pinyin visible; first candidate 你好今天天气不错; no observed stalled/missing prefix",
+    "typing_cpu": {
+      "one_second_samples": 12,
+      "machine_cpu_percent": {
+        "median": 0.0,
+        "mean": 0.2267,
+        "min": 0.0,
+        "max": 1.2689
+      },
+      "last_eight_samples": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "backspace_physical_keys": 23,
+    "backspace_duration_ms": 3564,
+    "backspace_result": "All 23 pending pinyin letters removed and candidate window dismissed",
+    "backspace_cpu": {
+      "one_second_samples": 12,
+      "machine_cpu_percent": {
+        "median": 0.0,
+        "mean": 0.0371,
+        "min": 0.0,
+        "max": 0.1952
+      },
+      "last_eight_samples": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "shortcut_results": {
+      "Shift_during_pinyin": "nasa committed as raw letters",
+      "CapsLock": "NASA committed; CapsLock restored off",
+      "CtrlEnter": "你好 committed as Chinese",
+      "Enter": "你好今天天气不错 -> Hello, the weather is nice today.; once-only commit observed"
+    },
+    "translation_test": "Through installed TSF and Server; cache was not bypassed, so no new HTTP timing claim",
+    "limits": [
+      "Single standalone Win32 host, synthetic physical key injection at about6 keys/s; not a human typing or OS held-key auto-repeat study",
+      "12-second CPU windows include both typing and idle; medians of zero do not mean zero CPU during typing",
+      "Notepad, browser, WeChat and QQ acceptance remains uncompleted; first-switch tail latency not quantified"
+    ]
+  },
+  "delivery_followup": {
+    "version": "0.8.9",
+    "source_commit": "14240d5af4224eba6bae47f81dfd95f55c6bb814",
+    "changes": "Same CPU/focus fixes plus installer state preservation and requested floating toolbar minimize/restore"
   }
 }
