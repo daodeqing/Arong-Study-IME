@@ -598,7 +598,7 @@ begin
     'ArongStudyIme'
   );
   DataDirPage.Add('');
-  DataDirPage.Values[0] := ResolvePreviousDataDir;
+  DataDirPage.Values[0] := GetDataDir('');
   DataDirPage.Buttons[0].OnClick := @DataDirBrowseClick;
 
 #ifndef LightPackage

@@ -8,6 +8,10 @@ ROOT = Path(__file__).resolve().parents[2]
 compiler = shutil.which("ISCC.exe")
 if compiler is None:
     compiler = str(Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")) / "Inno Setup 6" / "ISCC.exe")
+source = (ROOT / "installer" / "msime_setup.iss").read_text(encoding="utf-8-sig")
+# Both silent and interactive startup must honor /DATADIR through the production resolver.
+assert "DataDirPage.Values[0] := GetDataDir('');" in source
+assert "DataDirPage.Values[0] := ResolvePreviousDataDir;" not in source
 output = ROOT / "installer" / "Output" / "install-paths-probe"
 output.mkdir(parents=True, exist_ok=True)
 subprocess.run([compiler, "/Qp", "/O" + str(output), str(Path(__file__).with_name("install-paths-probe.iss"))], check=True)
