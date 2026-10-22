@@ -52,8 +52,8 @@ AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\ArongStudyIme
 DefaultGroupName={#MyAppName}
-DisableDirPage=yes
-; DisableDirPage=yes 时就绪页默认不显示目标目录，显式打开以便用户确认装到哪。
+DisableDirPage=no
+; 程序目录与数据目录分别选择，并在就绪页同时显示。
 AlwaysShowDirOnReadyPage=yes
 DisableProgramGroupPage=yes
 OutputDir=Output
@@ -445,14 +445,7 @@ begin
   Result := AddBackslash(GetDataDir('')) + 'config.toml';
 end;
 
-function IsPathInside(const Child, Parent: String): Boolean;
-begin
-  Result :=
-    (CompareText(Child, Parent) = 0) or
-    (CompareText(
-       Copy(AddBackslash(Child), 1, Length(AddBackslash(Parent))),
-       AddBackslash(Parent)) = 0);
-end;
+#include "install_paths.iss"
 
 function DirectoryIsEmpty(const Directory: String): Boolean;
 var
@@ -505,12 +498,12 @@ begin
   { 覆盖安装会清理数据目录里的旧资源，卸载会整个删掉它。
     因此它既不能落在程序目录里，也不能反过来包住系统或用户的关键目录。}
   if
-    IsPathInside(Directory, GetAppDir('')) or
+    InstallationPathsOverlap(GetAppDir(''), Directory) or
     IsPathInside(Directory, ExpandConstant('{commonpf64}\ArongStudyIme')) or
     IsPathInside(Directory, ExpandConstant('{commonpf32}\ArongStudyIme'))
   then
   begin
-    Result := '数据目录不能放在输入法的程序目录里面。';
+    Result := '程序目录与数据目录必须分开，不能相同或互相包含。';
     exit;
   end;
 
@@ -594,14 +587,13 @@ end;
   升级时跳过：那时 config.toml 已经属于用户，安装器不该替他重新决定。}
 procedure InitializeWizard;
 begin
-  { 词库、用户配置、皮肤和界面资源都在这个目录下，整包有几百 MB，
-    所以要让用户能把它放到别的盘。程序本体仍然装在 Program Files：
-    Server 带 uiAccess=true，只有装在受信任目录里这个标志才生效。}
+  { 先选程序目录，再单独选数据目录。Server 带 uiAccess=true，
+    只有签名并安装在受信任目录里，这个标志才生效。}
   DataDirPage := CreateInputDirPage(
-    wpLicense,
+    wpSelectDir,
     '选择数据位置',
     '输入法数据存放在哪里',
-    '请选择输入法数据（词库、配置、皮肤）的存放位置。',
+    '这里仅存放词库、配置和皮肤，不是程序安装目录。请选择与程序目录分开的专用文件夹。',
     True,
     'ArongStudyIme'
   );

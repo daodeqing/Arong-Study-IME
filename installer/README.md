@@ -34,8 +34,9 @@ pwsh -File ./Prepare-PackageFiles.ps1 -TargetVersion 1.2.3 -RepoRoot .. `
 
 ## 数据目录
 
-程序本体默认装在 `Program Files\ArongStudyIme`，也可用 `/DIR=` 指定 D 盘等安装位置；程序、快捷方式、ServerPath 注册表值与看门狗任务均使用同一安装目录。带 `uiAccess=true` 的签名构建仍要求受信任安装位置，其他位置的候选窗不能保证覆盖管理员权限窗口。**用户数据目录可以在安装向导里改**：词库、`config.toml`、用户词库、皮肤和设置窗口的图片资源都在那里，整包几百 MB，装 C 盘吃紧的用户可以放到别的盘。
+程序本体默认装在 `Program Files\ArongStudyIme`，可以在向导的“选择目标位置”页指定 D 盘等安装位置，也可用 `/DIR=` 指定；程序、快捷方式、ServerPath 注册表值与看门狗任务均使用同一安装目录。带 `uiAccess=true` 的签名构建仍要求受信任安装位置，其他位置的候选窗不能保证覆盖管理员权限窗口。**用户数据目录可以在安装向导里改**：词库、`config.toml`、用户词库、皮肤和设置窗口的图片资源都在那里，整包几百 MB，装 C 盘吃紧的用户可以放到别的盘。
 
+- 程序目录与数据目录分别选择，两者不能相同或互相包含；例如程序用 `D:\LUO\啊隆输入法`，数据用 `D:\LUO\啊隆输入法数据`。
 - 默认值 `%LOCALAPPDATA%\ArongStudyIme`；升级安装时默认沿用上次的位置
 - 选择写进 `HKLM\Software\ArongStudyIme\ArongStudyIme` 的 `DataDir`。这是运行期唯一的权威来源：Server（`server/src/utils/ime_paths.cpp`）、TSF DLL（`windows/src/Utils/FanyUtils.cpp`）和引擎（`engine/core/data_path.h`）各自按 `ARONG_STUDY_IME_DATA_DIR` 环境变量 → 该注册表值 → `%LOCALAPPDATA%\ArongStudyIme` 的顺序解析，三处必须保持一致。32 位 TSF DLL 用 `KEY_WOW64_64KEY` 读，所以这个值必须写在 64 位视图里
 - 升级时改了位置，安装器会把用户词库（`msime_user.db` 及其 WAL/SHM）、输入统计库（`stats.db` 及其 WAL/SHM）、`config.toml`、`config.base.toml`、`custom_translations.txt`，以及 `skins\`、`helpcodes\custom\`、`shuangpin\`、`models\` 搬到新目录，再删掉旧目录。`config.toml` 或 `custom_translations.txt` 在新旧目录里各有一份且内容不同时，安装器拒绝这个目录，不覆盖任何一份；`custom_translations.txt` 没搬成会中止安装；词库和设置窗口的图片资源由本次安装重新写入，不搬
