@@ -9,7 +9,7 @@ TEST_CASE(sentence_translation_requests_complete_sentence_instead_of_dictionary_
     REQUIRE(request["messages"][0]["content"].get<std::string>().find("complete Chinese sentence") !=
             std::string::npos);
     REQUIRE_EQ(request["stream"].get<bool>(), false);
-    REQUIRE(request["max_tokens"].get<int>() <= 512);
+    REQUIRE(request["max_tokens"].get<int>() == 2048);
 }
 TEST_CASE(sentence_translation_routed_deepseek_disables_reasoning_and_openai_uses_compatible_parameters)
 {

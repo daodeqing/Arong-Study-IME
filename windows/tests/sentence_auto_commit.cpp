@@ -60,7 +60,7 @@ int main()
     changed = session;
     ++changed.reset;
     CHECK(!state.CanApply(71, changed, 301, L"source"));
-    CHECK(!state.CanApply(71, session, 5100, L"source"));
+    CHECK(!state.CanApply(71, session, 100 + FanyImeSentenceTranslation::WaitMs, L"source"));
     state.Cancel(); // Editing, Shift, Esc, blur and reset all revoke the intent.
     CHECK(!state.CanApply(71, session, 301, L"source"));
     CHECK(!state.Append(FanyImeSentenceTranslation::ParseFrame(frames.front())));
@@ -85,7 +85,8 @@ int main()
     CHECK(!FanyImeSentenceTranslation::ParseFrame(L"18446744073709551616\t0:1\tx").valid);
     CHECK(!FanyImeSentenceTranslation::ParseFrame(L"0\t0:1\tx").valid);
     CHECK(!FanyImeSentenceTranslation::ParseFrame(L"1\t0:2\txxx").valid);
-    CHECK(!FanyImeSentenceTranslation::ParseFrame(L"1\t0:200\tx").valid);
+    CHECK(!FanyImeSentenceTranslation::ParseFrame(L"1\t0:4097\tx").valid);
+    CHECK(FanyImeSentenceTranslation::ParseFrame(L"1\t0:200\tx").valid);
     CHECK(!FanyImeSentenceTranslation::ParseFrame(L"1\t1:1\tx").valid);
     std::cout << "sentence commit: both arrival orders, one edit, stale sessions, cancellation, timeout, full-capacity "
                  "frames\n";

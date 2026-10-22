@@ -69,7 +69,7 @@ std::string SentenceStatus(const SentenceTranslation::Snapshot &snapshot, const 
     case SentenceTranslation::Status::Pending:
         return "正在预览整句；空格继续选词，Enter 确认英文";
     case SentenceTranslation::Status::Ready:
-        return string_to_wstring(snapshot.translation).size() < FanyImePipeLimits::CandidateTextCapacity
+        return string_to_wstring(snapshot.translation).size() <= FanyImeSentenceTranslation::MaxSentenceTranslationUnits
                    ? "Enter 确认英文；Ctrl+Enter 提交中文；Shift 切换输出"
                    : "英文译文过长，请分句输入；Ctrl+Enter 可提交中文";
     case SentenceTranslation::Status::Failed:
@@ -235,10 +235,26 @@ void PrepareSentenceConfirmation(uint64_t client_id, uint64_t activation_epoch, 
     const auto snapshot = SentenceTranslation::Current();
     if (snapshot.source == chinese && snapshot.status == SentenceTranslation::Status::Ready)
     {
-        if (string_to_wstring(snapshot.translation).size() < FanyImePipeLimits::CandidateTextCapacity)
+        const auto translationW = string_to_wstring(snapshot.translation);
+        if (translationW.size() < FanyImePipeLimits::CandidateTextCapacity)
         {
             Global::MsgTypeToTsf = Global::DataFromServerMsgType::CommitExactText;
-            Global::candidate_ui.selected_text = string_to_wstring(snapshot.translation);
+            Global::candidate_ui.selected_text = translationW;
+            return;
+        }
+        if (translationW.size() <= FanyImeSentenceTranslation::MaxSentenceTranslationUnits &&
+            ClientNegotiatedSentenceAutoCommit(client_id) && request_id != 0 && request_id != FANY_IME_NO_REQUEST_ID)
+        {
+            pending = {client_id,
+                       activation_epoch,
+                       request_id,
+                       snapshot.revision,
+                       GetTickCount64() + FanyImeSentenceTranslation::WaitMs,
+                       chinese};
+            Global::MsgTypeToTsf = FanyImeReplyType::SentenceTranslationPending;
+            RefreshSentenceTranslationPreview();
+            HoldSentence();
+            DeliverSentenceTranslationIfReady();
             return;
         }
         SentenceNotice(L"英文译文过长，请分句输入");

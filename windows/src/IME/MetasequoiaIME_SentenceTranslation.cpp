@@ -143,7 +143,7 @@ HRESULT CMetasequoiaIME::_ApplySentenceTranslationCommit(TfEditCookie cookie, IT
         return S_FALSE;
     }
     const std::wstring translation = _sentenceCommit.Translation();
-    if (translation.empty() || translation.size() >= FanyImePipeLimits::CandidateTextCapacity)
+    if (translation.empty() || translation.size() > FanyImeSentenceTranslation::MaxSentenceTranslationUnits)
         return S_FALSE;
     CStringRange text;
     text.Set(translation.c_str(), translation.size());
