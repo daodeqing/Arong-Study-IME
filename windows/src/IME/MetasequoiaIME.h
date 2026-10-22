@@ -141,6 +141,8 @@ constexpr ULONGLONG SMART_PUNCTUATION_REPEAT_INTERVAL_MS = 2000;
 // this means other input has had time to move the caret, and the synthetic
 // Backspace would land on text the user typed since.
 constexpr ULONGLONG SMART_PUNCTUATION_SENDINPUT_TIMEOUT_MS = 500;
+// Shared by the message window and deferred-key activation polling.
+constexpr UINT CONNECT_NAMEDPIPE_RETRY_INTERVAL_MS = 50;
 constexpr UINT_PTR TIMER_CONNECT_ALL_NAMEDPIPE = 1;
 constexpr UINT_PTR TIMER_CONNECT_TO_TSF_NAMEDPIPE = 2;
 constexpr UINT_PTR TIMER_REFRESH_LANG_BAR_THEME = 3;
