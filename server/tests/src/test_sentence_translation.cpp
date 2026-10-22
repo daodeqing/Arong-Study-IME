@@ -34,3 +34,13 @@ TEST_CASE(sentence_translation_rejects_empty_chinese_numeric_and_oversized_answe
     REQUIRE(SentenceTranslation::detail::ParseResult(std::string(4097, 'x')).empty());
     REQUIRE_EQ(SentenceTranslation::detail::ParseResult(R"({"translation":"Hello."})"), std::string("Hello."));
 }
+
+TEST_CASE(sentence_translation_accepts_complete_answers_around_packet_and_total_limits)
+{
+    for (std::size_t units : {199u, 200u, 278u, 4096u})
+    {
+        const std::string translation(units, 'x');
+        REQUIRE_EQ(SentenceTranslation::detail::ParseResult(translation), translation);
+    }
+    REQUIRE(SentenceTranslation::detail::ParseResult(std::string(4097, 'x')).empty());
+}

@@ -88,6 +88,43 @@ int main()
     CHECK(!FanyImeSentenceTranslation::ParseFrame(L"1\t0:4097\tx").valid);
     CHECK(FanyImeSentenceTranslation::ParseFrame(L"1\t0:200\tx").valid);
     CHECK(!FanyImeSentenceTranslation::ParseFrame(L"1\t1:1\tx").valid);
+
+    // Translate lengths around the former single-packet ceiling and the full
+    // UTF-16 contract limit. Missing, duplicate or reordered frames cannot
+    // schedule a partial edit or schedule the completed result twice.
+    for (std::size_t units : {199u, 200u, 278u, 4096u})
+    {
+        const std::wstring text(units, L'x');
+        const auto encoded = FanyImeSentenceTranslation::EncodeResult(81, text);
+        CHECK(encoded.size() > 1);
+        SentenceAutoCommitState boundary;
+        boundary.Begin(81, session, 1000);
+        CHECK(boundary.Accept(81, L"source"));
+        CHECK(!boundary.Append(FanyImeSentenceTranslation::ParseFrame(encoded.front())));
+        CHECK(!boundary.Schedule(session, 7000)); // More than the former five-second window.
+        CHECK(!boundary.Append(FanyImeSentenceTranslation::ParseFrame(encoded.front()))); // Duplicate prefix.
+        if (encoded.size() > 2)
+        {
+            CHECK(!boundary.Append(FanyImeSentenceTranslation::ParseFrame(encoded.back()))); // Missing middle.
+            CHECK(!boundary.Schedule(session, 31000));
+        }
+        for (const auto &payload : encoded)
+            boundary.Append(FanyImeSentenceTranslation::ParseFrame(payload));
+        CHECK(boundary.Translation() == text);
+        CHECK(boundary.Schedule(session, 121000));
+        CHECK(!boundary.Schedule(session, 121001));
+        CHECK(!boundary.Append(FanyImeSentenceTranslation::ParseFrame(encoded.back())));
+        CHECK(boundary.CanApply(81, session, 125999, L"source"));
+        CHECK(!boundary.CanApply(81, session, 126000, L"source"));
+
+        SentenceAutoCommitState reordered;
+        reordered.Begin(81, session, 1000);
+        CHECK(reordered.Accept(81, L"source"));
+        for (auto it = encoded.rbegin(); it != encoded.rend(); ++it)
+            CHECK(!reordered.Append(FanyImeSentenceTranslation::ParseFrame(*it)));
+        CHECK(!reordered.Schedule(session, 31000));
+    }
+
     std::cout << "sentence commit: both arrival orders, one edit, stale sessions, cancellation, timeout, full-capacity "
                  "frames\n";
     return 0;
