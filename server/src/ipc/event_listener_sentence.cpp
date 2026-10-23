@@ -46,7 +46,8 @@ bool SelectRemainingSentence(uint64_t client_id, uint64_t activation_epoch)
     for (unsigned step = 0; step < 128 && !g_inputSession->get_pinyin_sequence_with_cases().empty(); ++step)
     {
         const auto before = g_inputSession->get_pinyin_sequence_with_cases();
-        if (Global::candidate_ui.items.empty())
+        if (Global::candidate_ui.items.empty() || !Global::candidate_ui.selection_started ||
+            Global::candidate_ui.items.front().pinyin.empty())
             FanyNamedPipe::PrepareCandidateList(client_id, activation_epoch);
         WordItem item;
         if (!FanyNamedPipe::ResolveCandidateItem(Global::candidate_ui.selected_index_in_page + 1, item) ||

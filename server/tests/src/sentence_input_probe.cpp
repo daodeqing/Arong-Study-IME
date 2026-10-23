@@ -297,6 +297,9 @@ int RunSentenceOutputProbe(int argc, char **argv)
         REQUIRE(GlobalIme::composition.restore_last_selection());
         REQUIRE_EQ(GlobalIme::composition.creating_word.word, std::string("你"));
         REQUIRE_EQ(GlobalIme::composition.raw_input_with_cases, std::string("hao"));
+        g_inputSession->set_pinyin_sequence(GlobalIme::composition.raw_input_with_cases);
+        g_inputSession->set_pinyin_sequence_with_cases(GlobalIme::composition.raw_input_with_cases);
+        g_inputSession->recompute_candidates();
         REQUIRE(FanyNamedPipe::HandleSentencePunctuation(1, 1, 50, L'C'));
         REQUIRE(FanyNamedPipe::HandleSentencePunctuation(1, 1, 51, L'P'));
         REQUIRE(FanyNamedPipe::HandleSentencePunctuation(1, 1, 52, L'U'));
