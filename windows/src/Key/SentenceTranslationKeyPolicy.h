@@ -25,7 +25,15 @@ inline bool CanCommitRawLetters(bool enabled, const std::wstring &raw, bool sele
 inline bool KeepsPinyinChannel(bool enabled, bool composing, std::uint32_t key, std::uint32_t modifiers,
                                bool windowsKeyDown, bool capsLock = false)
 {
-    return enabled && composing && !capsLock && !windowsKeyDown && (modifiers & 6u) == 0 && key >= 'A' && key <= 'Z';
+    return enabled && composing && !capsLock && !windowsKeyDown && (modifiers & 7u) == 0u && key >= 'A' && key <= 'Z';
+}
+inline bool OwnsUppercaseAbbreviation(bool enabled, bool hasSentence, std::uint32_t key, std::uint32_t modifiers,
+                                      bool windowsKeyDown, bool capsLock = false)
+{
+    if (!enabled || !hasSentence || windowsKeyDown || key < 'A' || key > 'Z')
+        return false;
+    const auto chord = modifiers & 7u;
+    return chord == 1u || (capsLock && chord == 0u);
 }
 inline bool OwnsBufferedEdit(bool enabled, bool selectedChinese, std::uint32_t rawLength, std::uint32_t key,
                              std::uint32_t modifiers, bool windowsKeyDown)

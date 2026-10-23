@@ -560,6 +560,9 @@ BOOL CMetasequoiaIME::_IsKeyEaten(         //
                 Global::SentenceTranslationEnabled.load(std::memory_order_relaxed), sentenceInput, *pCodeOut,
                 shortcutModifiers, windowsKey) ||
             sentencePunctuation ||
+            SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(sentenceEnabled, sentenceInput, *pCodeOut,
+                                                                    shortcutModifiers, windowsKey,
+                                                                    (GetKeyState(VK_CAPITAL) & 0x0001) != 0) ||
             SentenceTranslationKeyPolicy::OwnsBufferedEdit(sentenceEnabled, !GlobalIme::word_for_creating_word.empty(),
                                                            sentenceRawLength, *pCodeOut, shortcutModifiers, windowsKey))
         {

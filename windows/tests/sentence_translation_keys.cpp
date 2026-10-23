@@ -37,5 +37,15 @@ int main()
         return 15;
     if (!SentenceTranslationKeyPolicy::KeepsPinyinChannel(true, true, 'A', 0, false, false))
         return 16;
+    if (SentenceTranslationKeyPolicy::KeepsPinyinChannel(true, true, 'A', 1, false, false))
+        return 17;
+    if (!SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(true, true, 'C', 1, false, false))
+        return 18;
+    if (!SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(true, true, 'C', 0, false, true))
+        return 19;
+    if (SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(true, false, 'C', 1, false, false) ||
+        SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(true, true, 'C', 0, false, false) ||
+        SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(true, true, 'C', 2, false, false))
+        return 20;
     return 0;
 }

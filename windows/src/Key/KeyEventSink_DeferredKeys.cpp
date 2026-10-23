@@ -343,11 +343,12 @@ void CMetasequoiaIME::_ApplyDeferredKeyProjection(const _KEYSTROKE_STATE &keySta
     shadow.caret = _deferredProjectedCaret;
     shadow.candidateActive = _deferredProjectedCandidateActive;
     ApplyDeferredKeyState(shadow, keyState, wch);
-    if (keyState.Function == FUNCTION_CANCEL && !GlobalIme::word_for_creating_word.empty())
+    if ((keyState.Function == FUNCTION_CANCEL && !GlobalIme::word_for_creating_word.empty()) ||
+        (keyState.Function == FUNCTION_SERVER_CANDIDATE_KEY && IsSentenceTranslationEnabled()))
     {
-        // Esc inside a creating word may keep the selected word alive
-        // (input.escape_keeps_selected_word is Server-owned), so the
-        // composition is not necessarily gone.
+        // Esc inside a creating word or a sentence-mode candidate action mutates
+        // Server-owned composition state (including SelectRemainingSentence), so
+        // the next key must re-read the real state.
         shadow.projectionValid = false;
     }
     if (!shadow.projectionValid)
@@ -478,6 +479,9 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
         (SentenceTranslationKeyPolicy::OwnsCommitKey(IsSentenceTranslationEnabled(), sentenceInput, *classifiedCode,
                                                      capturedModifiers, windowsKey) ||
          sentencePunctuation ||
+         SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(IsSentenceTranslationEnabled(), sentenceInput,
+                                                                 *classifiedCode, capturedModifiers, windowsKey,
+                                                                 (GetKeyState(VK_CAPITAL) & 0x0001) != 0) ||
          SentenceTranslationKeyPolicy::OwnsBufferedEdit(
              IsSentenceTranslationEnabled(), !GlobalIme::word_for_creating_word.empty(),
              static_cast<std::uint32_t>(sentenceRawLength), *classifiedCode, capturedModifiers, windowsKey)))

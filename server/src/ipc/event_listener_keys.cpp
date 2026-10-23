@@ -1136,6 +1136,16 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         return;
     }
 
+    if (SentenceModeForClient(client_id) && Global::Keycode >= 'A' && Global::Keycode <= 'Z' &&
+        (!GlobalIme::composition.creating_word.word.empty() ||
+         (g_inputSession && !g_inputSession->get_pinyin_sequence_with_cases().empty())) &&
+        ((Global::ModifiersDown & 0b00000111u) == 0b00000001u ||
+         ((Global::ModifiersDown & 0b00000111u) == 0 && Global::Wch >= L'A' && Global::Wch <= L'Z')))
+    {
+        if (HandleSentencePunctuation(client_id, activation_epoch, request_id, static_cast<WCHAR>(Global::Keycode)))
+            return;
+    }
+
     if (FanyImeIpc::IsTranslationCommitKey(Global::Keycode, Global::ModifiersDown))
     {
         HandleTranslationCommitKey(client_id, activation_epoch, request_id, -1);
