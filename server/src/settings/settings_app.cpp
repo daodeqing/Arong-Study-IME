@@ -25,6 +25,7 @@
 #include "window/candidate_skin_layers.h"
 #include "utils/common_utils.h"
 #include "utils/single_instance.h"
+#include "cloud/sentence_translation.h"
 #include "voice-input/voice_providers.h"
 
 #include <boost/json.hpp>
@@ -304,6 +305,13 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
         polish_presets.push_back({{"id", std::string(preset.id)},
                                   {"name", std::string(preset.name)},
                                   {"prompt", std::string(preset.prompt)}});
+    }
+    nlohmann::json ai_prompt_presets = nlohmann::json::array();
+    for (const auto &preset : SentenceTranslation::BuiltinPromptPresets())
+    {
+        ai_prompt_presets.push_back({{"id", std::string(preset.id)},
+                                     {"name", std::string(preset.name)},
+                                     {"prompt", std::string(preset.prompt)}});
     }
     // 规则位取不门控视图：总开关关闭时复选框仍要展示用户已存的勾选；
     // 总开关本身单独下发。
@@ -589,6 +597,7 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
           {"statistics",
            {{"enabled", GetConfiguredStatisticsEnabled()}, {"retention", GetConfiguredStatisticsRetention()}}}}}};
     payload["data"]["voice_input"]["polish_presets"] = std::move(polish_presets);
+    payload["data"]["ai_assistant"]["prompt_presets"] = std::move(ai_prompt_presets);
     payload["data"]["helpcode"]["custom_schemas"] = CustomHelpcodeSchemasJson();
     payload["data"]["helpcode"]["custom_directory"] = GetCustomHelpcodeDirectory();
     payload["data"]["input"]["custom_shuangpin_schemas"] = CustomShuangpinSchemasJson();
