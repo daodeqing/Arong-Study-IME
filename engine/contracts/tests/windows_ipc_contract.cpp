@@ -130,7 +130,8 @@ int main()
           0); // old client/new server
     CHECK(FanyImeReplyType::CompositionRestored == 14);
     CHECK(FanyImeReplyType::TrilingualCycle == 15);
-    CHECK(FanyImeReplyType::MaxKnown == FanyImeReplyType::TrilingualCycle);
+    CHECK(FanyImeReplyType::CommitExactTextFrame == 16);
+    CHECK(FanyImeReplyType::MaxKnown == FanyImeReplyType::CommitExactTextFrame);
     CHECK(FanyImeReplyType::TransportUnavailable > FanyImeReplyType::MaxKnown);
 
     const auto cycleCapabilities = FanyImeProtocol::Capabilities | FanyImeProtocol::TrilingualCycle;
