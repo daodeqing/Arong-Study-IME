@@ -1665,18 +1665,7 @@ bool SendWorkerPacket(uint64_t client_id, uint64_t activation_epoch, bool requir
             it->second.to_tsf_worker_thread_registration_id != 0 && it->second.to_tsf_worker_thread_ready)
         {
             endpoint = it->second.to_tsf_worker_thread_pipe;
-            write_succeeded = true;
-            if (long_commit)
-            {
-                for (const auto &frame : frames)
-                    if (!endpoint->Write(&frame, sizeof(frame), bytes_written, write_error))
-                    {
-                        write_succeeded = false;
-                        break;
-                    }
-            }
-            else
-                write_succeeded = endpoint->Write(&packet, sizeof(packet), bytes_written, write_error);
+            write_succeeded = endpoint->Write(&packet, sizeof(packet), bytes_written, write_error);
             if (!write_succeeded)
             {
                 const FanyImeIpc::ActiveClientTransition active = g_active_client_state.snapshot();
