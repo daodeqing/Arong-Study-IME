@@ -1,4 +1,5 @@
 #include "Ipc.h"
+#include "../../../engine/contracts/long_commit.h"
 #include "../../../engine/contracts/ipc_negotiation.h"
 #include <algorithm>
 #include <cstring>
@@ -33,6 +34,8 @@ static thread_local FanyImeNamedpipeDataToTsf namedpipeDataFromServer = {};
 static thread_local FanyImeNamedpipeDataToTsf transportUnavailableReply = {};
 static thread_local std::map<uint64_t, FanyImeNamedpipeDataToTsf> pendingReplies;
 static thread_local std::deque<FanyImeNamedpipeDataToTsf> unsolicitedReplies;
+static thread_local std::map<uint64_t, FanyImeLongCommit::Assembler> longCommitAssemblers;
+static thread_local std::map<uint64_t, std::wstring> longCommitTexts;
 static thread_local uint64_t nextRequestId = 0;
 static thread_local uint64_t nextFocusSessionToken = 0;
 static thread_local const void *boundFocusStateOwner = nullptr;
@@ -507,12 +510,13 @@ bool WritePipeHello(HANDLE hPipeHandle, UINT pipeRole)
     DWORD bytesWritten = 0;
     if (pipeRole == FanyImePipeRole::Main)
     {
-        const auto hello = FanyImeProtocol::Hello(
-            GetPipeClientId(), NextProtocolId(nextRequestId),
-            FanyImeProtocol::Capabilities | FanyImeProtocol::CharacterSetShortcut |
-                FanyImeProtocol::CompositionRestore | FanyImeProtocol::CaretStateIndicator |
-                FanyImeProtocol::TrilingualCycle | FanyImeProtocol::InputStateShortcuts |
-                FanyImeProtocol::TemporaryJapaneseLongVowel | FanyImeProtocol::SentenceTranslation);
+        const auto hello =
+            FanyImeProtocol::Hello(GetPipeClientId(), NextProtocolId(nextRequestId),
+                                   FanyImeProtocol::Capabilities | FanyImeProtocol::CharacterSetShortcut |
+                                       FanyImeProtocol::CompositionRestore | FanyImeProtocol::CaretStateIndicator |
+                                       FanyImeProtocol::TrilingualCycle | FanyImeProtocol::InputStateShortcuts |
+                                       FanyImeProtocol::TemporaryJapaneseLongVowel |
+                                       FanyImeProtocol::SentenceTranslation | FanyImeProtocol::LongSentenceCommit);
         BOOL ret = WriteFile(hPipeHandle, &hello, sizeof(hello), &bytesWritten, NULL);
         // Never authorize keys from merely writing a hello. An old Server
         // without negotiation times out into the existing raw-input fallback.
@@ -972,6 +976,8 @@ void ResetNamedpipeReplyState()
 {
     pendingReplies.clear();
     unsolicitedReplies.clear();
+    longCommitAssemblers.clear();
+    longCommitTexts.clear();
 }
 
 bool SupportsCharacterSetShortcut()
@@ -1008,6 +1014,21 @@ bool SupportsInputStateShortcuts()
 {
     return hPipe && hPipe != INVALID_HANDLE_VALUE &&
            (negotiatedServerCapabilities & FanyImeProtocol::InputStateShortcuts) != 0;
+}
+
+std::wstring ServerReplyText(const FanyImeNamedpipeDataToTsf &reply)
+{
+    if (reply.msg_type == FanyImeReplyType::CommitExactText)
+    {
+        const auto found = longCommitTexts.find(reply.request_id);
+        if (found != longCommitTexts.end())
+        {
+            std::wstring text = std::move(found->second);
+            longCommitTexts.erase(found);
+            return text;
+        }
+    }
+    return reply.candidate_string;
 }
 
 bool SupportsSentenceTranslation()
@@ -1588,8 +1609,7 @@ static struct FanyImeNamedpipeDataToTsf *TryReadDataFromServerPipeWithDeadline(u
         {
             DebugTsfKeyLatency(L"reply-read-failed", expectedRequestId, replyWaitTimer.ElapsedMs(), E_FAIL);
             ClosePipeHandleIfValid(hFromServerPipe);
-            pendingReplies.clear();
-            unsolicitedReplies.clear();
+            ResetNamedpipeReplyState();
             RequestNamedpipeReconnect();
             return transportUnavailable();
         }
@@ -1597,8 +1617,7 @@ static struct FanyImeNamedpipeDataToTsf *TryReadDataFromServerPipeWithDeadline(u
         {
             DebugTsfKeyLatency(L"reply-size-invalid", expectedRequestId, replyWaitTimer.ElapsedMs(), E_FAIL);
             ClosePipeHandleIfValid(hFromServerPipe);
-            pendingReplies.clear();
-            unsolicitedReplies.clear();
+            ResetNamedpipeReplyState();
             RequestNamedpipeReconnect();
             return transportUnavailable();
         }
@@ -1606,10 +1625,51 @@ static struct FanyImeNamedpipeDataToTsf *TryReadDataFromServerPipeWithDeadline(u
         {
             DebugTsfKeyLatency(L"reply-frame-invalid", expectedRequestId, replyWaitTimer.ElapsedMs(), E_FAIL);
             ClosePipeHandleIfValid(hFromServerPipe);
-            pendingReplies.clear();
-            unsolicitedReplies.clear();
+            ResetNamedpipeReplyState();
             RequestNamedpipeReconnect();
             return transportUnavailable();
+        }
+
+        if (namedpipeDataFromServer.msg_type == FanyImeReplyType::CommitExactTextFrame)
+        {
+            const auto id = namedpipeDataFromServer.request_id;
+            if ((negotiatedServerCapabilities & FanyImeProtocol::LongSentenceCommit) == 0 ||
+                (longCommitAssemblers.count(id) == 0 && longCommitAssemblers.size() >= MaxPendingReplyCount))
+            {
+                ClosePipeHandleIfValid(hFromServerPipe);
+                ResetNamedpipeReplyState();
+                RequestNamedpipeReconnect();
+                return transportUnavailable();
+            }
+            auto &assembler = longCommitAssemblers[id];
+            const auto result = assembler.Append(namedpipeDataFromServer);
+            if (result == FanyImeLongCommit::Assembler::Result::Invalid)
+            {
+                ClosePipeHandleIfValid(hFromServerPipe);
+                ResetNamedpipeReplyState();
+                RequestNamedpipeReconnect();
+                return transportUnavailable();
+            }
+            if (result == FanyImeLongCommit::Assembler::Result::Pending)
+            {
+                if (notReady && GetTickCount64() >= deadline)
+                {
+                    *notReady = true;
+                    return nullptr;
+                }
+                continue;
+            }
+            longCommitTexts[id] = assembler.text();
+            longCommitAssemblers.erase(id);
+            while (longCommitTexts.size() > MaxPendingReplyCount)
+            {
+                const auto oldest = longCommitTexts.begin()->first;
+                pendingReplies.erase(oldest);
+                longCommitTexts.erase(oldest);
+            }
+            namedpipeDataFromServer = {};
+            namedpipeDataFromServer.msg_type = FanyImeReplyType::CommitExactText;
+            namedpipeDataFromServer.request_id = id;
         }
 
         // A delayed reply from a timed-out key must not be consumed as the

@@ -2,6 +2,7 @@
 #include "cloud/ai_translation.h"
 #include <cstdint>
 #include <string>
+#include "cloud/sentence_vocabulary.h"
 
 namespace SentenceTranslation
 {
@@ -20,6 +21,7 @@ struct Snapshot
     Status status = Status::Idle;
     std::uint64_t revision = 0;
     long elapsed_ms = 0;
+    std::vector<SentenceVocabulary::Entry> vocabulary;
 };
 void Start();
 void Stop();

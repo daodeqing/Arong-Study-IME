@@ -17,6 +17,7 @@
 #include <utility>
 #include <vector>
 #include "ipc.h"
+#include "engine/contracts/long_commit.h"
 #include "engine/contracts/ipc_negotiation.h"
 #include "ipc/active_client_state.h"
 #include "ipc/event_listener.h"
@@ -809,7 +810,8 @@ bool NegotiateMainPipeClient(const FanyImeNamedpipeData &hello, uint64_t registr
         hello, FanyImeProtocol::Capabilities | FanyImeProtocol::CharacterSetShortcut |
                    FanyImeProtocol::CompositionRestore | FanyImeProtocol::CaretStateIndicator |
                    FanyImeProtocol::TrilingualCycle | FanyImeProtocol::InputStateShortcuts |
-                   FanyImeProtocol::TemporaryJapaneseLongVowel | FanyImeProtocol::SentenceTranslation);
+                   FanyImeProtocol::TemporaryJapaneseLongVowel | FanyImeProtocol::SentenceTranslation |
+                   FanyImeProtocol::LongSentenceCommit);
     std::lock_guard lock(g_pipe_clients_mutex);
     auto it = g_pipe_clients.find(hello.client_id);
     if (it == g_pipe_clients.end() || registration_id == 0 || it->second.main_registration_id != registration_id)
@@ -882,6 +884,14 @@ bool ClientNegotiatedSentenceTranslation(uint64_t client_id)
     const auto it = g_pipe_clients.find(client_id);
     return it != g_pipe_clients.end() && !it->second.protocol.legacy &&
            (it->second.protocol.capabilities & FanyImeProtocol::SentenceTranslation) != 0;
+}
+
+bool ClientNegotiatedLongSentenceCommit(uint64_t client_id)
+{
+    std::lock_guard lock(g_pipe_clients_mutex);
+    const auto it = g_pipe_clients.find(client_id);
+    return it != g_pipe_clients.end() && !it->second.protocol.legacy &&
+           (it->second.protocol.capabilities & FanyImeProtocol::LongSentenceCommit) != 0;
 }
 
 uint64_t RegisterToTsfPipeClient(uint64_t client_id, HANDLE pipe)
@@ -1466,7 +1476,12 @@ bool SendToTsfClientViaNamedpipe(uint64_t client_id, uint64_t activation_epoch, 
     FanyImeNamedpipeDataToTsf packet = {};
     packet.msg_type = msg_type;
     packet.request_id = request_id;
-    if (!CopyPipeText(packet.candidate_string, pipeData))
+    const bool long_commit =
+        msg_type == FanyImeReplyType::CommitExactText && pipeData.size() >= FanyImePipeLimits::CandidateTextCapacity;
+    const auto frames =
+        long_commit ? FanyImeLongCommit::Encode(pipeData, request_id) : std::vector<FanyImeNamedpipeDataToTsf>{};
+    if ((long_commit && (!ClientNegotiatedLongSentenceCommit(client_id) || frames.empty())) ||
+        (!long_commit && !CopyPipeText(packet.candidate_string, pipeData)))
     {
         FANY_IPC_LOGF(L"[msime]: [ipc] to-tsf payload too long: client_id={}, msg_type={}, chars={}", client_id,
                       msg_type, pipeData.size());
@@ -1489,7 +1504,18 @@ bool SendToTsfClientViaNamedpipe(uint64_t client_id, uint64_t activation_epoch, 
             it->second.to_tsf_pipe && it->second.to_tsf_registration_id != 0 && it->second.to_tsf_ready)
         {
             endpoint = it->second.to_tsf_pipe;
-            write_succeeded = endpoint->Write(&packet, sizeof(packet), bytes_written, write_error);
+            write_succeeded = true;
+            if (long_commit)
+            {
+                for (const auto &frame : frames)
+                    if (!endpoint->Write(&frame, sizeof(frame), bytes_written, write_error))
+                    {
+                        write_succeeded = false;
+                        break;
+                    }
+            }
+            else
+                write_succeeded = endpoint->Write(&packet, sizeof(packet), bytes_written, write_error);
             if (!write_succeeded)
             {
                 // Remove the failed route and invalidate the exact epoch in
@@ -1639,7 +1665,18 @@ bool SendWorkerPacket(uint64_t client_id, uint64_t activation_epoch, bool requir
             it->second.to_tsf_worker_thread_registration_id != 0 && it->second.to_tsf_worker_thread_ready)
         {
             endpoint = it->second.to_tsf_worker_thread_pipe;
-            write_succeeded = endpoint->Write(&packet, sizeof(packet), bytes_written, write_error);
+            write_succeeded = true;
+            if (long_commit)
+            {
+                for (const auto &frame : frames)
+                    if (!endpoint->Write(&frame, sizeof(frame), bytes_written, write_error))
+                    {
+                        write_succeeded = false;
+                        break;
+                    }
+            }
+            else
+                write_succeeded = endpoint->Write(&packet, sizeof(packet), bytes_written, write_error);
             if (!write_succeeded)
             {
                 const FanyImeIpc::ActiveClientTransition active = g_active_client_state.snapshot();

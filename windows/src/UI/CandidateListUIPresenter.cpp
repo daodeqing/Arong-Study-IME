@@ -84,7 +84,7 @@ HRESULT CMetasequoiaIME::_HandleCandidateFinalize(TfEditCookie ec, _In_ ITfConte
                 return FANY_S_COMMIT_REPLY_NOT_READY;
             }
             serverMsgType = receivedData->msg_type;
-            serverCandidateString = receivedData->candidate_string;
+            serverCandidateString = ServerReplyText(*receivedData);
         }
 
         if (serverMsgType == Global::DataFromServerMsgType::TransportUnavailable)

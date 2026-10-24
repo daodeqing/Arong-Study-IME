@@ -1,4 +1,5 @@
 #include "mixed/mixed_candidates.h"
+#include "mixed/english_abbreviations.h"
 
 #include "mixed/date_time_candidates.h"
 #include "engine/core/data_path.h"
@@ -96,10 +97,22 @@ void WorkerLoop()
         if (request.english)
         {
             const std::string prefix = EnglishPrefix(request.input);
-            if (prefix.size() >= (std::max)(std::size_t{1}, request.english_min_prefix))
+            if (prefix.size() >= (std::max)(std::size_t{1}, request.english_min_prefix) ||
+                !EnglishAbbreviations::Canonical(prefix).empty())
                 result.english = request.english_first_page_count > 1
                                      ? english_dictionary.query_mixed_prefix(prefix)
                                      : english_dictionary.query_prefix(prefix, kEnglishCandidateLimit);
+            const std::string abbreviation = EnglishAbbreviations::Canonical(prefix);
+            if (!abbreviation.empty())
+            {
+                result.english.erase(std::remove_if(result.english.begin(), result.english.end(),
+                                                    [&](const WordItem &item) { return item.word == abbreviation; }),
+                                     result.english.end());
+                result.english.insert(result.english.begin(),
+                                      WordItem(prefix, abbreviation, 0, CandidateSource::EnglishDictionary));
+                if (prefix.size() < request.english_min_prefix)
+                    result.english.resize(1);
+            }
             if (IsStale(observed_generation))
                 continue;
         }

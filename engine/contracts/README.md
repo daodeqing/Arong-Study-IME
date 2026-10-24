@@ -80,3 +80,7 @@ Policy is sent on activation before FocusSessionReady, on Worker registration,
 and when configuration or dedicated English mode changes. A TIP keeps policy
 per bound service, clears it on disconnect, and ignores replaced-pipe frames.
 Older clients and older Servers retain temporary R mode's previous key policy.
+
+## Long sentence commits
+
+LongSentenceCommit (bit 10) enables reply opcode 16. long_commit.h encodes bounded UTF-16 fragments in the unchanged 200-unit reply array: offset, total units, chunk units, then chunk and NUL. Each fragment carries the original request ID. Consumers assemble ordered fragments (at most 4096 units) before exposing a single exact commit to the focus- and composition-guarded edit session. Older peers receive only the existing short reply or a visible length notice.

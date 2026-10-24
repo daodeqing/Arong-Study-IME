@@ -478,6 +478,10 @@ void CandidateSkinScene::Build(bool horizontal, bool pageArrows, bool expandPane
         if (pager_)
             body_->AddChild(pager_);
     }
+    learningNotes_ = std::make_shared<msimeui::TextBlock>(L"", 14.0f, D2D1::ColorF(0xF5F5F5));
+    learningNotes_->SetHeight(0.0f);
+    learningNotes_->SetHorizontalAlignment(msimeui::HorizontalAlignment::Stretch);
+    body_->AddChild(learningNotes_);
     msimeui::Brush brush;
     brush.fill = D2D1::ColorF(0x202020);
     brush.stroke = D2D1::ColorF(0x9B9B9B, 0x2E / 255.0f);
@@ -780,6 +784,10 @@ CandidateSkinScene::Result CandidateSkinScene::Apply(const Settings &settings)
                                  scrollAppearance.reservedWidth);
         result.expandRowStepDip = appearance.itemHeight + appearance.itemGap;
     }
+    learningNotes_->SetFontFamily(appearance.fontFamily);
+    learningNotes_->SetFallbackFontFamilies(appearance.fallbackFontFamilies);
+    learningNotes_->SetFontSize((std::max)(14.0f, fontSize * 0.85f));
+    learningNotes_->SetColor(palette.candidateText);
     preedit_->SetFontFamily(appearance.fontFamily);
     preedit_->SetFallbackFontFamilies(appearance.fallbackFontFamilies);
     preedit_->SetFontSize(settings.preeditFontSize);

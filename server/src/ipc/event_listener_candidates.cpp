@@ -21,6 +21,7 @@
 #include "engine/user_dictionary/user_dictionary_journal.h"
 #include "cloud/cloud_translation.h"
 #include "cloud/output_translation.h"
+#include "cloud/sentence_translation.h"
 #include "ipc/output_language_policy.h"
 #include "english/english_ime.h"
 #include "config/ime_config.h"
@@ -309,6 +310,15 @@ std::string BuildCurrentCandidatePage()
 
         CandidateViewItem view;
         view.text = word;
+        if (GetConfiguredSentenceTranslationEnabled() && GetConfiguredSentenceVocabularyEnabled() &&
+            item.source == CandidateSource::Fallback)
+        {
+            const auto sentence = SentenceTranslation::Current();
+            if (sentence.status == SentenceTranslation::Status::Ready && sentence.translation == word &&
+                sentence.source == CandidateTextForOutput(GlobalIme::composition.creating_word.word) &&
+                IsEnglishOutputEnabled() && !IsSensitiveInputField())
+                view.learning_notes = SentenceVocabulary::Format(sentence.vocabulary);
+        }
         if (show_autocorrect_marker && !item.corrected_from.empty())
         {
             // Correction-sourced candidates carry a light visible marker (PRD R5/AC7),
@@ -891,17 +901,20 @@ void PrepareCandidateList(uint64_t client_id, uint64_t activation_epoch)
     MixedCandidates::Request mixed;
     if (!g_english_input_mode && !IsSpecialModeCompositionActive(current_input) &&
         GetConfiguredMixedCandidatesEnabled() && (scheme == SchemeType::Quanpin || scheme == SchemeType::Shuangpin) &&
-        !GlobalIme::composition.creating_word.active)
+        (!GlobalIme::composition.creating_word.active || GetConfiguredSentenceTranslationEnabled()))
     {
         mixed.english = GetConfiguredEnglishCandidatesEnabled();
         mixed.english_min_prefix = static_cast<size_t>(GetConfiguredEnglishMixedInputMinChars());
         mixed.english_first_page_count = static_cast<size_t>(GetConfiguredEnglishMixedInputFirstPageCount());
         // emoji 和符号按整串编码精确匹配，光标前缀截断时整串不是用户要的编码。
-        mixed.emoji = GetConfiguredEmojiMixedInputEnabled() && g_inputSession->prefix_end() == current_input.size();
-        mixed.kaomoji = GetConfiguredKaomojiMixedInputEnabled();
-        if (GetConfiguredSymbolMixedInputEnabled() && g_inputSession->prefix_end() == current_input.size())
+        mixed.emoji = !GlobalIme::composition.creating_word.active && GetConfiguredEmojiMixedInputEnabled() &&
+                      g_inputSession->prefix_end() == current_input.size();
+        mixed.kaomoji = !GlobalIme::composition.creating_word.active && GetConfiguredKaomojiMixedInputEnabled();
+        if (!GlobalIme::composition.creating_word.active && GetConfiguredSymbolMixedInputEnabled() &&
+            g_inputSession->prefix_end() == current_input.size())
             mixed.symbol_codes = SymbolMixedCodes(current_input, scheme);
-        if (GetConfiguredDateTimeCandidatesEnabled() && g_inputSession->prefix_end() == current_input.size())
+        if (!GlobalIme::composition.creating_word.active && GetConfiguredDateTimeCandidatesEnabled() &&
+            g_inputSession->prefix_end() == current_input.size())
             mixed.date_time_keyword = DateTimeMixedKeyword(current_input, scheme);
         if (mixed.english || mixed.emoji || mixed.kaomoji || !mixed.symbol_codes.empty() ||
             !mixed.date_time_keyword.empty())

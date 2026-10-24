@@ -25,6 +25,10 @@ bool ClientNegotiatedSentenceTranslation(uint64_t)
 {
     return true;
 }
+bool ClientNegotiatedLongSentenceCommit(uint64_t)
+{
+    return true;
+}
 bool ClientNegotiatedCompositionRestore(uint64_t)
 {
     return true;
@@ -218,6 +222,32 @@ int RunSentenceOutputProbe(int argc, char **argv)
         REQUIRE(GlobalIme::composition.restore_last_selection());
         REQUIRE_EQ(GlobalIme::composition.creating_word.word, std::string("你"));
         REQUIRE_EQ(GlobalIme::composition.raw_input_with_cases, std::string("hao"));
+        if (!offline)
+        {
+            GlobalIme::composition.clear();
+            g_inputSession->reset_state();
+            TypeAndSelect("ni", "你");
+            for (char ch : std::string("api"))
+                g_inputSession->handle_key(static_cast<UINT>(ch - 'a' + 'A'), 0, static_cast<WCHAR>(ch));
+            REQUIRE(FanyNamedPipe::AccumulateSentenceCandidate(
+                WordItem("api", "API", 0, CandidateSource::EnglishDictionary), 1, 1));
+            REQUIRE_EQ(GlobalIme::composition.creating_word.word, std::string("你API"));
+            REQUIRE(g_inputSession->get_pinyin_sequence_with_cases().empty());
+            REQUIRE(GlobalIme::composition.restore_last_selection());
+            REQUIRE_EQ(GlobalIme::composition.creating_word.word, std::string("你"));
+            REQUIRE_EQ(GlobalIme::composition.raw_input_with_cases, std::string("api"));
+
+            GlobalIme::composition.clear();
+            g_inputSession->reset_state();
+            GlobalIme::composition.creating_word.active = true;
+            GlobalIme::composition.creating_word.word = "长译文";
+            SentenceTranslation::Request("长译文");
+            REQUIRE(WaitFor(SentenceTranslation::Status::Ready));
+            REQUIRE_EQ(SentenceTranslation::Current().translation, std::string(800, 'a'));
+            FanyNamedPipe::PrepareSentenceConfirmation(1, 1);
+            REQUIRE(Global::MsgTypeToTsf == Global::DataFromServerMsgType::CommitExactText);
+            REQUIRE_EQ(Global::candidate_ui.selected_text, std::wstring(800, L'a'));
+        }
         SentenceTranslation::Cancel();
         REQUIRE(SentenceTranslation::Current().status != SentenceTranslation::Status::Ready);
         SentenceTranslation::Stop();

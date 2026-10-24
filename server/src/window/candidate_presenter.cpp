@@ -382,6 +382,18 @@ std::uint64_t CandidatePresenter::FillItemsFromUi()
     }
     ignoreSelectionCallback_ = true;
     impl_->list->SetItems(std::move(items));
+    if (const auto &notes = impl_->scene.LearningNotes())
+    {
+        std::wstring text;
+        for (const auto &view : page->page_views)
+            if (!view.learning_notes.empty())
+                text += string_to_wstring(view.learning_notes);
+        notes->SetText(text);
+        if (text.empty())
+            notes->SetHeight(0.0f);
+        else
+            notes->ClearHeight();
+    }
     impl_->list->SetSelectedIndex(static_cast<size_t>((std::max)(0, page->selected_index_in_page)));
     ignoreSelectionCallback_ = false;
     if (impl_->pager)

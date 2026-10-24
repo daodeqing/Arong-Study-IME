@@ -1537,7 +1537,7 @@ HRESULT CMetasequoiaIME::_HandleCompositionPunctuation(TfEditCookie ec, _In_ ITf
             // as navigation. Never turn such a response into committed text.
             if (receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText)
             {
-                punctuationStr.assign(receivedData->candidate_string);
+                punctuationStr.assign(ServerReplyText(*receivedData));
             }
             else if (receivedData->msg_type != Global::DataFromServerMsgType::Normal)
             {

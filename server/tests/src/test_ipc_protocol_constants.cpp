@@ -35,7 +35,8 @@ TEST_CASE(ipc_pipe_ready_is_a_distinct_server_reply)
     REQUIRE_EQ(Global::DataFromServerMsgType::UiLessComposition, 11u);
     REQUIRE(Global::DataFromServerMsgType::UiLessComposition > Global::DataFromServerMsgType::CommitExactText);
     REQUIRE_EQ(Global::DataFromServerMsgType::TrilingualCycle, 15u);
-    REQUIRE_EQ(Global::DataFromServerMsgType::MaxKnown, Global::DataFromServerMsgType::TrilingualCycle);
+    REQUIRE_EQ(Global::DataFromServerMsgType::CommitExactTextFrame, 16u);
+    REQUIRE_EQ(Global::DataFromServerMsgType::MaxKnown, Global::DataFromServerMsgType::CommitExactTextFrame);
     REQUIRE_EQ(Global::DataFromServerMsgTypeToTsfWorkerThread::FocusSessionReady, 8u);
     REQUIRE_EQ(Global::DataFromServerMsgTypeToTsfWorkerThread::PipeReady, 9u);
     REQUIRE_EQ(Global::DataFromServerMsgTypeToTsfWorkerThread::InsertText, 10u);

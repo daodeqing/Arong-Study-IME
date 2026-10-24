@@ -186,6 +186,7 @@ extern bool g_floating_toolbar_auto_hide;
 extern int g_floating_toolbar_auto_hide_delay;
 extern bool g_floating_toolbar_shadow;
 extern std::atomic_bool g_sentence_translation_enabled;
+extern std::atomic_bool g_sentence_vocabulary_enabled;
 extern bool g_english_candidates_enabled;
 extern bool g_candidate_translations_enabled;
 extern std::atomic_bool g_candidate_translation_show_pos;

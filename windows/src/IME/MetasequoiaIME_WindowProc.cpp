@@ -910,7 +910,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
              receivedData->msg_type == Global::DataFromServerMsgType::CompositionRestored ||
              receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText))
         {
-            pIME->_QueuePendingServerCandidate(receivedData->msg_type, receivedData->candidate_string);
+            pIME->_QueuePendingServerCandidate(receivedData->msg_type, ServerReplyText(*receivedData).c_str());
             ITfDocumentMgr *document = nullptr;
             ITfContext *context = nullptr;
             bool dispatched = false;
@@ -934,7 +934,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         else if (receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText)
         {
             pIME->_PostAsyncKeyRequest(WM_AsyncPunctuationCommit, code, wch, request.requestId,
-                                       receivedData->candidate_string, request.focusToken, request.compositionEpoch,
+                                       ServerReplyText(*receivedData), request.focusToken, request.compositionEpoch,
                                        request.deferredReplayToken);
         }
         else if (receivedData->msg_type == Global::DataFromServerMsgType::Normal)

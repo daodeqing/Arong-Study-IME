@@ -60,6 +60,7 @@ bool SupportsCaretStateIndicator();
 bool SupportsTrilingualCycle();
 bool SupportsInputStateShortcuts();
 bool SupportsSentenceTranslation();
+std::wstring ServerReplyText(const FanyImeNamedpipeDataToTsf &reply);
 bool IsSentenceTranslationEnabled();
 bool FlushNamedpipeFocusSessionReset();
 bool FlushNamedpipeImeDeactivation(uint64_t focusToken = 0);

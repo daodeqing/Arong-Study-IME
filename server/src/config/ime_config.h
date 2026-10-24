@@ -489,6 +489,8 @@ bool GetConfiguredFloatingToolbarShadow();
 bool SetConfiguredFloatingToolbarShadow(bool enabled);
 // Optional Chinese sentence composition followed by English translation; off by default.
 bool GetConfiguredSentenceTranslationEnabled();
+bool GetConfiguredSentenceVocabularyEnabled();
+bool SetConfiguredSentenceVocabularyEnabled(bool enabled);
 bool SetConfiguredSentenceTranslationEnabled(bool enabled);
 bool GetConfiguredEnglishCandidatesEnabled();
 bool SetConfiguredEnglishCandidatesEnabled(bool enabled);

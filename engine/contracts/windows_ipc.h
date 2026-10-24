@@ -356,7 +356,8 @@ constexpr std::uint32_t CompositionRestored = 14;
 constexpr std::uint32_t TrilingualCycle = 15;
 // Highest opcode a live Server may send. Local-only sentinels are larger and
 // must never be accepted as a Server frame.
-constexpr std::uint32_t MaxKnown = TrilingualCycle;
+constexpr std::uint32_t CommitExactTextFrame = 16;
+constexpr std::uint32_t MaxKnown = CommitExactTextFrame;
 // Local-only result. It is never sent over the pipe and must never be
 // interpreted as candidate text to commit.
 constexpr std::uint32_t TransportUnavailable = static_cast<std::uint32_t>(-1);

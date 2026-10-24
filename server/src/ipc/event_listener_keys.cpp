@@ -1077,7 +1077,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     // 整句模式的回车不走原有“提交原始拼音”路径，也不依赖候选词典释义开关。
     if (SentenceModeForClient(client_id) && Global::Keycode == VK_RETURN && (Global::ModifiersDown & 0b00000101u) == 0)
     {
-        HandleSentenceConfirmation(client_id, activation_epoch, request_id, (Global::ModifiersDown & 0b00000010u) == 0);
+        HandleSentenceConfirmation(client_id, activation_epoch, request_id, false);
         return;
     }
 

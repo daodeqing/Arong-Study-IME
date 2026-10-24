@@ -369,6 +369,7 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
             {"floating_toolbar_auto_hide_delay", GetConfiguredFloatingToolbarAutoHideDelay()},
             {"floating_toolbar_shadow", GetConfiguredFloatingToolbarShadow()},
             {"sentence_translation", GetConfiguredSentenceTranslationEnabled()},
+             {"sentence_vocabulary", GetConfiguredSentenceVocabularyEnabled()},
             {"cn_en_mixed_input", GetConfiguredEnglishCandidatesEnabled()},
             {"candidate_translations", GetConfiguredCandidateTranslationsEnabled()},
             {"candidate_translation_show_pos", GetConfiguredCandidateTranslationShowPos()},
@@ -793,6 +794,8 @@ bool ApplyConfigUpdate(const json::object &data)
                                                        json::value_to<bool>(data.at("value")));
     if (path == "general.sentence_translation")
         return SetConfiguredSentenceTranslationEnabled(json::value_to<bool>(data.at("value")));
+    if (path == "general.sentence_vocabulary")
+        return SetConfiguredSentenceVocabularyEnabled(json::value_to<bool>(data.at("value")));
     if (path == "general.cn_en_mixed_input")
         return SetConfiguredEnglishCandidatesEnabled(json::value_to<bool>(data.at("value")));
     if (path == "general.candidate_translations")

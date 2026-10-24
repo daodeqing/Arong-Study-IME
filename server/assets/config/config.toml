@@ -53,9 +53,11 @@ paging_mouse_wheel = false
 candidate_arrow_navigation = true
 # 横排候选时左右方向键移动高亮：光标在拼音串尾时右键移高亮，左键回到第一个候选后再按才移动光标（默认关闭）
 candidate_horizontal_arrow_navigation = false
-# 拼音整句翻译成英文（可选，默认关闭）：空格选词积累中文，Ctrl+Enter 确认英文，Enter 提交中文。
+# 拼音整句翻译成英文（可选，默认关闭）：空格选词积累中文，Enter 确认当前输出；Shift 切换中文/英文。
 # 使用下方 AI 接口配置，与 AI 联想开关独立；仅保留未提交整句，不自动翻译已经上屏的文字。
 sentence_translation = false
+# 在整句译文下方显示最多五个四六级词的音标、词性与常见义（本地词库）。
+sentence_vocabulary = true
 # 中文输入状态下显示英文前缀候选
 cn_en_mixed_input = true
 # 中英混输触发所需的最少字母数，范围 1–8

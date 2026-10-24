@@ -56,6 +56,7 @@ set(TEST_SOURCE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/local_output_probe.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sentence_input_probe.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_sentence_translation.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_sentence_vocabulary.cpp"
     "${CMAKE_SOURCE_DIR}/src/cloud/sentence_translation.cpp"
     "${CMAKE_SOURCE_DIR}/src/ipc/event_listener_sentence.cpp"
     "${CMAKE_SOURCE_DIR}/src/cloud/output_translation.cpp"

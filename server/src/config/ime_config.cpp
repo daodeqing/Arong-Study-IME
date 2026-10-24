@@ -140,6 +140,7 @@ bool g_floating_toolbar_auto_hide = false;
 int g_floating_toolbar_auto_hide_delay = kFloatingToolbarAutoHideDelayDefault;
 bool g_floating_toolbar_shadow = true;
 std::atomic_bool g_sentence_translation_enabled{false};
+std::atomic_bool g_sentence_vocabulary_enabled{true};
 bool g_english_candidates_enabled = false;
 bool g_candidate_translations_enabled = false;
 std::atomic_bool g_candidate_translation_show_pos{true};
@@ -599,6 +600,8 @@ bool LoadImeConfig()
         }
         g_sentence_translation_enabled.store(tbl["general"]["sentence_translation"].value_or(false),
                                              std::memory_order_relaxed);
+        g_sentence_vocabulary_enabled.store(tbl["general"]["sentence_vocabulary"].value_or(true),
+                                            std::memory_order_relaxed);
         g_english_candidates_enabled = tbl["general"]["cn_en_mixed_input"].value_or(false);
         g_candidate_translations_enabled = tbl["general"]["candidate_translations"].value_or(false);
         g_candidate_translation_show_pos.store(tbl["general"]["candidate_translation_show_pos"].value_or(true),

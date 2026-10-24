@@ -112,27 +112,28 @@ bool RefreshSentenceTranslationPreview()
     if (!event_listener_detail::IsEnglishOutputEnabled())
         label = "中文待提交：Enter 确认，Shift 切换英文";
     else if (snapshot.source != source)
-        label = "整句已保留：Ctrl+Enter 请求翻译，Enter 提交中文";
+        label = "整句已保留：Enter 请求翻译，Shift 切换中文输出";
     else
     {
         switch (snapshot.status)
         {
         case SentenceTranslation::Status::Ready:
-            label = string_to_wstring(snapshot.translation).size() < FanyImePipeLimits::CandidateTextCapacity
+            label = (string_to_wstring(snapshot.translation).size() < FanyImePipeLimits::CandidateTextCapacity ||
+                     ClientNegotiatedLongSentenceCommit(owner.client_id))
                         ? snapshot.translation
-                        : "英文译文过长，请分句输入；Enter 可提交中文";
+                        : "客户端暂不支持长译文，请升级输入法或 Shift 切换中文输出";
             break;
         case SentenceTranslation::Status::Pending:
-            label = "正在翻译整句…完成后 Ctrl+Enter 或空格确认";
+            label = "正在翻译整句…完成后 Enter 或空格确认";
             break;
         case SentenceTranslation::Status::Failed:
-            label = "翻译失败：Ctrl+Enter 重试，Enter 提交中文";
+            label = "翻译失败：Enter 重试，Shift 切换中文输出";
             break;
         case SentenceTranslation::Status::Unconfigured:
             label = "请先在 AI 与云联想中配置模型并测试连接";
             break;
         default:
-            label = "Ctrl+Enter 翻译整句，Enter 提交中文";
+            label = "Enter 翻译整句，Shift 切换中文输出";
             break;
         }
     }
@@ -210,7 +211,8 @@ void PrepareSentenceConfirmation(uint64_t client_id, uint64_t activation_epoch, 
     auto snapshot = SentenceTranslation::Current();
     if (snapshot.source == chinese && snapshot.status == SentenceTranslation::Status::Ready)
     {
-        if (string_to_wstring(snapshot.translation).size() < FanyImePipeLimits::CandidateTextCapacity)
+        if (string_to_wstring(snapshot.translation).size() < FanyImePipeLimits::CandidateTextCapacity ||
+            ClientNegotiatedLongSentenceCommit(client_id))
         {
             Global::MsgTypeToTsf = Global::DataFromServerMsgType::CommitExactText;
             Global::candidate_ui.selected_text = string_to_wstring(snapshot.translation);

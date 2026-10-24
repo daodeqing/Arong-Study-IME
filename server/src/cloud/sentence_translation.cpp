@@ -2,9 +2,12 @@
 #include "ai/chat_completions.h"
 #include "ipc/event_listener.h"
 #include "ipc/output_language_policy.h"
+#include "utils/common_utils.h"
 
 #include <atomic>
 #include <algorithm>
+#include <filesystem>
+#include <memory>
 #include <chrono>
 #include <condition_variable>
 #include <cctype>
@@ -46,6 +49,7 @@ std::string Trim(std::string text)
 }
 void Loop()
 {
+    std::unique_ptr<SentenceVocabulary::Dictionary> dictionary;
     for (;;)
     {
         std::string source;
@@ -96,7 +100,29 @@ void Loop()
             }
         }
         if (notify)
+        {
             FanyNamedPipe::EnqueueRefreshCandidatePageTask();
+            // Publish the usable translation first. Local teaching never delays an exact commit.
+            if (GetConfiguredSentenceVocabularyEnabled())
+            {
+                const auto snapshot = SentenceTranslation::Current();
+                if (snapshot.revision == revision && snapshot.status == SentenceTranslation::Status::Ready)
+                {
+                    if (!dictionary)
+                        dictionary = std::make_unique<SentenceVocabulary::Dictionary>(
+                            std::filesystem::path(CommonUtils::get_ime_data_path_w()) / L"assets" / L"vocabulary" /
+                            L"cet.json");
+                    auto words = dictionary->Select(snapshot.translation);
+                    {
+                        std::lock_guard lock(state.mutex);
+                        if (state.current.revision != revision || !state.running)
+                            continue;
+                        state.current.vocabulary = std::move(words);
+                    }
+                    FanyNamedPipe::EnqueueRefreshCandidatePageTask();
+                }
+            }
+        }
     }
 }
 } // namespace
