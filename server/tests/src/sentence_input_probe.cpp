@@ -326,7 +326,9 @@ int RunSentenceOutputProbe(int argc, char **argv)
             REQUIRE(GlobalIme::composition.restore_last_selection());
             REQUIRE_EQ(GlobalIme::composition.creating_word.word, std::string("你"));
             REQUIRE_EQ(GlobalIme::composition.raw_input_with_cases, std::string("api"));
-
+        }
+        if (!offline && !incomplete && !configured)
+        {
             GlobalIme::composition.clear();
             g_inputSession->reset_state();
             GlobalIme::composition.creating_word.active = true;
