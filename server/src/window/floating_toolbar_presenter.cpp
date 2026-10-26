@@ -13,6 +13,7 @@
 #include "window/small_windows.h"
 #include "window/floating_toolbar_skin.h"
 #include "window/product_icons.h"
+#include "window/ime_windows.h"
 
 #include "msimeui/Controls.h"
 #include "msimeui/DeviceResources.h"
@@ -81,6 +82,7 @@ constexpr ToolbarIcon kIconTraditional = {0xE88C, L"繁"};
 constexpr ToolbarIcon kIconEmoji = {0xE76E, L"表"};
 constexpr ToolbarIcon kIconKeyboard = {0xE765, L"键"};
 constexpr ToolbarIcon kIconSettings = {0xE713, L"设"};
+constexpr ToolbarIcon kIconMinimize = {0xE921, L"−"};
 
 float ToolbarUserScale()
 {
@@ -108,6 +110,9 @@ class ToolbarIconButton : public msimeui::Visual
             break;
         case 0xE713:
             svg_ = ProductIcons::Settings;
+            break;
+        case 0xE921:
+            svg_ = ProductIcons::Minimize;
             break;
         default:
             glyph_ = 0;
@@ -178,7 +183,7 @@ class ToolbarIconButton : public msimeui::Visual
                 markup.replace(position, 12, color);
                 position += 7;
             }
-            const float extent = size_ * 0.72f;
+            const float extent = size_ * 0.84f;
             if (auto *bitmap = deviceResources.GetSvgBitmap(markup, {extent, extent}))
             {
                 const float inset = (size_ - extent) * 0.5f;
@@ -489,92 +494,93 @@ void FloatingToolbarPresenter::RebuildScene()
         return button;
     };
     auto addGlyph = [&](const ToolbarIcon &icon, ToolbarIconButton::ClickHandler click) {
-        const msimeui::IconGlyph resolved = msimeui::ResolveIconGlyph(icon.codepoint);
-        if (!resolved.family)
-        {
-            return addText(icon.fallbackText, false, std::move(click));
-        }
-        auto button = std::make_shared<ToolbarIconButton>(resolved.codepoint, resolved.family, L"", iconSize);
+        auto button = std::make_shared<ToolbarIconButton>(icon.codepoint, L"", icon.fallbackText, iconSize);
         button->SetColors(impl_->glyph, impl_->hover, iconRadius);
         button->SetOnClick(std::move(click));
         icons->AddChild(button);
         return button;
     };
 
-    if (impl_->capsLock == 1)
     {
-        addText(L"A", false, [this]() {
-            if (impl_->englishInputMode == 1)
+        if (impl_->capsLock == 1)
+        {
+            addText(L"A", false, [this]() {
+                if (impl_->englishInputMode == 1)
+                {
+                    FanyNamedPipe::EnqueueExitEnglishInputModeTask();
+                }
+                else
+                {
+                    FanyNamedPipe::EnqueueToolbarLanguageToggleTask(impl_->cnEn == 1);
+                }
+            });
+        }
+        else if (impl_->cnEn != 1)
+        {
+            addGlyph(kIconEn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(false); });
+        }
+        else if (impl_->englishInputMode == 1)
+        {
+            addText(L"En", true, []() { FanyNamedPipe::EnqueueExitEnglishInputModeTask(); });
+        }
+        else if (impl_->japaneseInputMode == 1)
+        {
+            addGlyph(kIconJa, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
+        }
+        else
+        {
+            addGlyph(kIconCn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
+        }
+
+        const FloatingToolbarItemsConfig &items = GetConfiguredFloatingToolbarItems();
+        if (items.fullwidth)
+        {
+            if (impl_->doubleSingleByte == 1)
             {
-                FanyNamedPipe::EnqueueExitEnglishInputModeTask();
+                addGlyph(kIconFullWidth,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToHalfwidth); });
             }
             else
             {
-                FanyNamedPipe::EnqueueToolbarLanguageToggleTask(impl_->cnEn == 1);
+                addGlyph(kIconHalfWidth,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToFullwidth); });
             }
-        });
-    }
-    else if (impl_->cnEn != 1)
-    {
-        addGlyph(kIconEn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(false); });
-    }
-    else if (impl_->englishInputMode == 1)
-    {
-        addText(L"En", true, []() { FanyNamedPipe::EnqueueExitEnglishInputModeTask(); });
-    }
-    else if (impl_->japaneseInputMode == 1)
-    {
-        addGlyph(kIconJa, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
-    }
-    else
-    {
-        addGlyph(kIconCn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
-    }
-
-    const FloatingToolbarItemsConfig &items = GetConfiguredFloatingToolbarItems();
-    if (items.fullwidth)
-    {
-        if (impl_->doubleSingleByte == 1)
-        {
-            addGlyph(kIconFullWidth,
-                     []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToHalfwidth); });
         }
-        else
+        if (items.punctuation)
         {
-            addGlyph(kIconHalfWidth,
-                     []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToFullwidth); });
+            if (impl_->punctuation == 1)
+            {
+                addGlyph(kIconPuncCn,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncEn); });
+            }
+            else
+            {
+                addGlyph(kIconPuncEn,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncCn); });
+            }
         }
-    }
-    if (items.punctuation)
-    {
-        if (impl_->punctuation == 1)
+        if (items.character_set)
         {
-            addGlyph(kIconPuncCn, []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncEn); });
+            const bool traditional = GetConfiguredCharacterSet() == "traditional";
+            addGlyph(traditional ? kIconTraditional : kIconSimplified, []() {
+                const std::string next = GetConfiguredCharacterSet() == "traditional" ? "simplified" : "traditional";
+                SetConfiguredCharacterSet(next);
+            });
         }
-        else
+        if (items.emoji)
         {
-            addGlyph(kIconPuncEn, []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncCn); });
+            addGlyph(kIconEmoji, []() { OpenEmojiPanelApplication(); });
         }
-    }
-    if (items.character_set)
-    {
-        const bool traditional = GetConfiguredCharacterSet() == "traditional";
-        addGlyph(traditional ? kIconTraditional : kIconSimplified, []() {
-            const std::string next = GetConfiguredCharacterSet() == "traditional" ? "simplified" : "traditional";
-            SetConfiguredCharacterSet(next);
-        });
-    }
-    if (items.emoji)
-    {
-        addGlyph(kIconEmoji, []() { OpenEmojiPanelApplication(); });
-    }
-    if (items.screen_keyboard)
-    {
-        addGlyph(kIconKeyboard, []() { OpenKeyboardPanelApplication(); });
-    }
-    if (items.settings)
-    {
-        addGlyph(kIconSettings, []() { OpenSettingsApplication(); });
+        if (items.screen_keyboard)
+        {
+            addGlyph(kIconKeyboard, []() { OpenKeyboardPanelApplication(); });
+        }
+        if (items.settings)
+        {
+            addGlyph(kIconSettings, []() { OpenSettingsApplication(); });
+        }
+        // Defer the rebuild until the button's mouse dispatch has returned.
+        addGlyph(kIconMinimize, [this]() { PostMessage(hwnd_, WM_SYSCOMMAND, SC_MINIMIZE, 0); });
     }
 
     row->AddChild(leading);
@@ -850,6 +856,18 @@ bool FloatingToolbarPresenter::HandleMessage(UINT message, WPARAM wParam, LPARAM
     }
     switch (message)
     {
+    case WM_SYSCOMMAND: {
+        const UINT command = static_cast<UINT>(wParam & 0xFFF0);
+        if (command != SC_MINIMIZE && command != SC_RESTORE)
+        {
+            return false;
+        }
+        if (SetConfiguredFloatingToolbarEnabled(command == SC_RESTORE))
+        {
+            ApplyConfiguredFloatingToolbarVisibility(L"toolbar-minimize-restore");
+        }
+        return true;
+    }
     case WM_ERASEBKGND:
         return true;
     case WM_PAINT: {

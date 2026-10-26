@@ -50,7 +50,9 @@ void MarkNamedpipeFocusLost();
 void RequireNamedpipeFocusActivation();
 void MarkNamedpipeSessionDirty();
 bool MarkNamedpipeSessionDirtyForOwner(_In_ const void *owner);
-bool EnsureNamedpipeFocusSessionActivated();
+// A healthy transport waiting for its exact-token echo stays pending. Ordinary
+// UI/control probes must yield; only explicit legacy callers may wait briefly.
+bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement = false, bool *pending = nullptr);
 bool SupportsCharacterSetShortcut();
 bool SupportsCompositionRestore();
 // 候选态下的普通左右键交给 Server 决定移高亮还是移光标：Server 打开了横排左右键选词、协商过 CompositionRestore
@@ -61,6 +63,7 @@ bool SupportsTrilingualCycle();
 bool SupportsInputStateShortcuts();
 bool SupportsSentenceTranslation();
 std::wstring ServerReplyText(const FanyImeNamedpipeDataToTsf &reply);
+bool SupportsSentenceAutoCommit();
 bool IsSentenceTranslationEnabled();
 bool FlushNamedpipeFocusSessionReset();
 bool FlushNamedpipeImeDeactivation(uint64_t focusToken = 0);

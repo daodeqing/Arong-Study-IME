@@ -561,3 +561,53 @@ TEST_CASE(candidate_arrangement_reflows_when_the_final_slot_is_narrower)
     REQUIRE(list.OnMouseUp({20, 44}, 0));
     REQUIRE(activated == 1);
 }
+
+namespace
+{
+class CountingCandidateList : public CandidateList
+{
+  public:
+    SizeF Measure(const SizeF &size) override
+    {
+        ++measureCount;
+        return CandidateList::Measure(size);
+    }
+    int measureCount = 0;
+};
+} // namespace
+
+TEST_CASE(repeated_candidate_pages_reuse_measurement_without_losing_changed_fields)
+{
+    CountingCandidateList list;
+    CandidateList::Item item{L"1", L"candidate", L"hint", L"translation"};
+    list.SetItems({item});
+    const SizeF first = list.MeasureInLayout({1000.0f, 1000.0f});
+    list.SetSelectedIndex(0);
+    for (int i = 0; i < 1000; ++i)
+    {
+        list.SetItems({item});
+        const SizeF again = list.MeasureInLayout({1000.0f, 1000.0f});
+        REQUIRE_NEAR(again.width, first.width);
+        REQUIRE_NEAR(again.height, first.height);
+    }
+    REQUIRE(list.measureCount == 1);
+    item.annotation += L" changed";
+    list.SetItems({item});
+    list.MeasureInLayout({1000.0f, 1000.0f});
+    REQUIRE(list.measureCount == 2);
+    item.translationRuns.push_back({0, 3, CandidateList::TextRunRole::Secondary});
+    list.SetItems({item});
+    list.MeasureInLayout({1000.0f, 1000.0f});
+    REQUIRE(list.measureCount == 3);
+    item.translationRuns[0].role = CandidateList::TextRunRole::Delimiter;
+    list.SetItems({item});
+    list.MeasureInLayout({1000.0f, 1000.0f});
+    REQUIRE(list.measureCount == 4);
+    item.text += L" updated";
+    list.SetItems({item});
+    list.MeasureInLayout({1000.0f, 1000.0f});
+    REQUIRE(list.measureCount == 5);
+    list.SetItems({});
+    list.MeasureInLayout({1000.0f, 1000.0f});
+    REQUIRE(list.measureCount == 6);
+}

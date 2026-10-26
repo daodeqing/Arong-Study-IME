@@ -34,7 +34,9 @@ constexpr std::uint32_t TemporaryJapaneseLongVowel = 1u << 8;
 // Optional: selected Chinese words stay in a sentence composition until an
 // explicit translation or Chinese commit. Older peers retain ordinary input.
 constexpr std::uint32_t SentenceTranslation = 1u << 9;
-constexpr std::uint32_t LongSentenceCommit = 1u << 10;
+// Enter is acknowledged immediately; a request-bound worker result may later commit.
+constexpr std::uint32_t SentenceAutoCommit = 1u << 10;
+constexpr std::uint32_t LongSentenceCommit = 1u << 11;
 constexpr std::uint32_t Capabilities = RequestIds | FocusEpochs | FramedVoice;
 constexpr std::uint32_t RequiredCapabilities = RequestIds | FocusEpochs;
 

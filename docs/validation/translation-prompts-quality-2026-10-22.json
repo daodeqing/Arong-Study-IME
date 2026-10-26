@@ -1,0 +1,728 @@
+{
+  "reviewer": "Primary assistant qualitative review; not an independent expert panel",
+  "method": "Reviewed all 72 measured outputs using a preset-name-free display; identical case/output pairs share one judgment.",
+  "scale": "0=unusable, 1=major errors, 2=usable after material edits, 3=minor issues, 4=fully meets this dimension; half points permitted.",
+  "limitations": "Subjective small synthetic sample. Reviewer knew the experiment design. Not a statistically validated blind study.",
+  "reviews": [
+    {
+      "request_index": 5,
+      "blind_id": "3430120c7c59",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "保留不确定性及时间，口语简洁。"
+    },
+    {
+      "request_index": 6,
+      "blind_id": "f6683139b2cc",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "未寄信、放回抽屉和不再提名字均保留；house 比屋里范围稍宽，moved 比 stirred 平淡。"
+    },
+    {
+      "request_index": 7,
+      "blind_id": "1f05bccd9586",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "alley entrance 清晰；left dusk behind 略弱化遗忘。"
+    },
+    {
+      "request_index": 8,
+      "blind_id": "02ace7b724fd",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "意象和过去时叙述自然；left dusk behind 弱化了遗忘的细微含义。"
+    },
+    {
+      "request_index": 9,
+      "blind_id": "582963757aa0",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "数字、术语及推广边界完整；未新增显著性或验证结论。"
+    },
+    {
+      "request_index": 10,
+      "blind_id": "f25766c88334",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "指代清晰，单数、可能性及因果限制均保留。"
+    },
+    {
+      "request_index": 11,
+      "blind_id": "24c8287e6b33",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3,
+      "serious_errors": [],
+      "notes": "信息完整；quotation 和 agree to 的搭配略正式、略直译。"
+    },
+    {
+      "request_index": 12,
+      "blind_id": "9027346f86e6",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "三数据集、2.4%到1.8%、尚未外部验证及可能不能推广均保留。"
+    },
+    {
+      "request_index": 13,
+      "blind_id": "582963757aa0",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "数字、术语及推广边界完整；未新增显著性或验证结论。"
+    },
+    {
+      "request_index": 14,
+      "blind_id": "ccb54f91032a",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "单数、可能性及因果限制保留；causal relationships 略冗长。"
+    },
+    {
+      "request_index": 15,
+      "blind_id": "ccb54f91032a",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "单数、可能性及因果限制保留；causal relationships 略冗长。"
+    },
+    {
+      "request_index": 16,
+      "blind_id": "e127c6ca1e11",
+      "case_id": "academic_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 3.5,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "possible association 和因果限制准确；原文单个结果变为 results。"
+    },
+    {
+      "request_index": 17,
+      "blind_id": "6b3f60a7c31f",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "画面保留；the dusk 略不自然，遗忘的含义有所弱化。"
+    },
+    {
+      "request_index": 18,
+      "blind_id": "582963757aa0",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "数字、术语及推广边界完整；未新增显著性或验证结论。"
+    },
+    {
+      "request_index": 19,
+      "blind_id": "3297f3abb9a8",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "忠实保留可能、十分钟及无需等待，口语自然。"
+    },
+    {
+      "request_index": 20,
+      "blind_id": "667266c2ea13",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 21,
+      "blind_id": "09ea7e8f21b8",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "信息完整；末句略直译。"
+    },
+    {
+      "request_index": 22,
+      "blind_id": "164a3d59c068",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "画面保留；the dusk 和时态衔接稍显直译。"
+    },
+    {
+      "request_index": 23,
+      "blind_id": "9dd44baa2637",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "语义完整；order first, don't wait 为逗号拼接。"
+    },
+    {
+      "request_index": 24,
+      "blind_id": "667266c2ea13",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 25,
+      "blind_id": "f6683139b2cc",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "未寄信、放回抽屉和不再提名字均保留；house 比屋里范围稍宽，moved 比 stirred 平淡。"
+    },
+    {
+      "request_index": 26,
+      "blind_id": "aa84a433bade",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "时间和礼貌保留；末句略直译。"
+    },
+    {
+      "request_index": 27,
+      "blind_id": "a54588a8f0b0",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "语义完整；order first, don't wait 为逗号拼接。"
+    },
+    {
+      "request_index": 28,
+      "blind_id": "5d09f0f16c73",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "信息完整；末句略直译，但无内容错误。"
+    },
+    {
+      "request_index": 29,
+      "blind_id": "5d09f0f16c73",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "信息完整；末句略直译，但无内容错误。"
+    },
+    {
+      "request_index": 30,
+      "blind_id": "eaefe765ae54",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "单数、可能相关及因果限制均保留。"
+    },
+    {
+      "request_index": 31,
+      "blind_id": "eaefe765ae54",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "单数、可能相关及因果限制均保留。"
+    },
+    {
+      "request_index": 32,
+      "blind_id": "b38062aa76cf",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "数字、术语及推广边界完整；未强化研究结论。"
+    },
+    {
+      "request_index": 33,
+      "blind_id": "19e6d0fe1b34",
+      "case_id": "creative_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "遗忘意象忠实；forgotten dusk there 的英文稍显直译。"
+    },
+    {
+      "request_index": 34,
+      "blind_id": "35e2455ed6f5",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3,
+      "serious_errors": [],
+      "notes": "时间、礼貌和暂不能接受报价均保留；If convenient/quotation 偏正式。"
+    },
+    {
+      "request_index": 35,
+      "blind_id": "287e5575e3fd",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "still 的转折自然；left dusk behind 略弱化遗忘。"
+    },
+    {
+      "request_index": 36,
+      "blind_id": "03db41c8fea9",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 37,
+      "blind_id": "eaefe765ae54",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "单数、可能相关及因果限制均保留。"
+    },
+    {
+      "request_index": 38,
+      "blind_id": "1a467dc2ebca",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "alley entrance 自然；the dusk 略不自然，遗忘的含义有所弱化。"
+    },
+    {
+      "request_index": 39,
+      "blind_id": "08fc222a7240",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "信息完整；末句略直译。"
+    },
+    {
+      "request_index": 40,
+      "blind_id": "9027346f86e6",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "三数据集、2.4%到1.8%、尚未外部验证及可能不能推广均保留。"
+    },
+    {
+      "request_index": 41,
+      "blind_id": "75b6af0ce9e3",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "保留不确定性与时间，表达自然。"
+    },
+    {
+      "request_index": 42,
+      "blind_id": "9027346f86e6",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "三数据集、2.4%到1.8%、尚未外部验证及可能不能推广均保留。"
+    },
+    {
+      "request_index": 43,
+      "blind_id": "03db41c8fea9",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 44,
+      "blind_id": "a54588a8f0b0",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "语义完整；order first, don't wait 为逗号拼接。"
+    },
+    {
+      "request_index": 45,
+      "blind_id": "582963757aa0",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "数字、术语及推广边界完整；未新增显著性或验证结论。"
+    },
+    {
+      "request_index": 46,
+      "blind_id": "03db41c8fea9",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 47,
+      "blind_id": "667266c2ea13",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 48,
+      "blind_id": "1524cef2a47c",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "保留时间、礼貌及暂不能接受报价；I'd like 适合沟通。"
+    },
+    {
+      "request_index": 49,
+      "blind_id": "ccb54f91032a",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "单数、可能性及因果限制保留；causal relationships 略冗长。"
+    },
+    {
+      "request_index": 50,
+      "blind_id": "50f73f0eef7f",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "语义完整，两个短句自然清晰。"
+    },
+    {
+      "request_index": 51,
+      "blind_id": "02ace7b724fd",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "意象和过去时叙述自然；left dusk behind 弱化了遗忘的细微含义。"
+    },
+    {
+      "request_index": 52,
+      "blind_id": "d48398170c9d",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "保留不确定性及无需等待，连词自然。"
+    },
+    {
+      "request_index": 53,
+      "blind_id": "03db41c8fea9",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 54,
+      "blind_id": "8a0be24f6286",
+      "case_id": "academic_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 3.5,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "保留可能相关与不能推断因果；单个结果变 results，correlated 比 related 更具体。"
+    },
+    {
+      "request_index": 55,
+      "blind_id": "03245ec59acf",
+      "case_id": "academic_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 3.5,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "保留谨慎结论；单个结果变 results，causal relationships 略冗长。"
+    },
+    {
+      "request_index": 56,
+      "blind_id": "e8eaa1082de1",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "全部信息保留；can't agree to this quote for now 略生硬。"
+    },
+    {
+      "request_index": 57,
+      "blind_id": "eaefe765ae54",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "单数、可能相关及因果限制均保留。"
+    },
+    {
+      "request_index": 58,
+      "blind_id": "582963757aa0",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "数字、术语及推广边界完整；未新增显著性或验证结论。"
+    },
+    {
+      "request_index": 59,
+      "blind_id": "667266c2ea13",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 60,
+      "blind_id": "89538776b487",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "语义完整；order, don't wait 为逗号拼接，可改用句号或连词。"
+    },
+    {
+      "request_index": 61,
+      "blind_id": "ccb54f91032a",
+      "case_id": "academic_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "单数、可能性及因果限制保留；causal relationships 略冗长。"
+    },
+    {
+      "request_index": 62,
+      "blind_id": "88fd439495ea",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "画面完整；left dusk behind 弱化了遗忘的细微含义。"
+    },
+    {
+      "request_index": 63,
+      "blind_id": "03db41c8fea9",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 64,
+      "blind_id": "5d09f0f16c73",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "信息完整；末句略直译，但无内容错误。"
+    },
+    {
+      "request_index": 65,
+      "blind_id": "1c192e9114b0",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "过去时叙述成立；the dusk 略不自然，遗忘含义有所弱化。"
+    },
+    {
+      "request_index": 66,
+      "blind_id": "d48398170c9d",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "保留不确定性及无需等待，连词自然。"
+    },
+    {
+      "request_index": 67,
+      "blind_id": "6b3f60a7c31f",
+      "case_id": "creative_short",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "画面保留；the dusk 略不自然，遗忘的含义有所弱化。"
+    },
+    {
+      "request_index": 68,
+      "blind_id": "b6d7d37aafa0",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "信息完整；cannot agree to this quote 略正式。"
+    },
+    {
+      "request_index": 69,
+      "blind_id": "582963757aa0",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "数字、术语及推广边界完整；未新增显著性或验证结论。"
+    },
+    {
+      "request_index": 70,
+      "blind_id": "c6ca9f505597",
+      "case_id": "daily_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "礼貌、不确定时间安排及报价限制保留，衔接自然。"
+    },
+    {
+      "request_index": 71,
+      "blind_id": "a54588a8f0b0",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3.5,
+      "serious_errors": [],
+      "notes": "语义完整；order first, don't wait 为逗号拼接。"
+    },
+    {
+      "request_index": 72,
+      "blind_id": "582963757aa0",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "数字、术语及推广边界完整；未新增显著性或验证结论。"
+    },
+    {
+      "request_index": 73,
+      "blind_id": "667266c2ea13",
+      "case_id": "creative_long",
+      "fidelity": 3.5,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "内容与节奏自然，未新增情节；house 比屋里范围稍宽。"
+    },
+    {
+      "request_index": 74,
+      "blind_id": "e4deef226682",
+      "case_id": "daily_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 3,
+      "serious_errors": [],
+      "notes": "语义完整；may arrive 与 there is no need 比日常对话略正式。"
+    },
+    {
+      "request_index": 75,
+      "blind_id": "9027346f86e6",
+      "case_id": "academic_long",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "三数据集、2.4%到1.8%、尚未外部验证及可能不能推广均保留。"
+    },
+    {
+      "request_index": 76,
+      "blind_id": "c19a32934ad0",
+      "case_id": "creative_short",
+      "fidelity": 4,
+      "facts_and_terminology": 4,
+      "scenario_style": 4,
+      "serious_errors": [],
+      "notes": "保留灯、巷口和遗忘黄昏的意象；表达有诗性，未扩写情节。"
+    }
+  ]
+}

@@ -73,7 +73,8 @@ class SkinSwitch : public ToggleSwitch
     {
         SetOnChanged([this](bool) {
             SetChecked(true);
-            model_->Update("appearance.candidate_skin", skinId_);
+            if (model_->GetString("appearance.candidate_skin", "fluent") != skinId_)
+                model_->Update("appearance.candidate_skin", skinId_);
         });
     }
 
@@ -140,6 +141,7 @@ struct SkinCard
     bool official = false;
     std::vector<std::string> themes;
     int previewOverride = -1; // -1 follows the candidate theme, 0 dark, 1 light
+    std::string previewKey;
     std::shared_ptr<Label> title;
     std::shared_ptr<Label> description;
     std::shared_ptr<SkinSwitch> toggle;
@@ -174,6 +176,7 @@ class SkinPage
     std::shared_ptr<msimeui::Container> externalHost_;
     std::shared_ptr<CodeChip> directory_;
     std::string catalogKey_ = "\x01";
+    size_t previewRevision_ = 0;
     std::string themeKey_;
     bool candLight_ = false;
     bool diagnosticsOpen_ = false;
@@ -290,6 +293,16 @@ bool SkinPage::PreviewLight(const SkinCard &card) const
 void SkinPage::ApplyCard(SkinCard &card)
 {
     const bool light = PreviewLight(card);
+    Json key = {light, previewRevision_};
+    for (const char *path : {"appearance.english_font_css_family", "appearance.fallback_font_css_families"})
+    {
+        const Json *value = model_->Find(path);
+        key.push_back(value ? *value : Json());
+    }
+    const std::string previewKey = key.dump();
+    if (card.previewKey == previewKey)
+        return;
+    card.previewKey = previewKey;
     if (!card.external)
         card.title->SetText(BuiltinName(*model_, card.id) + (light ? L"(Light)" : L"(Dark)"));
     else if (card.official)
@@ -421,7 +434,8 @@ void SkinPage::Sync()
     // skin.ts applyCandidateSkinCatalog() only rebuilds when the catalog changed.
     Json catalog = Json::array();
     for (const char *path : {"appearance.external_candidate_skins", "appearance.candidate_skin_scan_issues",
-                             "appearance.candidate_skin_directory", "appearance.candidate_skin_catalog_scanned"})
+                             "appearance.candidate_skin_directory", "appearance.candidate_skin_catalog_scanned",
+                             "appearance.candidate_skin_catalog_revision"})
     {
         const Json *value = model_->Find(path);
         catalog.push_back(value ? *value : Json());
@@ -430,6 +444,7 @@ void SkinPage::Sync()
     if (key != catalogKey_)
     {
         catalogKey_ = key;
+        ++previewRevision_;
         RebuildExternal();
     }
     const std::string directory = model_->GetString("appearance.candidate_skin_directory");

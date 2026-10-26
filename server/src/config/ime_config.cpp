@@ -22,6 +22,7 @@
 #include "engine/core/data_path.h"
 #include "engine/contracts/input_state_shortcuts.h"
 #include "statistics/stats_store.h"
+#include "cloud/sentence_translation.h"
 #include "voice-input/voice_providers.h"
 
 using namespace ime_config_detail;
@@ -998,10 +999,9 @@ bool LoadImeConfig()
         if (!VoiceInput::IsValidThinkingLevel(g_ai_assistant.thinking))
             g_ai_assistant.thinking = "disabled";
         const std::string legacy_ai_prompt = tbl["ai_assistant"]["prompt"].value_or(g_ai_assistant.prompt);
-        g_ai_assistant.prompt_id = tbl["ai_assistant"]["prompt_id"].value_or(std::string("custom_1"));
-        if (g_ai_assistant.prompt_id != "custom_1" && g_ai_assistant.prompt_id != "custom_2" &&
-            g_ai_assistant.prompt_id != "custom_3")
-            g_ai_assistant.prompt_id = "custom_1";
+        g_ai_assistant.prompt_id = tbl["ai_assistant"]["prompt_id"].value_or(std::string("daily"));
+        if (!SentenceTranslation::IsValidPromptId(g_ai_assistant.prompt_id))
+            g_ai_assistant.prompt_id = "daily";
         g_ai_assistant.prompt_custom_1 = tbl["ai_assistant"]["prompt_custom_1"].value_or(std::string());
         if (g_ai_assistant.prompt_custom_1.empty())
             g_ai_assistant.prompt_custom_1 = legacy_ai_prompt;

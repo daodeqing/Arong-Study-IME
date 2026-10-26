@@ -1,0 +1,49 @@
+{
+  "created_utc": "2026-10-22T09:58:19.703151+00:00",
+  "preserved": [
+    {
+      "path": "docs/validation/backspace-prior-engine-baseline.csv",
+      "sha256": "17719f04b5209612de4785e1f874feb8d77f3f8e8881cd42b5d0a8d4db2a8443",
+      "note": "Preserved from prior-stage baseline; not a current-version performance acceptance result."
+    },
+    {
+      "path": "docs/validation/backspace-prior-server-baseline.csv",
+      "sha256": "b5464e1273e3247f970e61c84f53ac93c4b56ea5d9998e07b89c69e1cc0902af",
+      "note": "Preserved from prior-stage baseline; not a current-version performance acceptance result."
+    }
+  ],
+  "items": [
+    {
+      "name": ".tmp-backspace-baseline",
+      "bytes": 9002713,
+      "files": 8,
+      "status": "recycled"
+    },
+    {
+      "name": ".tmp-backspace-server-baseline",
+      "bytes": 302259572,
+      "files": 44,
+      "status": "recycled"
+    },
+    {
+      "name": ".tmp-backspace-data",
+      "bytes": 225029248,
+      "files": 20,
+      "status": "recycled"
+    },
+    {
+      "name": ".work-sentence/temp",
+      "bytes": 0,
+      "files": 0,
+      "status": "recycled"
+    },
+    {
+      "name": ".tmp-backspace-tools",
+      "bytes": 3417728,
+      "files": 18,
+      "status": "recycled"
+    }
+  ],
+  "total_bytes": 539709261,
+  "notes": "Prior baseline CSVs retained as evidence; all five obsolete test/build/tool directories recycled. Installed binaries, API credentials and preinstallation configuration backups retained. No visible apps or terminals were opened during this task."
+}

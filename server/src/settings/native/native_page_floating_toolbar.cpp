@@ -131,9 +131,9 @@ VisualPtr BuildFloatingToolbarPage(PageContext &context)
 
     // ---- Toolbar card -------------------------------------------------------------
     auto toolbarCard = std::make_shared<FlushCard>();
-    toolbarCard->Add(SettingBand(
-        std::make_shared<SettingRow>(MakeTitleBlock(L"在桌面显示悬浮工具栏", L"快速访问输入法状态与常用功能"),
-                                     BindToggle(context, "general.floating_toolbar"))));
+    toolbarCard->Add(SettingBand(std::make_shared<SettingRow>(
+        MakeTitleBlock(L"在桌面显示悬浮工具栏", L"最小化后完全隐藏；可从托盘菜单或此处重新开启"),
+        BindToggle(context, "general.floating_toolbar"))));
 
     auto autoHide = SettingBand(std::make_shared<SettingRow>(
         OptionTitle(L"自动隐藏工具栏",

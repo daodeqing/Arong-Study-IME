@@ -25,6 +25,7 @@
 #include "window/candidate_skin_layers.h"
 #include "utils/common_utils.h"
 #include "utils/single_instance.h"
+#include "cloud/sentence_translation.h"
 #include "voice-input/voice_providers.h"
 
 #include <boost/json.hpp>
@@ -304,6 +305,13 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
         polish_presets.push_back({{"id", std::string(preset.id)},
                                   {"name", std::string(preset.name)},
                                   {"prompt", std::string(preset.prompt)}});
+    }
+    nlohmann::json ai_prompt_presets = nlohmann::json::array();
+    for (const auto &preset : SentenceTranslation::BuiltinPromptPresets())
+    {
+        ai_prompt_presets.push_back({{"id", std::string(preset.id)},
+                                     {"name", std::string(preset.name)},
+                                     {"prompt", std::string(preset.prompt)}});
     }
     // 规则位取不门控视图：总开关关闭时复选框仍要展示用户已存的勾选；
     // 总开关本身单独下发。
@@ -590,6 +598,7 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
           {"statistics",
            {{"enabled", GetConfiguredStatisticsEnabled()}, {"retention", GetConfiguredStatisticsRetention()}}}}}};
     payload["data"]["voice_input"]["polish_presets"] = std::move(polish_presets);
+    payload["data"]["ai_assistant"]["prompt_presets"] = std::move(ai_prompt_presets);
     payload["data"]["helpcode"]["custom_schemas"] = CustomHelpcodeSchemasJson();
     payload["data"]["helpcode"]["custom_directory"] = GetCustomHelpcodeDirectory();
     payload["data"]["input"]["custom_shuangpin_schemas"] = CustomShuangpinSchemasJson();
@@ -1682,14 +1691,14 @@ void HideSettings(HWND hwnd)
         return;
     }
     g_lingering = true;
-    if (g_native)
-        g_native->ReleaseIdleResources();
     // 窗口隐藏时保留的那一帧会在下次打开时先显示出来，带着高亮的标题栏按钮就会闪一下。
     // 窗口自己的关闭按钮已经在点击时清过，这里覆盖 Alt+F4 等不经过它的路径。
     ResetTitlebarHoverAfterVisibilityChange();
     KillTimer(hwnd, kConfigReloadTimer);
     ReleaseMouseCapture(hwnd);
     ShowWindow(hwnd, SW_HIDE);
+    if (g_native)
+        g_native->ReleaseIdleResources();
     if (linger_ms)
         SetTimer(hwnd, kLingerTimer, *linger_ms, nullptr);
 }
@@ -1722,6 +1731,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_pa
     }
     switch (message)
     {
+    case WM_SYSCOMMAND:
+        if ((w_param & 0xFFF0) == SC_MINIMIZE)
+        {
+            HideSettings(hwnd);
+            return 0;
+        }
+        break;
     case kActivateExistingWindow:
         ActivateWindow(hwnd);
         return 0;

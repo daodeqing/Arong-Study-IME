@@ -313,6 +313,9 @@ if(BUILD_TESTING)
     add_test(NAME local_modes COMMAND test_local_modes)
 
     # Per-keystroke latency against the real dictionaries; run by hand, not by ctest.
+    add_executable(bench_backspace tests/src/bench_backspace.cpp)
+    target_link_libraries(bench_backspace PRIVATE MetasequoiaIme::Engine)
+
     add_executable(bench_input_session tests/src/bench_input_session.cpp)
     target_link_libraries(bench_input_session PRIVATE MetasequoiaIme::Engine)
 

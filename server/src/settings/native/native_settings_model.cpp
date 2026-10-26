@@ -153,6 +153,8 @@ void SettingsModel::Receive(const std::string &serializedMessage)
     {
         if (message.contains("data") && message["data"].is_object())
         {
+            if (hasConfig_ && config_ == message["data"])
+                return;
             config_ = std::move(message["data"]);
             hasConfig_ = true;
             NotifyConfig();

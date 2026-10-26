@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "issue": "settings version and installation location",
+  "source_commit": "fafbba22cbe5fc80a166142cc2741f8e6a4be70c",
+  "requested_program_dir": "D:\\LUO\\啊隆输入法",
+  "registry": {
+    "VersionDir": "ArongStudyIme_v0.8.5",
+    "ServerPath": "D:\\LUO\\ArongStudyIme\\server\\ArongStudyImeServer.exe",
+    "DataDir": "D:\\LUO\\啊隆输入法",
+    "InstallLocation": "D:\\LUO\\ArongStudyIme\\",
+    "DisplayVersion": "0.8.5"
+  },
+  "is_elevated": false,
+  "installed_data_present": {
+    "config.toml": true,
+    "msime_user.db": true,
+    ".ArongStudyIme-data": true
+  },
+  "findings": [
+    "Settings v0.8.0 was hardcoded for both display and update comparison; uninstall registry records 0.8.5.",
+    "The requested program directory currently contains active user data. It must not be removed or used as the program directory without first separating data.",
+    "Program directory selection was hidden by DisableDirPage=yes."
+  ],
+  "confirmed_destination": {
+    "program": "D:\\LUO\\啊隆输入法",
+    "data": "D:\\LUO\\啊隆输入法数据"
+  },
+  "backup": {
+    "path": ".work-sentence/preinstall-backup-0.8.6",
+    "files": 3,
+    "bytes": 139346,
+    "user_dictionary_sqlite_quick_check": "ok",
+    "credentials": "preserved in private local backup; never included in report"
+  },
+  "checks": {
+    "clang_format": "18.1.8 passed",
+    "apply_version_check": "0.8.6.0 passed",
+    "cloud_choice_unit_tests": 4,
+    "directory_guard_inno_scenarios": 6,
+    "ci_run_id": 39769582699,
+    "ci_conclusion": "success",
+    "ci_jobs": 11,
+    "package_run_id": 39770311822,
+    "package_status": "success"
+  },
+  "native_ui_and_elevated_host_acceptance": "not yet verified",
+  "result": "Superseded by v0.8.7; local attempt stopped before migration because explicit data directory was reset by wizard."
+}

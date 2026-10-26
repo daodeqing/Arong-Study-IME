@@ -30,12 +30,14 @@
     },
     "metricsDip": {
       "sidebarWidth": 224,
-      "titleBarHeight": 40,
+      "titleBarHeight": 44,
       "cardRadius": 12,
       "itemRadius": 6,
       "pageTitleFontSize": 28,
       "bodyFontSize": 14,
-      "captionFontSize": 12
+      "captionFontSize": 12,
+      "captionButtonWidth": 48,
+      "captionGlyphSize": 14
     },
     "memoryBudgetsBytes": {
       "candidateCachePerSlot": 4194304,

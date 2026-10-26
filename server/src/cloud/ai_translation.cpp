@@ -166,8 +166,12 @@ Config FromConfiguredTranslation(const TranslationConfig &config)
     const std::string endpoint = config.ai.provider == "local"
                                      ? OpenAiCompatibleUrl::ChatCompletionsEndpoint(config.ai.endpoint)
                                      : CloudTranslation::TrimSecret(config.ai.endpoint);
-    return {config.ai.provider, endpoint, CloudTranslation::TrimSecret(config.ai.token),
-            CloudTranslation::TrimSecret(config.ai.model)};
+    return {config.ai.provider,
+            endpoint,
+            CloudTranslation::TrimSecret(config.ai.token),
+            CloudTranslation::TrimSecret(config.ai.model),
+            config.ai.prompt_id,
+            config.ai.prompt};
 }
 
 bool IsUsableConfig(const Config &config)

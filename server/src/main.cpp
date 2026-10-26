@@ -90,6 +90,21 @@ const char *SchemeTypeToString(SchemeType scheme_type)
 int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE /*hPrevInstance*/, _In_ LPSTR lpCmdLine,
                      _In_ int /*nCmdShow*/)
 {
+    if (lpCmdLine && std::strstr(lpCmdLine, "--benchmark-backspace"))
+    {
+        // Never let a diagnostic fall through to the installed user's resources.
+        wchar_t data_root[32768]{};
+        wchar_t config_root[32768]{};
+        if (!GetEnvironmentVariableW(L"ARONG_STUDY_IME_DATA_DIR", data_root, 32768) ||
+            !GetEnvironmentVariableW(L"ARONG_STUDY_IME_CONFIG_DIR", config_root, 32768))
+            return 2;
+        InitImeConfig();
+        g_inputSession = CreateInputSessionFromConfig();
+        Global::candidate_ui.page_size = GetConfiguredCandidatePageSize();
+        const int result = FanyNamedPipe::RunBackspaceBenchmark();
+        neural::RescoreWorker::instance().shutdown();
+        return result;
+    }
     const bool pipe_probe = IsPipeProbe(lpCmdLine);
     CommonUtils::SingleInstanceGuard single_instance(L"Local\\ArongStudyImeServer_SingleInstance");
     if (!single_instance.is_valid())

@@ -23,8 +23,10 @@ int handshakeAttempts = 0;
 int stoppedTimers = 0;
 int armedTimers = 0;
 
-bool EnsureNamedpipeFocusSessionActivated()
+bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement)
 {
+    if (waitForAcknowledgement)
+        throw "The owner thread must not block for a focus echo";
     ++handshakeAttempts;
     return transportReady;
 }

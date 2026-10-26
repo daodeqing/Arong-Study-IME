@@ -1,0 +1,149 @@
+{
+  "version": "0.8.8",
+  "baseline_version": "0.8.7",
+  "changes": [
+    "Preserve unsent FIFO during healthy delayed focus acknowledgement; nonblocking normal probes",
+    "Retry idempotent same-token activation with 250/500/1000/2000ms pacing if initial activation is ignored",
+    "Suppress duplicate focus-ready owner wakeups",
+    "Narrow foreground/location WinEvent subscriptions; unchanged callback behavior",
+    "Bound ordinary full-mode status responses per main registration and focus epoch, protecting older DLLs",
+    "Apply enabled sentence mode only when Chinese mode actually changes, closing the status feedback loop",
+    "Treat identical output-language frames as snapshots; only real changes cancel pending translation confirmation"
+  ],
+  "candidate_benchmark_before": {
+    "type": {
+      "samples": 115,
+      "median_ms": 0.5496,
+      "p95_ms": 4.316,
+      "max_ms": 5.6093
+    },
+    "backspace": {
+      "samples": 115,
+      "median_ms": 0.0838,
+      "p95_ms": 0.2696,
+      "max_ms": 0.5324
+    }
+  },
+  "limits": [
+    "Baseline isolates candidate construction from host focus and UI",
+    "60000 unrelated-event stress used only 0.46875 server CPU seconds over141.24s; this does not establish event subscriptions as the main source of the user screenshot CPU spike",
+    "Native test host initially selected WeChat input method; its samples are not Arong input benchmarks",
+    "Existing cold pipe registration can still use bounded waits; this change makes healthy focus-echo probes nonblocking, without claiming every startup path is asynchronous"
+  ],
+  "quality_preservation": [
+    "No candidate algorithm, candidate count, model, prompt, temperature or token capacity changes"
+  ],
+  "pending": [
+    "Notepad, browser, WeChat and QQ acceptance",
+    "Post-install v0.8.9 toolbar acceptance after Windows elevation"
+  ],
+  "source_commit": "179b09c1ab7cf27fe37a725d267430017b4a1090",
+  "checks": {
+    "local_native_focus_regression": "passed, Zig 0.13.0 C++17",
+    "format": "clang-format 18.1.8 passed",
+    "focus_delays_ms": [
+      149,
+      150,
+      500,
+      1500,
+      5000
+    ],
+    "duplicates": {
+      "ready_frames": 1000,
+      "owner_wakeups": 1
+    },
+    "ci_run_id": 39792680640,
+    "ci_status": "success",
+    "local_native_state_idempotency": "passed, source-extracted worker and owner handlers",
+    "ci_jobs": 11,
+    "package_run_id": 39794617097,
+    "real_server_pipe_regression": "passed in Server CI for x64/Win32 probes and legacy client",
+    "package_status": "success; attempt2 after transient dependency DNS failure"
+  },
+  "live_reproduction": {
+    "host": "Standalone Win32 EDIT, loaded ArongStudyIme_v0.8.7/ArongStudyImeTsf.dll verified",
+    "input": "nihaojintiantianqibucuo",
+    "key_count": 23,
+    "injection": "physical keys via Computer Use, about7 keys/s; this is not a human typing study",
+    "result": "Input visibly stalled at nihao after all23 keys; additional idle sample remained high",
+    "logical_processors": 16,
+    "server_machine_cpu_percent": {
+      "range": [
+        3.337,
+        4.794
+      ],
+      "median": 4.1155,
+      "samples": 12,
+      "mean": 4.1531
+    },
+    "settings_cpu_percent_in_samples": 0,
+    "finding": "StatusSnapshot -> full mode state -> enabled SentenceTranslationChanged -> WM_ApplySentenceTranslation -> StatusSnapshot forms a nonterminating feedback cycle. Repeated OutputLanguageChanged also cancels pending confirmation."
+  },
+  "post_fix_acceptance": {
+    "version": "0.8.8",
+    "host": "Standalone Win32 EDIT; loaded ArongStudyIme_v0.8.8/ArongStudyImeTsf.dll verified by process memory map",
+    "logical_processors": 16,
+    "input": "nihaojintiantianqibucuo",
+    "physical_key_count": 23,
+    "typing_duration_ms": 3667,
+    "typing_result": "Complete raw pinyin visible; first candidate 你好今天天气不错; no observed stalled/missing prefix",
+    "typing_cpu": {
+      "one_second_samples": 12,
+      "machine_cpu_percent": {
+        "median": 0.0,
+        "mean": 0.2267,
+        "min": 0.0,
+        "max": 1.2689
+      },
+      "last_eight_samples": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "backspace_physical_keys": 23,
+    "backspace_duration_ms": 3564,
+    "backspace_result": "All 23 pending pinyin letters removed and candidate window dismissed",
+    "backspace_cpu": {
+      "one_second_samples": 12,
+      "machine_cpu_percent": {
+        "median": 0.0,
+        "mean": 0.0371,
+        "min": 0.0,
+        "max": 0.1952
+      },
+      "last_eight_samples": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "shortcut_results": {
+      "Shift_during_pinyin": "nasa committed as raw letters",
+      "CapsLock": "NASA committed; CapsLock restored off",
+      "CtrlEnter": "你好 committed as Chinese",
+      "Enter": "你好今天天气不错 -> Hello, the weather is nice today.; once-only commit observed"
+    },
+    "translation_test": "Through installed TSF and Server; cache was not bypassed, so no new HTTP timing claim",
+    "limits": [
+      "Single standalone Win32 host, synthetic physical key injection at about6 keys/s; not a human typing or OS held-key auto-repeat study",
+      "12-second CPU windows include both typing and idle; medians of zero do not mean zero CPU during typing",
+      "Notepad, browser, WeChat and QQ acceptance remains uncompleted; first-switch tail latency not quantified"
+    ]
+  },
+  "delivery_followup": {
+    "version": "0.8.9",
+    "source_commit": "14240d5af4224eba6bae47f81dfd95f55c6bb814",
+    "changes": "Same CPU/focus fixes plus installer state preservation and requested floating toolbar minimize/restore"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "source_commit": "be2145da0d95753ca4a116f32fb7a067a83d1574",
+  "release_url": "https://github.com/daodeqing/Arong-Study-IME/releases/tag/v0.8.7",
+  "release_id": 420682309,
+  "tag": "v0.8.7",
+  "ci_run_id": 39773506405,
+  "package_run_id": 39774446090,
+  "installer": "installer\\Output\\v0.8.7\\ArongStudyIme_Setup_v0.8.7.exe",
+  "bytes": 90141618,
+  "sha256": "806040fde45d5f75dd831502cb406646cbd50115040736c8489cd3738515d3ec",
+  "download_and_sidecar_verified": true,
+  "asset_digests_verified": true,
+  "latest_verified": true,
+  "installed_locally": true
+}

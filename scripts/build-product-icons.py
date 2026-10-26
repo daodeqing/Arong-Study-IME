@@ -99,7 +99,7 @@ def main():
         brand(256, label, name.endswith("-dark")).save(ROOT / relative, format="ICO", sizes=sizes)
     header = ["#pragma once", "", "namespace ProductIcons", "{"]
     for name in ["settings", "emoji", "screen_keyboard", "handwriting", "voice_input", "about",
-                 "floating_toolbar", "input", "check", "swap"]:
+                 "floating_toolbar", "input", "check", "swap", "minimize"]:
         title = "".join(word.capitalize() for word in name.split("_"))
         header.append(f'inline constexpr char {title}[] = R"icon({svg(SHAPES[name], "currentColor")})icon";')
     header.append("}")

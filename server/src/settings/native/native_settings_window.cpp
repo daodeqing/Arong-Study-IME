@@ -28,11 +28,11 @@ namespace native_settings
 {
 namespace
 {
-constexpr float kTitleBarHeight = 40.0f;
+constexpr float kTitleBarHeight = 44.0f;
 constexpr float kSidebarWidth = 224.0f;
 constexpr float kScrollbarWidth = 8.0f;     // ::-webkit-scrollbar { width: 8px }
 constexpr float kContentMaxWidth = 900.0f;  // #content-container > div { max-width: 900px }
-constexpr float kWindowButtonWidth = 42.0f; // .window-button
+constexpr float kWindowButtonWidth = 48.0f; // .window-button
 constexpr float kWindowButtonGap = 2.0f;    // .window-controls { gap: 2px }
 constexpr UINT_PTR kToolTipTimer = 0x4E53;
 constexpr UINT_PTR kToastTimer = 0x4E54;
@@ -122,7 +122,7 @@ class TitleBar : public msimeui::Visual
         if (active_ == active)
             return;
         active_ = active;
-        dim_.AnimateTo(active ? 1.0f : 0.52f, 140.0, msimeui::Easing::EaseOut(), msimeui::NowMs());
+        dim_.AnimateTo(active ? 1.0f : 0.8f, 140.0, msimeui::Easing::EaseOut(), msimeui::NowMs());
         if (window_)
             window_->RequestAnimationFrame();
     }
@@ -169,7 +169,7 @@ class TitleBar : public msimeui::Visual
 
         // .window-title: 12px, letter-spacing 0.2px, opacity 0.92.
         TextStyle title;
-        title.size = 12.0f;
+        title.size = 14.0f;
         title.letterSpacing = 0.2f;
         DrawTextInRect(dr, L"阿龍学习输入法 · 设置", title,
                        {bounds_.x + 12.0f, bounds_.y, std::max(0.0f, ButtonRect(HTMINBUTTON).x - bounds_.x - 20.0f),
@@ -197,11 +197,11 @@ class TitleBar : public msimeui::Visual
         // [data-tooltip]::after: 10px text, padding 2px 4px, centered under the button,
         // 2px below it, sliding 2px further down as it fades in.
         TextStyle style;
-        style.size = 10.0f;
+        style.size = 12.0f;
         style.lineHeight = 1.2f;
         const std::wstring text = ToolTipText(tooltip_);
         const float width = MeasureTextWidth(text, style) + 8.0f + 2.0f;
-        const float height = 12.0f + 4.0f + 2.0f;
+        const float height = 14.4f + 4.0f + 2.0f;
         const RectF button = ButtonRect(tooltip_);
         float x = button.x + (button.width - width) * 0.5f;
         x = std::min(x, bounds_.x + bounds_.width - width - 1.0f);
@@ -258,11 +258,11 @@ class TitleBar : public msimeui::Visual
         switch (button)
         {
         case HTMINBUTTON:
-            return L"Minimize";
+            return L"隐藏到托盘";
         case HTMAXBUTTON:
-            return window_ && IsZoomed(window_->GetHandle()) ? L"Restore" : L"Maximize";
+            return window_ && IsZoomed(window_->GetHandle()) ? L"还原" : L"最大化";
         default:
-            return L"Close";
+            return L"关闭";
         }
     }
 
@@ -325,25 +325,34 @@ class TitleBar : public msimeui::Visual
         else if (hot)
             FillRect(dr, rect, close ? p.closeHover : p.titlebarBtnHover);
 
-        std::wstring icon = L"close.svg";
-        if (button == HTMINBUTTON)
-            icon = L"minimize.svg";
-        else if (button == HTMAXBUTTON)
-            icon = window_ && IsZoomed(window_->GetHandle()) ? L"restore.svg" : L"maximize.svg";
-        // The close icon stays white on its red hover even in the light theme.
-        const bool lightIcon = p.light && !(close && hot);
-        const std::string &markup = ThemedSvg(icon, lightIcon);
-        // .window-icon { width: 9px; height: 10px; object-fit: contain }
-        const bool flat = button == HTMINBUTTON;
-        const SizeF size = flat ? SizeF{9.0f, 0.9f} : SizeF{9.0f, 9.0f};
-        // Inactive windows mute the buttons, except the one under the pointer.
         const float opacity = hot ? 1.0f : dim;
-        if (ID2D1Bitmap *bitmap = dr.GetSvgBitmap(markup, flat ? SizeF{9.0f, 1.0f} : size))
+        const D2D1_COLOR_F color = close && hot ? Hex(0xFFFFFF) : p.text;
+        ID2D1SolidColorBrush *brush = dr.GetSolidColorBrush(WithAlpha(color, opacity));
+        ID2D1RenderTarget *target = dr.GetRenderTarget();
+        if (!target || !brush)
+            return;
+        const float left = rect.x + (rect.width - 14.0f) * 0.5f;
+        const float top = rect.y + (rect.height - 14.0f) * 0.5f;
+        if (button == HTMINBUTTON)
         {
-            const float x = rect.x + (rect.width - size.width) * 0.5f;
-            const float y = rect.y + (rect.height - (flat ? 1.0f : size.height)) * 0.5f;
-            dr.GetRenderTarget()->DrawBitmap(bitmap, D2D1::RectF(x, y, x + size.width, y + (flat ? 1.0f : size.height)),
-                                             opacity);
+            target->DrawLine(D2D1::Point2F(left, top + 7.0f), D2D1::Point2F(left + 14.0f, top + 7.0f), brush, 1.6f);
+        }
+        else if (button == HTMAXBUTTON)
+        {
+            if (window_ && IsZoomed(window_->GetHandle()))
+            {
+                target->DrawLine(D2D1::Point2F(left + 3.0f, top), D2D1::Point2F(left + 14.0f, top), brush, 1.6f);
+                target->DrawLine(D2D1::Point2F(left + 14.0f, top), D2D1::Point2F(left + 14.0f, top + 11.0f), brush,
+                                 1.6f);
+                target->DrawRectangle(D2D1::RectF(left, top + 3.0f, left + 11.0f, top + 14.0f), brush, 1.6f);
+            }
+            else
+                target->DrawRectangle(D2D1::RectF(left, top, left + 14.0f, top + 14.0f), brush, 1.6f);
+        }
+        else
+        {
+            target->DrawLine(D2D1::Point2F(left, top), D2D1::Point2F(left + 14.0f, top + 14.0f), brush, 1.6f);
+            target->DrawLine(D2D1::Point2F(left, top + 14.0f), D2D1::Point2F(left + 14.0f, top), brush, 1.6f);
         }
     }
 

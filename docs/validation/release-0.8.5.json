@@ -1,0 +1,1578 @@
+{
+  "version": "0.8.5",
+  "source_commit": "dade323e0fc1b0be06d15262efdf7d0a288cf837",
+  "branch": "fix/sentence-buffer-and-async-confirmation",
+  "ci": {
+    "conclusion": "success",
+    "headSha": "dade323e0fc1b0be06d15262efdf7d0a288cf837",
+    "jobs": [
+      {
+        "completedAt": "2026-10-22T10:27:44Z",
+        "conclusion": "success",
+        "databaseId": 119770964735,
+        "name": "Windows x64",
+        "startedAt": "2026-10-22T10:24:20Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:22Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:38Z",
+            "conclusion": "success",
+            "name": "Check out source",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:40Z",
+            "conclusion": "success",
+            "name": "Verify vendor dependencies",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:43Z",
+            "conclusion": "success",
+            "name": "Restore dependency binaries",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:20Z",
+            "conclusion": "success",
+            "name": "Install dependencies",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:20Z",
+            "conclusion": "skipped",
+            "name": "Save dependency binaries before compiling",
+            "number": 6,
+            "startedAt": "2026-10-22T10:25:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:42Z",
+            "conclusion": "success",
+            "name": "Configure",
+            "number": 7,
+            "startedAt": "2026-10-22T10:25:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:30Z",
+            "conclusion": "success",
+            "name": "Build",
+            "number": 8,
+            "startedAt": "2026-10-22T10:25:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:30Z",
+            "conclusion": "success",
+            "name": "Check the Release binary and symbols",
+            "number": 9,
+            "startedAt": "2026-10-22T10:27:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:35Z",
+            "conclusion": "success",
+            "name": "Test the wire contract on this architecture",
+            "number": 10,
+            "startedAt": "2026-10-22T10:27:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:38Z",
+            "conclusion": "success",
+            "name": "Check the installer language file lands where ISCC looks",
+            "number": 11,
+            "startedAt": "2026-10-22T10:27:35Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:42Z",
+            "conclusion": "success",
+            "name": "Post Check out source",
+            "number": 22,
+            "startedAt": "2026-10-22T10:27:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:42Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-10-22T10:27:42Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770964735"
+      },
+      {
+        "completedAt": "2026-10-22T10:24:30Z",
+        "conclusion": "success",
+        "databaseId": 119770965030,
+        "name": "Sanitizers",
+        "startedAt": "2026-10-22T10:24:20Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:21Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:23Z",
+            "conclusion": "success",
+            "name": "Check out source",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:26Z",
+            "conclusion": "success",
+            "name": "Configure with AddressSanitizer and UndefinedBehaviorSanitizer",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:28Z",
+            "conclusion": "success",
+            "name": "Build",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:28Z",
+            "conclusion": "success",
+            "name": "Test",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:29Z",
+            "conclusion": "success",
+            "name": "Post Check out source",
+            "number": 10,
+            "startedAt": "2026-10-22T10:24:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:29Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 11,
+            "startedAt": "2026-10-22T10:24:29Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770965030"
+      },
+      {
+        "completedAt": "2026-10-22T10:24:25Z",
+        "conclusion": "success",
+        "databaseId": 119770965077,
+        "name": "quality / Dependency review",
+        "startedAt": "2026-10-22T10:24:20Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:21Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:23Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Run actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 6,
+            "startedAt": "2026-10-22T10:24:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 7,
+            "startedAt": "2026-10-22T10:24:24Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770965077"
+      },
+      {
+        "completedAt": "2026-10-22T10:24:28Z",
+        "conclusion": "success",
+        "databaseId": 119770965141,
+        "name": "Product inputs",
+        "startedAt": "2026-10-22T10:24:20Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:22Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:23Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:23Z",
+            "conclusion": "success",
+            "name": "Check the shared dictionary validator",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:23Z",
+            "conclusion": "success",
+            "name": "Check product-lock contract",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:23Z",
+            "conclusion": "success",
+            "name": "Check the committed voice model against its recorded digest",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Test rejection of changed or mismatched inputs",
+            "number": 6,
+            "startedAt": "2026-10-22T10:24:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Test local environment setup in a moved checkout",
+            "number": 7,
+            "startedAt": "2026-10-22T10:24:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Test the automatic release CI gate",
+            "number": 8,
+            "startedAt": "2026-10-22T10:24:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Read the reviewed lock",
+            "number": 9,
+            "startedAt": "2026-10-22T10:24:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 18,
+            "startedAt": "2026-10-22T10:24:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:25Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 19,
+            "startedAt": "2026-10-22T10:24:24Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770965141"
+      },
+      {
+        "completedAt": "2026-10-22T10:24:38Z",
+        "conclusion": "success",
+        "databaseId": 119770965172,
+        "name": "Skins",
+        "startedAt": "2026-10-22T10:24:21Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:22Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:31Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:31Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:32Z",
+            "conclusion": "success",
+            "name": "Validate the example manifests and referenced assets",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:33Z",
+            "conclusion": "success",
+            "name": "Validate the skins collection against the same contract",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:34Z",
+            "conclusion": "success",
+            "name": "Test install, activation and repeated installation in a temporary user directory",
+            "number": 6,
+            "startedAt": "2026-10-22T10:24:33Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:34Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+            "number": 11,
+            "startedAt": "2026-10-22T10:24:34Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:36Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 12,
+            "startedAt": "2026-10-22T10:24:34Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:36Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-10-22T10:24:36Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770965172"
+      },
+      {
+        "completedAt": "2026-10-22T10:27:37Z",
+        "conclusion": "success",
+        "databaseId": 119770965186,
+        "name": "Windows Win32",
+        "startedAt": "2026-10-22T10:24:20Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:22Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:36Z",
+            "conclusion": "success",
+            "name": "Check out source",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:38Z",
+            "conclusion": "success",
+            "name": "Verify vendor dependencies",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:40Z",
+            "conclusion": "success",
+            "name": "Restore dependency binaries",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:30Z",
+            "conclusion": "success",
+            "name": "Install dependencies",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:30Z",
+            "conclusion": "skipped",
+            "name": "Save dependency binaries before compiling",
+            "number": 6,
+            "startedAt": "2026-10-22T10:25:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:53Z",
+            "conclusion": "success",
+            "name": "Configure",
+            "number": 7,
+            "startedAt": "2026-10-22T10:25:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:30Z",
+            "conclusion": "success",
+            "name": "Build",
+            "number": 8,
+            "startedAt": "2026-10-22T10:25:53Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:31Z",
+            "conclusion": "success",
+            "name": "Check the Release binary and symbols",
+            "number": 9,
+            "startedAt": "2026-10-22T10:27:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:32Z",
+            "conclusion": "success",
+            "name": "Test the wire contract on this architecture",
+            "number": 10,
+            "startedAt": "2026-10-22T10:27:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:32Z",
+            "conclusion": "skipped",
+            "name": "Check the installer language file lands where ISCC looks",
+            "number": 11,
+            "startedAt": "2026-10-22T10:27:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:35Z",
+            "conclusion": "success",
+            "name": "Post Check out source",
+            "number": 22,
+            "startedAt": "2026-10-22T10:27:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:35Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-10-22T10:27:35Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770965186"
+      },
+      {
+        "completedAt": "2026-10-22T10:24:50Z",
+        "conclusion": "success",
+        "databaseId": 119770965198,
+        "name": "Package contents",
+        "startedAt": "2026-10-22T10:24:20Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:22Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:29Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:32Z",
+            "conclusion": "success",
+            "name": "Test full and light package contents without registering or installing",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:33Z",
+            "conclusion": "success",
+            "name": "Test that the installer preserves user data on upgrade",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:33Z",
+            "conclusion": "success",
+            "name": "Check installer cloud choice and config preservation",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:33Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:40Z",
+            "conclusion": "success",
+            "name": "Test cloud choice with Inno Setup",
+            "number": 6,
+            "startedAt": "2026-10-22T10:24:33Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:42Z",
+            "conclusion": "success",
+            "name": "Test that bundled skins back up changed user copies before overwriting",
+            "number": 7,
+            "startedAt": "2026-10-22T10:24:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:44Z",
+            "conclusion": "success",
+            "name": "Test that upgrades keep the desktop neural model shipped by 0.9.x",
+            "number": 8,
+            "startedAt": "2026-10-22T10:24:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:45Z",
+            "conclusion": "success",
+            "name": "Stop local packaging after failed component builds",
+            "number": 9,
+            "startedAt": "2026-10-22T10:24:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:45Z",
+            "conclusion": "success",
+            "name": "Test local Server test entrypoints in a moved checkout",
+            "number": 10,
+            "startedAt": "2026-10-22T10:24:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:48Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 20,
+            "startedAt": "2026-10-22T10:24:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:48Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 21,
+            "startedAt": "2026-10-22T10:24:48Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770965198"
+      },
+      {
+        "completedAt": "2026-10-22T10:24:46Z",
+        "conclusion": "success",
+        "databaseId": 119770965403,
+        "name": "quality / Workflow validation",
+        "startedAt": "2026-10-22T10:24:20Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:22Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:24Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:26Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:37Z",
+            "conclusion": "success",
+            "name": "Install actionlint",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:37Z",
+            "conclusion": "success",
+            "name": "Validate workflows and embedded shell scripts",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:37Z",
+            "conclusion": "success",
+            "name": "Reject developer-specific paths in build inputs",
+            "number": 6,
+            "startedAt": "2026-10-22T10:24:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:43Z",
+            "conclusion": "success",
+            "name": "Check formatting",
+            "number": 7,
+            "startedAt": "2026-10-22T10:24:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:44Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+            "number": 13,
+            "startedAt": "2026-10-22T10:24:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:44Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 14,
+            "startedAt": "2026-10-22T10:24:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:44Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-22T10:24:44Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770965403"
+      },
+      {
+        "completedAt": "2026-10-22T10:26:17Z",
+        "conclusion": "success",
+        "databaseId": 119770965461,
+        "name": "GUI framework",
+        "startedAt": "2026-10-22T10:24:20Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:22Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:30Z",
+            "conclusion": "success",
+            "name": "Check out source",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:32Z",
+            "conclusion": "success",
+            "name": "Check library ownership",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:44Z",
+            "conclusion": "success",
+            "name": "Configure",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:11Z",
+            "conclusion": "success",
+            "name": "Build",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:13Z",
+            "conclusion": "success",
+            "name": "Test",
+            "number": 6,
+            "startedAt": "2026-10-22T10:26:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:16Z",
+            "conclusion": "success",
+            "name": "Post Check out source",
+            "number": 12,
+            "startedAt": "2026-10-22T10:26:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:16Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-10-22T10:26:16Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119770965461"
+      },
+      {
+        "completedAt": "2026-10-22T10:30:17Z",
+        "conclusion": "success",
+        "databaseId": 119771044044,
+        "name": "Server",
+        "startedAt": "2026-10-22T10:24:31Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:34Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:53Z",
+            "conclusion": "success",
+            "name": "Check out source",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:34Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:57Z",
+            "conclusion": "success",
+            "name": "Verify vendor dependencies",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:53Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:01Z",
+            "conclusion": "success",
+            "name": "Restore dependency binaries",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:09Z",
+            "conclusion": "success",
+            "name": "Set up MSVC environment",
+            "number": 5,
+            "startedAt": "2026-10-22T10:25:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:23Z",
+            "conclusion": "success",
+            "name": "Verify direct MSVC fallback",
+            "number": 6,
+            "startedAt": "2026-10-22T10:25:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:25:25Z",
+            "conclusion": "success",
+            "name": "Set up sccache",
+            "number": 7,
+            "startedAt": "2026-10-22T10:25:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:09Z",
+            "conclusion": "success",
+            "name": "Install Boost",
+            "number": 8,
+            "startedAt": "2026-10-22T10:25:25Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:09Z",
+            "conclusion": "skipped",
+            "name": "Save Boost binaries before configuring",
+            "number": 9,
+            "startedAt": "2026-10-22T10:26:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:42Z",
+            "conclusion": "success",
+            "name": "Configure",
+            "number": 10,
+            "startedAt": "2026-10-22T10:26:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:42Z",
+            "conclusion": "skipped",
+            "name": "Save dependency binaries before compiling",
+            "number": 11,
+            "startedAt": "2026-10-22T10:26:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:28:51Z",
+            "conclusion": "success",
+            "name": "Build",
+            "number": 12,
+            "startedAt": "2026-10-22T10:26:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:28:51Z",
+            "conclusion": "success",
+            "name": "Report sccache hit rate",
+            "number": 13,
+            "startedAt": "2026-10-22T10:28:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:28:52Z",
+            "conclusion": "success",
+            "name": "Check the Release binaries and symbols",
+            "number": 14,
+            "startedAt": "2026-10-22T10:28:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:30:09Z",
+            "conclusion": "success",
+            "name": "Test with the product's exact data",
+            "number": 15,
+            "startedAt": "2026-10-22T10:28:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:30:11Z",
+            "conclusion": "success",
+            "name": "Upload API sentence verification tools",
+            "number": 16,
+            "startedAt": "2026-10-22T10:30:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:30:12Z",
+            "conclusion": "success",
+            "name": "Post Set up sccache",
+            "number": 31,
+            "startedAt": "2026-10-22T10:30:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:30:14Z",
+            "conclusion": "success",
+            "name": "Post Check out source",
+            "number": 32,
+            "startedAt": "2026-10-22T10:30:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:30:14Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 33,
+            "startedAt": "2026-10-22T10:30:14Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119771044044"
+      },
+      {
+        "completedAt": "2026-10-22T10:29:23Z",
+        "conclusion": "success",
+        "databaseId": 119771044346,
+        "name": "Engine",
+        "startedAt": "2026-10-22T10:24:31Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-22T10:24:32Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-22T10:24:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:46Z",
+            "conclusion": "success",
+            "name": "Check out source",
+            "number": 2,
+            "startedAt": "2026-10-22T10:24:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:48Z",
+            "conclusion": "success",
+            "name": "Verify vendor dependencies",
+            "number": 3,
+            "startedAt": "2026-10-22T10:24:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:50Z",
+            "conclusion": "success",
+            "name": "Restore dependency binaries",
+            "number": 4,
+            "startedAt": "2026-10-22T10:24:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:54Z",
+            "conclusion": "success",
+            "name": "Set up MSVC environment",
+            "number": 5,
+            "startedAt": "2026-10-22T10:24:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:24:55Z",
+            "conclusion": "success",
+            "name": "Set up sccache",
+            "number": 6,
+            "startedAt": "2026-10-22T10:24:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:52Z",
+            "conclusion": "success",
+            "name": "Configure",
+            "number": 7,
+            "startedAt": "2026-10-22T10:24:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:26:52Z",
+            "conclusion": "skipped",
+            "name": "Save dependency binaries before compiling",
+            "number": 8,
+            "startedAt": "2026-10-22T10:26:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:37Z",
+            "conclusion": "success",
+            "name": "Build",
+            "number": 9,
+            "startedAt": "2026-10-22T10:26:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:27:38Z",
+            "conclusion": "success",
+            "name": "Report sccache hit rate",
+            "number": 10,
+            "startedAt": "2026-10-22T10:27:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:29:18Z",
+            "conclusion": "success",
+            "name": "Test with the product's exact data",
+            "number": 11,
+            "startedAt": "2026-10-22T10:27:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:29:18Z",
+            "conclusion": "success",
+            "name": "Post Set up sccache",
+            "number": 21,
+            "startedAt": "2026-10-22T10:29:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:29:21Z",
+            "conclusion": "success",
+            "name": "Post Check out source",
+            "number": 22,
+            "startedAt": "2026-10-22T10:29:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-22T10:29:22Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-10-22T10:29:21Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495/job/119771044346"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39762833495",
+    "evidence": [
+      {
+        "name": "Windows x64",
+        "job_id": 119770964735,
+        "lines": [
+          "2026-10-22T10:27:35.8212117Z 15/19 Test #15: reconnect_recovery ......................   Passed    0.01 sec",
+          "2026-10-22T10:27:35.8504898Z 18/19 Test #18: sentence_translation_keys ...............   Passed    0.01 sec",
+          "2026-10-22T10:27:35.8606665Z 19/19 Test #19: sentence_auto_commit ....................   Passed    0.01 sec",
+          "2026-10-22T10:27:35.8615634Z 100% tests passed out of 19"
+        ]
+      },
+      {
+        "name": "Windows Win32",
+        "job_id": 119770965186,
+        "lines": [
+          "2026-10-22T10:27:32.4642602Z 15/19 Test #15: reconnect_recovery ......................   Passed    0.01 sec",
+          "2026-10-22T10:27:32.5082950Z 18/19 Test #18: sentence_translation_keys ...............   Passed    0.01 sec",
+          "2026-10-22T10:27:32.5233538Z 19/19 Test #19: sentence_auto_commit ....................   Passed    0.01 sec",
+          "2026-10-22T10:27:32.5242030Z 100% tests passed out of 19"
+        ]
+      },
+      {
+        "name": "GUI framework",
+        "job_id": 119770965461,
+        "lines": [
+          "2026-10-22T10:26:13.5692235Z 100% tests passed out of 1"
+        ]
+      },
+      {
+        "name": "Server",
+        "job_id": 119771044044,
+        "lines": [
+          "2026-10-22T10:29:51.2660183Z 5/5 Test #5: sentence_output_translation_http ...   Passed    3.87 sec",
+          "2026-10-22T10:29:51.2671569Z 100% tests passed out of 5"
+        ]
+      },
+      {
+        "name": "Engine",
+        "job_id": 119771044346,
+        "lines": [
+          "2026-10-22T10:29:18.6018987Z 100% tests passed out of 28"
+        ]
+      }
+    ]
+  },
+  "packaging": {
+    "run_id": 39763753772,
+    "url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39763753772",
+    "status": "completed",
+    "publish_release": true,
+    "package_type": "full",
+    "conclusion": "success",
+    "head_sha": "dade323e0fc1b0be06d15262efdf7d0a288cf837",
+    "jobs": [
+      {
+        "id": 119774012075,
+        "run_id": 39763753772,
+        "workflow_name": "Build and Package Release",
+        "head_branch": "fix/sentence-buffer-and-async-confirmation",
+        "run_url": "https://api.github.com/repos/daodeqing/Arong-Study-IME/actions/runs/39763753772",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOVPruX88AAAAb4xZiqw",
+        "head_sha": "dade323e0fc1b0be06d15262efdf7d0a288cf837",
+        "url": "https://api.github.com/repos/daodeqing/Arong-Study-IME/actions/jobs/119774012075",
+        "html_url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39763753772/job/119774012075",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-22T10:31:36Z",
+        "started_at": "2026-10-22T10:31:39Z",
+        "completed_at": "2026-10-22T10:45:13Z",
+        "name": "Build & Package Windows Installer",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-22T10:31:40Z",
+            "completed_at": "2026-10-22T10:31:41Z"
+          },
+          {
+            "name": "Check out repository",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-22T10:31:41Z",
+            "completed_at": "2026-10-22T10:31:53Z"
+          },
+          {
+            "name": "Set up Python",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-22T10:31:53Z",
+            "completed_at": "2026-10-22T10:31:53Z"
+          },
+          {
+            "name": "Trust runner workspace",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-22T10:31:53Z",
+            "completed_at": "2026-10-22T10:31:54Z"
+          },
+          {
+            "name": "Verify pinned vendor dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-22T10:31:54Z",
+            "completed_at": "2026-10-22T10:31:55Z"
+          },
+          {
+            "name": "Restore Server dependency binaries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-22T10:31:55Z",
+            "completed_at": "2026-10-22T10:31:57Z"
+          },
+          {
+            "name": "Set up MSVC environment",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-22T10:31:57Z",
+            "completed_at": "2026-10-22T10:32:02Z"
+          },
+          {
+            "name": "Set up sccache",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-22T10:32:02Z",
+            "completed_at": "2026-10-22T10:32:03Z"
+          },
+          {
+            "name": "Check release version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-22T10:32:03Z",
+            "completed_at": "2026-10-22T10:32:04Z"
+          },
+          {
+            "name": "Install Inno Setup Chinese language file",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-22T10:32:04Z",
+            "completed_at": "2026-10-22T10:32:05Z"
+          },
+          {
+            "name": "Build 64-bit TSF DLL",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-22T10:32:05Z",
+            "completed_at": "2026-10-22T10:34:04Z"
+          },
+          {
+            "name": "Build 32-bit TSF DLL",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-22T10:34:04Z",
+            "completed_at": "2026-10-22T10:35:25Z"
+          },
+          {
+            "name": "Install Server Boost dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-22T10:35:25Z",
+            "completed_at": "2026-10-22T10:35:38Z"
+          },
+          {
+            "name": "Build Server",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-10-22T10:35:38Z",
+            "completed_at": "2026-10-22T10:37:05Z"
+          },
+          {
+            "name": "Run Server tests with locked product data",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-10-22T10:37:05Z",
+            "completed_at": "2026-10-22T10:37:49Z"
+          },
+          {
+            "name": "Configure Engine tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-10-22T10:37:49Z",
+            "completed_at": "2026-10-22T10:39:26Z"
+          },
+          {
+            "name": "Build Engine tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-10-22T10:39:26Z",
+            "completed_at": "2026-10-22T10:42:00Z"
+          },
+          {
+            "name": "Run Engine tests with locked product data",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18,
+            "started_at": "2026-10-22T10:42:00Z",
+            "completed_at": "2026-10-22T10:42:51Z"
+          },
+          {
+            "name": "Build and test UI layout reuse",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19,
+            "started_at": "2026-10-22T10:42:51Z",
+            "completed_at": "2026-10-22T10:43:33Z"
+          },
+          {
+            "name": "Prepare Package Files",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-10-22T10:43:33Z",
+            "completed_at": "2026-10-22T10:44:12Z"
+          },
+          {
+            "name": "Compile Installer with Inno Setup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-10-22T10:44:12Z",
+            "completed_at": "2026-10-22T10:44:58Z"
+          },
+          {
+            "name": "Write SHA-256 sidecar",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-10-22T10:44:58Z",
+            "completed_at": "2026-10-22T10:44:59Z"
+          },
+          {
+            "name": "Upload Installer Artifact",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-10-22T10:44:59Z",
+            "completed_at": "2026-10-22T10:45:02Z"
+          },
+          {
+            "name": "Create GitHub Release",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24,
+            "started_at": "2026-10-22T10:45:02Z",
+            "completed_at": "2026-10-22T10:45:09Z"
+          },
+          {
+            "name": "Post Set up sccache",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 46,
+            "started_at": "2026-10-22T10:45:09Z",
+            "completed_at": "2026-10-22T10:45:09Z"
+          },
+          {
+            "name": "Post Set up Python",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 47,
+            "started_at": "2026-10-22T10:45:09Z",
+            "completed_at": "2026-10-22T10:45:09Z"
+          },
+          {
+            "name": "Post Check out repository",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 48,
+            "started_at": "2026-10-22T10:45:09Z",
+            "completed_at": "2026-10-22T10:45:11Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 49,
+            "started_at": "2026-10-22T10:45:11Z",
+            "completed_at": "2026-10-22T10:45:11Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/daodeqing/Arong-Study-IME/check-runs/119774012075",
+        "labels": [
+          "windows-2025"
+        ],
+        "runner_id": 1000000697,
+        "runner_name": "GitHub Actions 1000000697",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 119774014464,
+        "run_id": 39763753772,
+        "workflow_name": "Build and Package Release",
+        "head_branch": "fix/sentence-buffer-and-async-confirmation",
+        "run_url": "https://api.github.com/repos/daodeqing/Arong-Study-IME/actions/runs/39763753772",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOVPruX88AAAAb4xZsAA",
+        "head_sha": "dade323e0fc1b0be06d15262efdf7d0a288cf837",
+        "url": "https://api.github.com/repos/daodeqing/Arong-Study-IME/actions/jobs/119774014464",
+        "html_url": "https://github.com/daodeqing/Arong-Study-IME/actions/runs/39763753772/job/119774014464",
+        "status": "completed",
+        "conclusion": "skipped",
+        "created_at": "2026-10-22T10:31:37Z",
+        "started_at": "2026-10-22T10:31:37Z",
+        "completed_at": "2026-10-22T10:31:36Z",
+        "name": "backspace-diagnostics",
+        "steps": [],
+        "check_run_url": "https://api.github.com/repos/daodeqing/Arong-Study-IME/check-runs/119774014464",
+        "labels": [
+          "windows-2025"
+        ],
+        "runner_id": null,
+        "runner_name": null,
+        "runner_group_id": null,
+        "runner_group_name": null
+      }
+    ]
+  },
+  "benchmark": {
+    "model": "workbuddy-intl/deepseek-v4.1-flash",
+    "requests": 76,
+    "measured": 72,
+    "all_http_success": true,
+    "report": "translation-prompts-2026-10-22.md",
+    "raw": "translation-prompts-2026-10-22.json",
+    "quality": "translation-prompts-quality-2026-10-22.json",
+    "product_prompt_changed": false,
+    "raw_sha256": "41ba252904a90980df9a3611c97359d594ecbbb7c0a3bc63d45924cb42dec765"
+  },
+  "local_checks": {
+    "clang_format_version": "18.1.8",
+    "full_format_files": 796,
+    "full_format_passed": true,
+    "ui_boundary_passed": true,
+    "version_resources_passed": true
+  },
+  "acceptance": {
+    "actual_tsf_hosts": "not run for this version; Notepad, browser, WeChat and QQ require installation and application restart",
+    "cpu_reduction": "not measured",
+    "first_switch_latency": "not measured",
+    "long_wait_tests": "Owner-thread state uses virtual clock up to 125s; no live 120s model timeout was induced",
+    "install_performed": false,
+    "incomplete_response_http_test": "passed for explicit length, content_filter, null; explicit stop and legacy missing finish_reason also passed"
+  },
+  "release": {
+    "id": 420598878,
+    "tag_name": "v0.8.5",
+    "name": "阿龍学习输入法 v0.8.5",
+    "draft": false,
+    "prerelease": false,
+    "html_url": "https://github.com/daodeqing/Arong-Study-IME/releases/tag/v0.8.5",
+    "published_at": "2026-10-22T10:45:09Z",
+    "assets": [
+      {
+        "url": "https://api.github.com/repos/daodeqing/Arong-Study-IME/releases/assets/665539853",
+        "id": 665539853,
+        "node_id": "RA_kwDOVPruX84nq1UN",
+        "name": "ArongStudyIme_Setup_v0.8.5.exe",
+        "label": "",
+        "uploader": {
+          "login": "github-actions[bot]",
+          "id": 41898282,
+          "node_id": "MDM6Qm90NDE4OTgyODI=",
+          "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+          "html_url": "https://github.com/apps/github-actions",
+          "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+          "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+          "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+          "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+          "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+          "type": "Bot",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "content_type": "application/x-msdownload",
+        "state": "uploaded",
+        "size": 90135090,
+        "digest": "sha256:4ab71f383f9c7cc75ab3f44a7ec41fa7b2c064e8855ed6a6d692aea9b13377b9",
+        "download_count": 0,
+        "created_at": "2026-10-22T10:45:04Z",
+        "updated_at": "2026-10-22T10:45:08Z",
+        "browser_download_url": "https://github.com/daodeqing/Arong-Study-IME/releases/download/v0.8.5/ArongStudyIme_Setup_v0.8.5.exe"
+      },
+      {
+        "url": "https://api.github.com/repos/daodeqing/Arong-Study-IME/releases/assets/665539852",
+        "id": 665539852,
+        "node_id": "RA_kwDOVPruX84nq1UM",
+        "name": "ArongStudyIme_Setup_v0.8.5.exe.sha256",
+        "label": "",
+        "uploader": {
+          "login": "github-actions[bot]",
+          "id": 41898282,
+          "node_id": "MDM6Qm90NDE4OTgyODI=",
+          "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+          "html_url": "https://github.com/apps/github-actions",
+          "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+          "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+          "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+          "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+          "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+          "type": "Bot",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "content_type": "application/octet-stream",
+        "state": "uploaded",
+        "size": 97,
+        "digest": "sha256:fa75bf9afdf8581836d288fd035095dad5d7b340dfb3a2d71a1bfc860c54a4df",
+        "download_count": 0,
+        "created_at": "2026-10-22T10:45:04Z",
+        "updated_at": "2026-10-22T10:45:05Z",
+        "browser_download_url": "https://github.com/daodeqing/Arong-Study-IME/releases/download/v0.8.5/ArongStudyIme_Setup_v0.8.5.exe.sha256"
+      }
+    ],
+    "tag_commit": "dade323e0fc1b0be06d15262efdf7d0a288cf837",
+    "verification_status": "verified",
+    "downloads": [
+      {
+        "name": "ArongStudyIme_Setup_v0.8.5.exe",
+        "relative_path": "installer\\Output\\v0.8.5\\ArongStudyIme_Setup_v0.8.5.exe",
+        "bytes": 90135090,
+        "sha256": "4ab71f383f9c7cc75ab3f44a7ec41fa7b2c064e8855ed6a6d692aea9b13377b9",
+        "github_digest_matches": true
+      },
+      {
+        "name": "ArongStudyIme_Setup_v0.8.5.exe.sha256",
+        "relative_path": "installer\\Output\\v0.8.5\\ArongStudyIme_Setup_v0.8.5.exe.sha256",
+        "bytes": 97,
+        "sha256": "fa75bf9afdf8581836d288fd035095dad5d7b340dfb3a2d71a1bfc860c54a4df",
+        "github_digest_matches": true
+      }
+    ],
+    "sidecar_matches": true,
+    "installer_file_version": "0.8.5.0",
+    "authenticode_certificate_table_bytes": 0,
+    "authenticode_signed": false,
+    "verified_utc": "2026-10-22T10:50:23.197979+00:00",
+    "latest_verified": true,
+    "body_updated": true
+  },
+  "prior_validated_commit": "0661f8f98be08a08ca5a9436e292fcdeb6e54f52",
+  "cancelled_packaging_run": 39761523615,
+  "completed_utc": "2026-10-22T10:51:59.848890+00:00",
+  "cleanup": {
+    "report": "cleanup-0.8.5.json",
+    "total_recycled_bytes": 539709261,
+    "permanent_deletions": 0
+  }
+}
