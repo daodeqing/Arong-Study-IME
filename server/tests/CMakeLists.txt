@@ -217,3 +217,11 @@ add_test(NAME webview_contract COMMAND test_webview_contract
 add_test(NAME sentence_output_translation_http
     COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_sentence_output_translation.py"
             $<TARGET_FILE:${TEST_EXECUTABLE_NAME}>)
+add_executable(ArongStudyImeSettingsModelTests
+    src/test_settings_listener_lifetime.cpp
+    ../src/settings/native/native_settings_model.cpp
+)
+target_include_directories(ArongStudyImeSettingsModelTests PRIVATE ../src ../..)
+target_link_libraries(ArongStudyImeSettingsModelTests PRIVATE nlohmann_json::nlohmann_json)
+add_test(NAME settings_listener_lifetime COMMAND ArongStudyImeSettingsModelTests)
+
