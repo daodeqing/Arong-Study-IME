@@ -5,7 +5,7 @@
 #include "../core/data_path.h"
 #include "../contracts/assets/assets.h"
 
-#include "../common/cache.h"
+#include "../common/candidate_cache.h"
 #include "../core/key_event.h"
 #include "../core/word_item.h"
 #include "../core/sentence_association_options.h"
@@ -210,11 +210,11 @@ class ShuangpinDictionary
     std::vector<WordItem> _cur_candidate_list;
     std::vector<WordItem> _cur_page_candidate_list; // Current candidate list
     // boost::circular_buffer<std::pair<std::string, std::vector<WordItem>>> _cached_buffer;
-    CircularBuffer<std::string, std::vector<WordItem>> _cached_buffer;              // 缓存纯拼音的结果
-    CircularBuffer<std::string, std::vector<WordItem>> _cached_buffer_sgl;          // 缓存单码辅助结果
-    CircularBuffer<std::string, std::vector<WordItem>> _cached_buffer_sgl_reversed; // 缓存反向单码辅助结果
-    CircularBuffer<std::string, std::vector<WordItem>> _cached_buffer_dbl;          // 缓存双码辅助结果
-    CircularBuffer<std::string, std::vector<WordItem>> _cached_buffer_series; // 缓存拼音序列对应的所有结果
+    CandidateCache _cached_buffer;
+    CandidateCache _cached_buffer_sgl;
+    CandidateCache _cached_buffer_sgl_reversed;
+    CandidateCache _cached_buffer_dbl;
+    CandidateCache _cached_buffer_series;
 
   public:
     // Getters and setters

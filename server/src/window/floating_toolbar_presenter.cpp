@@ -12,6 +12,7 @@
 #include "utils/window_utils.h"
 #include "window/small_windows.h"
 #include "window/floating_toolbar_skin.h"
+#include "window/product_icons.h"
 
 #include "msimeui/Controls.h"
 #include "msimeui/DeviceResources.h"
@@ -26,6 +27,7 @@
 #include <dwrite.h>
 #include <filesystem>
 #include <functional>
+#include <cstdio>
 #include <optional>
 #include <string>
 #include <windowsx.h>
@@ -96,6 +98,21 @@ class ToolbarIconButton : public msimeui::Visual
     ToolbarIconButton(wchar_t glyph, std::wstring glyphFamily, std::wstring text, float size)
         : glyph_(glyph), glyphFamily_(std::move(glyphFamily)), text_(std::move(text)), size_(size)
     {
+        switch (glyph_)
+        {
+        case 0xE76E:
+            svg_ = ProductIcons::Emoji;
+            break;
+        case 0xE765:
+            svg_ = ProductIcons::ScreenKeyboard;
+            break;
+        case 0xE713:
+            svg_ = ProductIcons::Settings;
+            break;
+        default:
+            glyph_ = 0;
+            break;
+        }
         SetWidth(size_);
         SetHeight(size_);
     }
@@ -149,6 +166,27 @@ class ToolbarIconButton : public msimeui::Visual
             }
         }
 
+        if (svg_)
+        {
+            char color[16];
+            std::snprintf(color, sizeof(color), "#%02x%02x%02x", static_cast<unsigned>(glyphColor_.r * 255.0f),
+                          static_cast<unsigned>(glyphColor_.g * 255.0f), static_cast<unsigned>(glyphColor_.b * 255.0f));
+            std::string markup(svg_);
+            size_t position = 0;
+            while ((position = markup.find("currentColor", position)) != std::string::npos)
+            {
+                markup.replace(position, 12, color);
+                position += 7;
+            }
+            const float extent = size_ * 0.72f;
+            if (auto *bitmap = deviceResources.GetSvgBitmap(markup, {extent, extent}))
+            {
+                const float inset = (size_ - extent) * 0.5f;
+                target->DrawBitmap(bitmap, D2D1::RectF(bounds_.x + inset, bounds_.y + inset, bounds_.x + inset + extent,
+                                                       bounds_.y + inset + extent));
+            }
+            return;
+        }
         IDWriteFactory *factory = deviceResources.GetDWriteFactory();
         ID2D1SolidColorBrush *brush = deviceResources.GetSolidColorBrush(glyphColor_);
         if (!factory || !brush)
@@ -158,8 +196,8 @@ class ToolbarIconButton : public msimeui::Visual
 
         const bool useGlyph = glyph_ != 0 && !glyphFamily_.empty();
         const std::wstring family = useGlyph ? glyphFamily_ : std::wstring(msimeui::UiFontFamily());
-        const float fontSize =
-            size_ * (underline_ ? kToolbarUnderlinedTextFontSizeFactor : kToolbarGlyphFontSizeFactor);
+        const float fontSize = size_ * (underline_ || text_.size() > 1 ? kToolbarUnderlinedTextFontSizeFactor
+                                                                       : kToolbarGlyphFontSizeFactor);
         IDWriteTextFormat *format =
             deviceResources.GetTextFormat(family, fontSize, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_TEXT_ALIGNMENT_CENTER,
                                           DWRITE_PARAGRAPH_ALIGNMENT_CENTER, DWRITE_WORD_WRAPPING_NO_WRAP);
@@ -237,6 +275,7 @@ class ToolbarIconButton : public msimeui::Visual
 
   private:
     wchar_t glyph_ = 0;
+    const char *svg_ = nullptr;
     std::wstring glyphFamily_;
     std::wstring text_;
     float size_ = 24.0f;

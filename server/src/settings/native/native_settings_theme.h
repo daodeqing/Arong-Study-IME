@@ -31,11 +31,13 @@ struct Palette
 {
     bool light = false;
 
-    D2D1_COLOR_F accent;                // --accent-color
-    D2D1_COLOR_F accentStrong;          // --accent-strong
-    D2D1_COLOR_F accentSoft;            // --accent-soft
-    D2D1_COLOR_F accentSoftBorder;      // --accent-soft-border
-    D2D1_COLOR_F chromeBg;              // --chrome-bg, the window background
+    D2D1_COLOR_F accent;           // --accent-color
+    D2D1_COLOR_F accentStrong;     // --accent-strong
+    D2D1_COLOR_F accentSoft;       // --accent-soft
+    D2D1_COLOR_F accentSoftBorder; // --accent-soft-border
+    D2D1_COLOR_F chromeBg;         // --chrome-bg, the window background
+    D2D1_COLOR_F railBg;
+    D2D1_COLOR_F railText;
     D2D1_COLOR_F sidebarHover;          // --sidebar-hover
     D2D1_COLOR_F itemActiveHover;       // --item-active-hover
     D2D1_COLOR_F text;                  // --text-color
@@ -133,8 +135,8 @@ float LayoutScale();
 float CssBorder(float cssPixels = 1.0f);
 
 // Type scale (variables.css :root).
-constexpr float kFontPageTitle = 18.0f;
-constexpr float kFontSectionTitle = 15.0f;
+constexpr float kFontPageTitle = 28.0f;
+constexpr float kFontSectionTitle = 16.0f;
 constexpr float kFontBody = 14.0f;
 constexpr float kFontCaption = 12.0f;
 // `body` sets no font-size, so anything that inherits it renders at 16px.

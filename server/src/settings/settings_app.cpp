@@ -1682,6 +1682,8 @@ void HideSettings(HWND hwnd)
         return;
     }
     g_lingering = true;
+    if (g_native)
+        g_native->ReleaseIdleResources();
     // 窗口隐藏时保留的那一帧会在下次打开时先显示出来，带着高亮的标题栏按钮就会闪一下。
     // 窗口自己的关闭按钮已经在点击时清过，这里覆盖 Alt+F4 等不经过它的路径。
     ResetTitlebarHoverAfterVisibilityChange();

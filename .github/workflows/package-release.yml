@@ -133,6 +133,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/ci/test-server.ps1 -ServerRoot server -StagingRoot "$env:RUNNER_TEMP/product-data" -BuildDir build-release
 
+      - name: Upload standalone runtime for interface review
+        uses: actions/upload-artifact@v4
+        with:
+          name: Arong-Study-IME-Review-Runtime
+          path: |
+            server/build-release/bin/Release/*.exe
+            server/build-release/bin/Release/*.dll
+          if-no-files-found: error
+
       - name: Configure Engine tests
         shell: pwsh
         run: |

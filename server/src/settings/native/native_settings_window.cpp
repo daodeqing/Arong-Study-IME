@@ -21,14 +21,15 @@
 #include <chrono>
 #include <cmath>
 #include <map>
+#include <list>
 #include <memory>
 
 namespace native_settings
 {
 namespace
 {
-constexpr float kTitleBarHeight = 32.0f;    // --titlebar-height
-constexpr float kSidebarWidth = 200.0f;     // --sidebar-width
+constexpr float kTitleBarHeight = 40.0f;
+constexpr float kSidebarWidth = 224.0f;
 constexpr float kScrollbarWidth = 8.0f;     // ::-webkit-scrollbar { width: 8px }
 constexpr float kContentMaxWidth = 900.0f;  // #content-container > div { max-width: 900px }
 constexpr float kWindowButtonWidth = 42.0f; // .window-button
@@ -170,7 +171,7 @@ class TitleBar : public msimeui::Visual
         TextStyle title;
         title.size = 12.0f;
         title.letterSpacing = 0.2f;
-        DrawTextInRect(dr, L"Settings", title,
+        DrawTextInRect(dr, L"阿龍学习输入法 · 设置", title,
                        {bounds_.x + 12.0f, bounds_.y, std::max(0.0f, ButtonRect(HTMINBUTTON).x - bounds_.x - 20.0f),
                         bounds_.height},
                        WithAlpha(p.text, 0.92f * dim));
@@ -366,7 +367,7 @@ class NavItem : public msimeui::Visual
         : owner_(owner), index_(index), icon_(std::move(icon))
     {
         TextStyle style;
-        style.size = kFontDefault;
+        style.size = kFontBody;
         title_.Set(std::move(title), style);
         // margin: 2px 8px
         SetMargin({8.0f, 2.0f, 8.0f, 2.0f});
@@ -395,19 +396,21 @@ class NavItem : public msimeui::Visual
     {
         const Palette &p = CurrentPalette();
         if (hovered_ || pressed_)
-            FillRounded(dr, bounds_, 5.0f, p.sidebarHover);
+            FillRounded(dr, bounds_, 7.0f, p.sidebarHover);
         else if (selected_)
-            FillRounded(dr, bounds_, 5.0f, p.itemActiveHover);
+            FillRounded(dr, bounds_, 7.0f, p.itemActiveHover);
+        if (focused_)
+            StrokeRounded(dr, bounds_, 7.0f, p.railText, 1.0f);
 
         // .icon: 24px box nudged down 1.5px, the 22px image centered in it.
         const bool emphasized = hovered_ || selected_;
         const float iconX = bounds_.x + 12.0f + 1.0f;
         const float iconY = bounds_.y + (bounds_.height - 24.0f) * 0.5f + 1.5f + 1.0f;
-        DrawSvg(dr, ThemedSvg(icon_, p.light), {iconX, iconY, 22.0f, 22.0f}, emphasized ? 1.0f : 0.9f);
+        DrawSvg(dr, ThemedSvg(icon_, false), {iconX, iconY, 22.0f, 22.0f}, emphasized ? 1.0f : 0.75f);
 
         const float textX = bounds_.x + 12.0f + 24.0f + 15.0f;
         const SizeF text = title_.Measure(bounds_.width);
-        const D2D1_COLOR_F color = selected_ && hovered_ ? p.text : p.sidebarItem;
+        const D2D1_COLOR_F color = selected_ ? p.railText : p.sidebarItem;
         title_.Draw(dr, {textX, bounds_.y + (bounds_.height - text.height) * 0.5f}, color, bounds_.width);
     }
 
@@ -418,6 +421,19 @@ class NavItem : public msimeui::Visual
     }
 
     bool OnMouseUp(const POINT &point, WPARAM) override;
+
+    bool IsFocusable() const override
+    {
+        return true;
+    }
+
+    void OnFocusChanged(bool focused) override
+    {
+        focused_ = focused;
+        InvalidateVisual();
+    }
+
+    bool OnKeyDown(WPARAM key, LPARAM) override;
 
     void OnMouseEnter() override
     {
@@ -440,6 +456,7 @@ class NavItem : public msimeui::Visual
     bool selected_ = false;
     bool hovered_ = false;
     bool pressed_ = false;
+    bool focused_ = false;
 };
 
 class SidebarHeader : public msimeui::Visual
@@ -448,7 +465,7 @@ class SidebarHeader : public msimeui::Visual
     SidebarHeader()
     {
         TextStyle style;
-        style.size = 19.0f;
+        style.size = 17.0f;
         style.weight = DWRITE_FONT_WEIGHT_MEDIUM;
         title_.Set(L"阿龍学习输入法", style);
         // padding 0 12px 12px 12px; margin-bottom 8px
@@ -475,8 +492,8 @@ class SidebarHeader : public msimeui::Visual
         logo_.Render(dr);
         // gap 6px + margin-left 3px
         const SizeF text = title_.Measure(bounds_.width);
-        title_.Draw(dr, {bounds_.x + 12.0f + 25.0f + 6.0f + 3.0f, bounds_.y + (rowHeight - text.height) * 0.5f}, p.text,
-                    bounds_.width);
+        title_.Draw(dr, {bounds_.x + 12.0f + 25.0f + 6.0f + 3.0f, bounds_.y + (rowHeight - text.height) * 0.5f},
+                    p.railText, bounds_.width);
     }
 
   private:
@@ -599,7 +616,7 @@ class Sidebar : public msimeui::Panel
         if (indicator_.IsRunning(now) && window_)
             window_->RequestAnimationFrame();
         // .active-indicator: 4x22, fully rounded, 2px left of the item's edge.
-        const RectF bar = {bounds_.x + 8.0f - 2.0f, bounds_.y + offset, 4.0f, 22.0f};
+        const RectF bar = {bounds_.x + 20.0f, bounds_.y + offset + 24.0f, 16.0f, 2.0f};
         ID2D1RenderTarget *target = dr.GetRenderTarget();
         if (ID2D1SolidColorBrush *brush = dr.GetSolidColorBrush(CurrentPalette().accent))
             target->FillRoundedRectangle(D2D1::RoundedRect(ToD2D(bar), 2.0f, 2.0f), brush);
@@ -630,6 +647,15 @@ bool NavItem::OnMouseUp(const POINT &point, WPARAM)
     pressed_ = false;
     InvalidateVisual();
     if (window_ && HitTest(window_->ClientPixelsToDips(point)))
+        owner_->Activate(index_);
+    return true;
+}
+
+bool NavItem::OnKeyDown(WPARAM key, LPARAM)
+{
+    if (key != VK_RETURN && key != VK_SPACE)
+        return false;
+    if (owner_)
         owner_->Activate(index_);
     return true;
 }
@@ -1145,6 +1171,10 @@ class RootPanel : public msimeui::Panel
 
     void Render(msimeui::DeviceResources &dr) override
     {
+        FillRounded(
+            dr,
+            {bounds_.x, bounds_.y + kTitleBarHeight, kSidebarWidth, std::max(0.0f, bounds_.height - kTitleBarHeight)},
+            0.0f, CurrentPalette().railBg);
         // The page content gets ClearType like in the browser, where it is painted into
         // the opaque root layer; the sidebar, title bar and overlays are composited
         // layers of their own there and get grayscale text.
@@ -1259,7 +1289,7 @@ class SettingsWindowImpl : public HostServices
         pageHost_ = std::make_shared<msimeui::Container>();
         // #content-container: padding 12px 24px 12px 16px around the 900px column.
         auto column = std::make_shared<CenteredColumn>(pageHost_, kContentMaxWidth);
-        column->SetPadding({16.0f, 12.0f, 24.0f, 12.0f});
+        column->SetPadding({28.0f, 24.0f, 28.0f, 24.0f});
         contentScroll_ = std::make_shared<msimeui::ScrollViewer>(column);
         contentScroll_->SetAppearance(WebKitScrollbar(kScrollbarWidth));
         modal_ = std::make_shared<ModalLayer>();
@@ -1404,14 +1434,27 @@ class SettingsWindowImpl : public HostServices
         current_ = index;
         window_->GetScene()->ClearPopups(true);
         modal_->Close();
+        window_->FocusVisual(nullptr);
         auto &page = pageCache_[index];
         if (!page)
+        {
+            model_.SetListenerScope(index + 1);
             page = pages[index].build(context_);
+            model_.SetListenerScope(0);
+        }
         pageHost_->SetChild(page);
         page->Attach(window_.get());
+        pageOrder_.remove(index);
+        pageOrder_.push_back(index);
+        while (pageOrder_.size() > 3)
+        {
+            const size_t evicted = pageOrder_.front();
+            pageOrder_.pop_front();
+            model_.RemoveListenerScope(evicted + 1);
+            pageCache_.erase(evicted);
+        }
         // All pages share one scroller; a new page starts at the top.
         contentScroll_->SetScrollOffset(0.0f);
-        window_->FocusVisual(nullptr);
         window_->Relayout();
         window_->RefreshHover();
     }
@@ -1419,7 +1462,10 @@ class SettingsWindowImpl : public HostServices
     void RebuildPages()
     {
         const size_t current = current_;
+        for (const auto &entry : pageCache_)
+            model_.RemoveListenerScope(entry.first + 1);
         pageCache_.clear();
+        pageOrder_.clear();
         current_ = static_cast<size_t>(-1);
         if (current < Pages().size())
             ShowPageIndex(current, true);
@@ -1457,6 +1503,26 @@ class SettingsWindowImpl : public HostServices
     {
         titleBar_->Reset();
         caption_ = {};
+    }
+
+    void ReleaseIdleResources()
+    {
+        window_->GetScene()->ClearPopups(true);
+        window_->FocusVisual(nullptr);
+        modal_->Close();
+        for (auto iterator = pageCache_.begin(); iterator != pageCache_.end();)
+        {
+            if (iterator->first == current_)
+                ++iterator;
+            else
+            {
+                model_.RemoveListenerScope(iterator->first + 1);
+                pageOrder_.remove(iterator->first);
+                iterator = pageCache_.erase(iterator);
+            }
+        }
+        KillTimer(hwnd_, kImageFrameTimer);
+        window_->GetDeviceResources().DiscardTarget();
     }
 
     bool HandleMessage(UINT message, WPARAM wParam, LPARAM lParam, LRESULT &result)
@@ -1716,6 +1782,7 @@ class SettingsWindowImpl : public HostServices
     std::shared_ptr<SplashView> splash_;
     std::shared_ptr<RootPanel> root_;
     std::map<size_t, VisualPtr> pageCache_;
+    std::list<size_t> pageOrder_;
     size_t current_ = static_cast<size_t>(-1);
     CaptionState caption_;
     bool themed_ = false;
@@ -1782,5 +1849,10 @@ void SettingsWindow::ShowPage(const std::string &pageId)
 void SettingsWindow::ResetTransientState()
 {
     impl_->ResetTransientState();
+}
+
+void SettingsWindow::ReleaseIdleResources()
+{
+    impl_->ReleaseIdleResources();
 }
 } // namespace native_settings

@@ -172,6 +172,9 @@ else()
 endif()
 
 if(BUILD_TESTING)
+    add_executable(test_cache_budget tests/src/test_cache_budget.cpp)
+    add_test(NAME cache_budget COMMAND test_cache_budget)
+
     add_executable(test_segmentation_contract tests/src/test_segmentation_contract.cpp)
     target_link_libraries(test_segmentation_contract PRIVATE MetasequoiaIme::Engine)
     add_test(NAME segmentation_contract COMMAND test_segmentation_contract)

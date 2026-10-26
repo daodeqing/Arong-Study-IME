@@ -276,6 +276,7 @@ std::optional<DeviceResources::AnimationClock::time_point> DeviceResources::GetN
 void DeviceResources::ClearImageCaches()
 {
     bitmapCache_.clear();
+    bitmapBytes_ = 0;
     animatedCache_.clear();
     animatedBytes_ = 0;
     stillImagePaths_.clear();
@@ -1095,6 +1096,7 @@ void DeviceResources::DiscardTarget()
     d3dDevice_.Reset();
     brushCache_.clear();
     bitmapCache_.clear();
+    bitmapBytes_ = 0;
     svgCache_.clear();
     animatedCache_.clear();
     animatedBytes_ = 0;
@@ -1282,12 +1284,17 @@ ID2D1Bitmap *DeviceResources::GetBitmapFromFile(const std::wstring &filePath, D2
         return nullptr;
     }
     entry.size = entry.bitmap->GetSize();
+    const auto dimensions = entry.bitmap->GetPixelSize();
+    entry.bytes = static_cast<size_t>(dimensions.width) * dimensions.height * 4;
     // 位图按原始分辨率解码成 32bpp，调用方每帧按路径重新取、不持有指针，所以超出上限时
     // 丢掉最久没用的只是下次重新解码。不设上限的话，换过的皮肤图会一直留到设备重建。
-    if (bitmapCache_.size() >= kMaxCachedBitmaps)
+    while (!bitmapCache_.empty() && (bitmapCache_.size() >= kMaxCachedBitmaps || entry.bytes > kBitmapCacheBudget ||
+                                     bitmapBytes_ > kBitmapCacheBudget - entry.bytes))
     {
+        bitmapBytes_ -= bitmapCache_.front().bytes;
         bitmapCache_.erase(bitmapCache_.begin());
     }
+    bitmapBytes_ += entry.bytes;
     bitmapCache_.push_back(std::move(entry));
     if (size)
     {
