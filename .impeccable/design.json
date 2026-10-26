@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "name": "Bilingual Dictionary",
+  "direction": "双色词典",
+  "platform": "win32-direct2d",
+  "tokens": {
+    "color": {
+      "light": {
+        "windowBg": "#F4F8F7",
+        "sidebarBg": "#163D44",
+        "cardBg": "#FFFFFF",
+        "cardBorder": "#D7E4E2",
+        "accent": "#0B756B",
+        "accentSoft": "#E1F1ED",
+        "textPrimary": "#203339",
+        "textSecondary": "#526E75",
+        "textMuted": "#809C9C"
+      },
+      "dark": {
+        "windowBg": "#101E23",
+        "sidebarBg": "#0C191E",
+        "cardBg": "#192E34",
+        "cardBorder": "#28444C",
+        "accent": "#74D7C2",
+        "accentSoft": "#244A4C",
+        "textPrimary": "#E9E8E8",
+        "textSecondary": "#A1BBBE",
+        "textMuted": "#688E92"
+      }
+    },
+    "metricsDip": {
+      "sidebarWidth": 224,
+      "titleBarHeight": 40,
+      "cardRadius": 12,
+      "itemRadius": 6,
+      "pageTitleFontSize": 28,
+      "bodyFontSize": 14,
+      "captionFontSize": 12
+    },
+    "memoryBudgetsBytes": {
+      "candidateCachePerSlot": 4194304,
+      "uiBitmapCache": 16777216,
+      "settingsPageLruCount": 3
+    }
+  }
+}
