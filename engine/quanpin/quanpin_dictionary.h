@@ -4,7 +4,7 @@
 #include "../core/data_path.h"
 #include "../contracts/assets/assets.h"
 
-#include "../common/cache.h"
+#include "../common/candidate_cache.h"
 #include "../core/key_event.h"
 #include "../core/word_item.h"
 #include "../core/sentence_association_options.h"
@@ -189,8 +189,8 @@ class QuanpinDictionary
                                         const std::string &word, CandidateSource source);
 
   private:
-    CircularBuffer<std::string, std::vector<WordItem>> cache_;
-    CircularBuffer<std::string, std::vector<WordItem>> series_cache_;
+    CandidateCache cache_;
+    CandidateCache series_cache_;
     CircularBuffer<std::string, quanpin::Segments> segmentation_cache_;
     // 词库里一个词都查不到的前缀（值无意义），随 cache_ 一起清。cache_ 存的是「词库行 + 兜底整句」，
     // 空结果不能写进 cache_：这串之后作为完整输入再查时会因此丢了兜底整句。
