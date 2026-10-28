@@ -382,6 +382,18 @@ std::uint64_t CandidatePresenter::FillItemsFromUi()
     }
     ignoreSelectionCallback_ = true;
     impl_->list->SetItems(std::move(items));
+    if (const auto &notes = impl_->scene.LearningNotes())
+    {
+        std::wstring text = page->sentence_learning_notes;
+        for (const auto &view : page->page_views)
+            if (!view.learning_notes.empty())
+                text += string_to_wstring(view.learning_notes);
+        notes->SetText(text);
+        if (text.empty())
+            notes->SetHeight(0.0f);
+        else
+            notes->ClearHeight();
+    }
     impl_->list->SetSelectedIndex(static_cast<size_t>((std::max)(0, page->selected_index_in_page)));
     ignoreSelectionCallback_ = false;
     if (impl_->pager)
@@ -980,6 +992,24 @@ void CandidatePresenter::ShowFromGlobalState(POINT caret)
     {
         impl_->preedit->ClearHeight();
         impl_->preedit->SetCaretIndex(caretIndex);
+    }
+    const auto sentencePage = Global::LoadCandidatePageSnapshot();
+    const bool sentenceVisible = sentencePage && !sentencePage->sentence_source.empty();
+    const auto &supplementary = impl_->scene.SupplementaryText();
+    if (sentenceVisible)
+    {
+        supplementary->ClearHeight();
+        supplementary->SetMargin({0.0f, 0.0f, 0.0f, 0.0f});
+        supplementary->SetText(
+            L"中文：" + sentencePage->sentence_source + L"\n英文：" +
+            (sentencePage->sentence_preview.empty() ? L"等待整句译文" : sentencePage->sentence_preview) + L"\n" +
+            sentencePage->sentence_status);
+    }
+    else
+    {
+        supplementary->SetText(L"");
+        supplementary->SetHeight(0.0f);
+        supplementary->SetMargin({0.0f, 0.0f, 0.0f, -kCandidateBodyRowSpacingDip});
     }
     const std::uint64_t renderedGeneration = FillItemsFromUi();
     impl_->list->SetHoverEnabled(hoverArmed_);
