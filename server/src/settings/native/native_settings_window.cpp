@@ -67,7 +67,7 @@ msimeui::ScrollViewer::Appearance WebKitScrollbar(float reserved)
     appearance.hoverThumbOnly = true;
     // Chrome's 100px notch, gliding about as long as its wheel animation.
     appearance.wheelStep = 100.0f;
-    appearance.smoothScrollMs = 260.0;
+    appearance.smoothScrollMs = SystemAnimationsEnabled() ? 180.0 : 0.0;
     return appearance;
 }
 
@@ -122,7 +122,11 @@ class TitleBar : public msimeui::Visual
         if (active_ == active)
             return;
         active_ = active;
-        dim_.AnimateTo(active ? 1.0f : 0.8f, 140.0, msimeui::Easing::EaseOut(), msimeui::NowMs());
+        const float opacity = active ? 1.0f : 0.8f;
+        if (SystemAnimationsEnabled())
+            dim_.AnimateTo(opacity, 140.0, msimeui::Easing::EaseOut(), msimeui::NowMs());
+        else
+            dim_.Snap(opacity);
         if (window_)
             window_->RequestAnimationFrame();
     }
@@ -685,7 +689,10 @@ class ToastView : public msimeui::Visual
         }());
         success_ = success;
         visible_ = true;
-        fade_.AnimateTo(1.0f, 200.0, msimeui::Easing::Ease(), msimeui::NowMs());
+        if (SystemAnimationsEnabled())
+            fade_.AnimateTo(1.0f, 200.0, msimeui::Easing::Ease(), msimeui::NowMs());
+        else
+            fade_.Snap(1.0f);
         if (window_)
         {
             SetTimer(window_->GetHandle(), kToastTimer, success ? 2600 : 4200, nullptr);
@@ -698,7 +705,10 @@ class ToastView : public msimeui::Visual
         if (!visible_)
             return;
         visible_ = false;
-        fade_.AnimateTo(0.0f, 200.0, msimeui::Easing::Ease(), msimeui::NowMs());
+        if (SystemAnimationsEnabled())
+            fade_.AnimateTo(0.0f, 200.0, msimeui::Easing::Ease(), msimeui::NowMs());
+        else
+            fade_.Snap(0.0f);
         if (window_)
         {
             KillTimer(window_->GetHandle(), kToastTimer);
@@ -1637,6 +1647,13 @@ class SettingsWindowImpl : public HostServices
             if (wParam == SPI_SETCLIENTAREAANIMATION)
             {
                 window_->GetDeviceResources().SetAnimationsEnabled(SystemAnimationsEnabled());
+                sidebarScroll_->SetAppearance(WebKitScrollbar(0.0f));
+                contentScroll_->SetAppearance(WebKitScrollbar(kScrollbarWidth));
+                if (!SystemAnimationsEnabled())
+                {
+                    sidebarScroll_->SetScrollOffset(sidebarScroll_->GetScrollOffset());
+                    contentScroll_->SetScrollOffset(contentScroll_->GetScrollOffset());
+                }
                 window_->Invalidate();
             }
             return false;
