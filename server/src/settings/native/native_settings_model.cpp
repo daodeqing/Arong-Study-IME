@@ -2,6 +2,8 @@
 
 #include "engine/contracts/webview/schema.h"
 
+#include <algorithm>
+
 namespace native_settings
 {
 namespace
@@ -110,12 +112,35 @@ std::string SettingsModel::NewRequestId(std::string_view prefix)
 
 void SettingsModel::AddConfigListener(ConfigListener listener)
 {
-    configListeners_.push_back(std::move(listener));
+    configListeners_.emplace_back(listenerScope_, std::move(listener));
 }
 
 void SettingsModel::AddMessageListener(const std::string &type, MessageListener listener)
 {
-    messageListeners_[type].push_back(std::move(listener));
+    messageListeners_[type].emplace_back(listenerScope_, std::move(listener));
+}
+
+void SettingsModel::SetListenerScope(size_t scope)
+{
+    listenerScope_ = scope;
+}
+
+void SettingsModel::RemoveListenerScope(size_t scope)
+{
+    configListeners_.erase(std::remove_if(configListeners_.begin(), configListeners_.end(),
+                                          [scope](const auto &entry) { return entry.first == scope; }),
+                           configListeners_.end());
+    for (auto iterator = messageListeners_.begin(); iterator != messageListeners_.end();)
+    {
+        auto &listeners = iterator->second;
+        listeners.erase(std::remove_if(listeners.begin(), listeners.end(),
+                                       [scope](const auto &entry) { return entry.first == scope; }),
+                        listeners.end());
+        if (listeners.empty())
+            iterator = messageListeners_.erase(iterator);
+        else
+            ++iterator;
+    }
 }
 
 void SettingsModel::Receive(const std::string &serializedMessage)
@@ -128,6 +153,8 @@ void SettingsModel::Receive(const std::string &serializedMessage)
     {
         if (message.contains("data") && message["data"].is_object())
         {
+            if (hasConfig_ && config_ == message["data"])
+                return;
             config_ = std::move(message["data"]);
             hasConfig_ = true;
             NotifyConfig();
@@ -138,9 +165,14 @@ void SettingsModel::Receive(const std::string &serializedMessage)
     if (it == messageListeners_.end())
         return;
     // Copy: a listener may register more listeners while it runs.
-    const std::vector<MessageListener> listeners = it->second;
+    const auto listeners = it->second;
     for (const auto &listener : listeners)
-        listener(message);
+    {
+        const size_t previousScope = listenerScope_;
+        listenerScope_ = listener.first;
+        listener.second(message);
+        listenerScope_ = previousScope;
+    }
 }
 
 void SettingsModel::NotifyConfig()
@@ -156,7 +188,13 @@ void SettingsModel::NotifyConfig()
     {
         notifyAgain_ = false;
         for (size_t i = 0; i < configListeners_.size(); ++i)
-            configListeners_[i]();
+        {
+            const auto listener = configListeners_[i].second;
+            const size_t previousScope = listenerScope_;
+            listenerScope_ = configListeners_[i].first;
+            listener();
+            listenerScope_ = previousScope;
+        }
     } while (notifyAgain_);
     notifying_ = false;
 }

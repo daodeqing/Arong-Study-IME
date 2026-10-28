@@ -1130,7 +1130,7 @@ void Section::Arrange(const RectF &finalRect)
 void Section::Render(msimeui::DeviceResources &dr)
 {
     const Palette &p = CurrentPalette();
-    constexpr float kRadius = 8.0f;
+    constexpr float kRadius = 12.0f;
     const RectF box = Snap(dr, bounds_);
     msimeui::ShadowPass passes[2] = {};
     for (int i = 0; i < p.cardShadowCount; ++i)
