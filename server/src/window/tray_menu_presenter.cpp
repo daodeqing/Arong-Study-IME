@@ -10,6 +10,7 @@
 #include "window/small_windows.h"
 #include "window/ime_windows.h"
 #include "window/tray_menu_placement.h"
+#include "window/product_icons.h"
 
 #include "msimeui/Controls.h"
 #include "msimeui/DeviceResources.h"
@@ -223,7 +224,7 @@ void TrayMenuPresenter::RebuildScene()
         return item;
     };
 
-    impl_->floatingToggle = addItem(L"悬浮工具栏", kSvgToolbar, true);
+    impl_->floatingToggle = addItem(L"悬浮工具栏", ProductIcons::FloatingToolbar, true);
     impl_->floatingToggle->SetOnClick([this]() {
         if (!impl_->floatingToggle)
         {
@@ -237,7 +238,7 @@ void TrayMenuPresenter::RebuildScene()
     });
 
     impl_->schemeItem = std::make_shared<msimeui::MenuFlyoutItem>(L"输入方案", true);
-    impl_->schemeItem->SetLeadingSvg(kSvgInputScheme);
+    impl_->schemeItem->SetLeadingSvg(ProductIcons::Swap);
     impl_->schemeItem->SetOnHover([this](bool hovered) {
         if (hovered)
         {
@@ -252,7 +253,7 @@ void TrayMenuPresenter::RebuildScene()
     for (const SchemeChoice &choice : kSchemeChoices)
     {
         auto item = std::make_shared<msimeui::MenuFlyoutItem>(choice.label, false);
-        item->SetLeadingSvg(currentScheme == choice.name ? kSvgCheck : kSvgBlank);
+        item->SetLeadingSvg(currentScheme == choice.name ? ProductIcons::Check : kSvgBlank);
         const std::string scheme = choice.name;
         item->SetOnClick([this, scheme]() {
             Hide();
@@ -280,15 +281,15 @@ void TrayMenuPresenter::RebuildScene()
             fn();
         };
     };
-    addItem(L"表情/符号面板", kSvgEmoji, false)->SetOnClick(launch(OpenEmojiPanelApplication));
-    addItem(L"手写识别板", kSvgHandwriting, false)->SetOnClick(launch(OpenHandwritingPanelApplication));
-    addItem(L"屏幕键盘", kSvgKeyboard, false)->SetOnClick(launch(OpenKeyboardPanelApplication));
-    addItem(L"语音输入", kSvgVoice, false)->SetOnClick([this]() {
+    addItem(L"表情/符号面板", ProductIcons::Emoji, false)->SetOnClick(launch(OpenEmojiPanelApplication));
+    addItem(L"手写识别板", ProductIcons::Handwriting, false)->SetOnClick(launch(OpenHandwritingPanelApplication));
+    addItem(L"屏幕键盘", ProductIcons::ScreenKeyboard, false)->SetOnClick(launch(OpenKeyboardPanelApplication));
+    addItem(L"语音输入", ProductIcons::VoiceInput, false)->SetOnClick([this]() {
         Hide();
         VoiceInput::ToggleRecording();
     });
-    addItem(L"设置", kSvgSettings, false)->SetOnClick(launch(OpenSettingsApplication));
-    addItem(L"关于", kSvgAbout, false)->SetOnClick(launch(OpenSettingsAboutApplication));
+    addItem(L"设置", ProductIcons::Settings, false)->SetOnClick(launch(OpenSettingsApplication));
+    addItem(L"关于", ProductIcons::About, false)->SetOnClick(launch(OpenSettingsAboutApplication));
 
     msimeui::Brush brush;
     brush.fill = impl_->fill;
@@ -319,15 +320,15 @@ void TrayMenuPresenter::ApplyTheme()
     {
         impl_->fill = ColorFromRgb(0xFFFFFF);
         impl_->border = D2D1::ColorF(0, 0.10f);
-        impl_->text = ColorFromRgb(0x1A1A1A);
-        impl_->hover = ColorFromRgb(0xF0F0F0);
+        impl_->text = ColorFromRgb(0x203339);
+        impl_->hover = ColorFromRgb(0xE1F1ED);
     }
     else
     {
-        impl_->fill = ColorFromRgb(0x2B2B2B);
-        impl_->border = ColorFromRgb(0x3A3A3A);
-        impl_->text = ColorFromRgb(0xE0E0E0);
-        impl_->hover = ColorFromRgb(0x3B3B3B);
+        impl_->fill = ColorFromRgb(0x192E34);
+        impl_->border = ColorFromRgb(0x36535B);
+        impl_->text = ColorFromRgb(0xEFFAF8);
+        impl_->hover = ColorFromRgb(0x244A4C);
     }
     RebuildScene();
     for (const auto &row : impl_->rows)

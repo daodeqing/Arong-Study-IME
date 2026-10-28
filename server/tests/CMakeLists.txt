@@ -56,6 +56,7 @@ set(TEST_SOURCE_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/local_output_probe.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sentence_input_probe.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_sentence_translation.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_sentence_vocabulary.cpp"
     "${CMAKE_SOURCE_DIR}/src/cloud/sentence_translation.cpp"
     "${CMAKE_SOURCE_DIR}/src/ipc/event_listener_sentence.cpp"
     "${CMAKE_SOURCE_DIR}/src/cloud/output_translation.cpp"
@@ -216,3 +217,11 @@ add_test(NAME webview_contract COMMAND test_webview_contract
 add_test(NAME sentence_output_translation_http
     COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test_sentence_output_translation.py"
             $<TARGET_FILE:${TEST_EXECUTABLE_NAME}>)
+add_executable(ArongStudyImeSettingsModelTests
+    src/test_settings_listener_lifetime.cpp
+    ../src/settings/native/native_settings_model.cpp
+)
+target_include_directories(ArongStudyImeSettingsModelTests PRIVATE ../src ../..)
+target_link_libraries(ArongStudyImeSettingsModelTests PRIVATE nlohmann_json::nlohmann_json)
+add_test(NAME settings_listener_lifetime COMMAND ArongStudyImeSettingsModelTests)
+
