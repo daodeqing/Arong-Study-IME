@@ -14,6 +14,8 @@ struct Config
     std::string endpoint;
     std::string token;
     std::string model;
+    std::string prompt_id;
+    std::string prompt;
 };
 
 // 候选词翻译复用 AI 辅助当前服务商的配置。运行时翻译和设置页的凭据测试都从这里取，
