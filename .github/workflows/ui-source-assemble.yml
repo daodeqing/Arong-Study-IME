@@ -1,0 +1,38 @@
+name: Restore verified source data
+on:
+  push:
+    branches:
+      - feat/ui-experience-20261028
+    paths:
+      - .github/workflows/ui-source-assemble.yml
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/ui-experience-20261028
+      - name: Restore the verified vocabulary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, lzma, pathlib
+          source = pathlib.Path('.github/ui-source-staging/cet.json.xz')
+          target = pathlib.Path('server/assets/vocabulary/cet.json')
+          data = lzma.decompress(source.read_bytes())
+          expected = 'c235984adaaedca35659e61c86e0470ab4176fd98d5319e2df5c7da1349dfb7c'
+          if hashlib.sha256(data).hexdigest() != expected:
+              raise SystemExit('Vocabulary SHA-256 mismatch')
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_bytes(data)
+          source.unlink()
+          source.parent.rmdir()
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- .github/ui-source-staging/cet.json.xz server/assets/vocabulary/cet.json
+          git commit -m "feat(server): restore vocabulary data"
+          git push origin HEAD:refs/heads/feat/ui-experience-20261028
