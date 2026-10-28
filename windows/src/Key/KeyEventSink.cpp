@@ -386,6 +386,21 @@ bool CMetasequoiaIME::_ApplyBackspaceHoldGuard(WPARAM wParam, LPARAM lParam)
 void CMetasequoiaIME::_ApplyCapsLockKeyDownSideEffects(bool capsLockEnabled)
 {
     Global::CapsLockEnabled.store(capsLockEnabled, std::memory_order_relaxed);
+    if (capsLockEnabled && _pThreadMgr)
+    {
+        ITfDocumentMgr *document = nullptr;
+        ITfContext *context = nullptr;
+        if (SUCCEEDED(_pThreadMgr->GetFocus(&document)) && document)
+        {
+            if (SUCCEEDED(document->GetTop(&context)) && context)
+            {
+                _QueueRawLetterCommit(context, true);
+                context->Release();
+            }
+            document->Release();
+        }
+    }
+
     _RequestLanguageBarCapsIconRefresh();
     if (_deferredKeyProjectionValid)
     {
@@ -522,16 +537,34 @@ BOOL CMetasequoiaIME::_IsKeyEaten(         //
             return TRUE;
         }
 
-        const bool sentenceInput =
-            Global::SentenceTranslationEnabled.load(std::memory_order_relaxed) &&
-            (pCompositionProcessorEngine->GetVirtualKeyLength() > 0 || !GlobalIme::word_for_creating_word.empty());
+        const bool sentenceEnabled = IsSentenceTranslationEnabled();
+        const auto sentenceRawLength = pCompositionProcessorEngine->GetVirtualKeyLength();
+        const bool sentenceInput = sentenceEnabled && SentenceTranslationKeyPolicy::HasLiveComposition(
+                                                          sentenceRawLength, !GlobalIme::word_for_creating_word.empty(),
+                                                          _candidateMode != CANDIDATE_NONE);
         const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
+        if (SentenceTranslationKeyPolicy::KeepsPinyinChannel(sentenceEnabled, sentenceInput, *pCodeOut,
+                                                             shortcutModifiers, windowsKey,
+                                                             (GetKeyState(VK_CAPITAL) & 0x0001) != 0))
+        {
+            if (pKeyState)
+            {
+                pKeyState->Category = CATEGORY_COMPOSING;
+                pKeyState->Function = FUNCTION_INPUT;
+            }
+            return TRUE;
+        }
         const bool sentencePunctuation = sentenceInput && !windowsKey && (shortcutModifiers & 6u) == 0 && wch != 0 &&
                                          std::wstring(L",.!?:;。！？；：()（）").find(wch) != std::wstring::npos;
         if (SentenceTranslationKeyPolicy::OwnsCommitKey(
                 Global::SentenceTranslationEnabled.load(std::memory_order_relaxed), sentenceInput, *pCodeOut,
                 shortcutModifiers, windowsKey) ||
-            sentencePunctuation)
+            sentencePunctuation ||
+            SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(sentenceEnabled, sentenceInput, *pCodeOut,
+                                                                    shortcutModifiers, windowsKey,
+                                                                    (GetKeyState(VK_CAPITAL) & 0x0001) != 0) ||
+            SentenceTranslationKeyPolicy::OwnsBufferedEdit(sentenceEnabled, !GlobalIme::word_for_creating_word.empty(),
+                                                           sentenceRawLength, *pCodeOut, shortcutModifiers, windowsKey))
         {
             if (pKeyState)
             {
@@ -889,6 +922,7 @@ STDAPI CMetasequoiaIME::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LPARA
         *pIsEaten = FALSE;
         return S_OK;
     }
+    _CancelSentenceTranslationCommit();
     const DWORD testKeyMessageTime = static_cast<DWORD>(GetMessageTime());
     const bool repeatedTestKeyDown =
         _capsLockTestKeyDownPending && _capsLockTestKeyDownMessageTime == testKeyMessageTime;
@@ -1061,6 +1095,7 @@ STDAPI CMetasequoiaIME::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM lP
     {
         _QueueCapsLockEdge(true);
     }
+    _CancelSentenceTranslationCommit();
     PerfTimer onKeyDownTimer;
     const uint64_t focusGeneration = _deferredKeyFocusGeneration;
     (void)_DispatchKeyDown(pContext, wParam, lParam, pIsEaten, nullptr, nullptr, nullptr, true, focusGeneration);
@@ -1289,6 +1324,14 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
         return KeyDownDispatchResult::Complete;
     }
 
+    if (*pIsEaten && (KeystrokeState.Function == FUNCTION_COMMIT_RAW_LETTERS ||
+                      KeystrokeState.Function == FUNCTION_COMMIT_RAW_UPPERCASE))
+    {
+        _InvokeKeyHandler(pContext, code, wch, static_cast<DWORD>(lParam), KeystrokeState, FANY_IME_NO_REQUEST_ID, {},
+                          0, 0, 0, deferredReplayToken);
+        return deferredReplayToken != 0 ? KeyDownDispatchResult::AwaitingCompletion : KeyDownDispatchResult::Complete;
+    }
+
     if (canDefer && *pIsEaten && (KeystrokeState.Category != CATEGORY_NONE || KeystrokeState.Function != FUNCTION_NONE))
     {
         // Give every IME-owned key a member-owned dispatch token before any
@@ -1488,6 +1531,8 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
 
         if (KeystrokeState.Function == FUNCTION_SERVER_CANDIDATE_KEY && _msgWndHandle)
         {
+            if (IsSentenceTranslationEnabled() && code == VK_RETURN && (capturedModifiers & 7u) == 0)
+                _BeginSentenceTranslationCommit(requestId);
             _PostAsyncKeyRequest(WM_AsyncServerCandidateKey, code, wch, requestId, {}, 0, 0, deferredReplayToken);
             return deferredReplayToken != 0 ? KeyDownDispatchResult::AwaitingCompletion
                                             : KeyDownDispatchResult::Complete;
