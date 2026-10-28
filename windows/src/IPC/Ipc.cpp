@@ -1,4 +1,5 @@
 #include "Ipc.h"
+#include "../../../engine/contracts/long_commit.h"
 #include "../../../engine/contracts/ipc_negotiation.h"
 #include <algorithm>
 #include <cstring>
@@ -33,6 +34,8 @@ static thread_local FanyImeNamedpipeDataToTsf namedpipeDataFromServer = {};
 static thread_local FanyImeNamedpipeDataToTsf transportUnavailableReply = {};
 static thread_local std::map<uint64_t, FanyImeNamedpipeDataToTsf> pendingReplies;
 static thread_local std::deque<FanyImeNamedpipeDataToTsf> unsolicitedReplies;
+static thread_local std::map<uint64_t, FanyImeLongCommit::Assembler> longCommitAssemblers;
+static thread_local std::map<uint64_t, std::wstring> longCommitTexts;
 static thread_local uint64_t nextRequestId = 0;
 static thread_local uint64_t nextFocusSessionToken = 0;
 static thread_local const void *boundFocusStateOwner = nullptr;
@@ -48,6 +51,17 @@ static thread_local std::atomic<FanyImeTemporaryJapanese::Policy> *boundTemporar
 static thread_local std::atomic<UINT> *boundWorkerPipeGeneration = nullptr;
 static thread_local HANDLE boundWorkerAckEvent = nullptr;
 static thread_local HANDLE boundWorkerPipePublishedEvent = nullptr;
+
+constexpr DWORD FOCUS_ACTIVATION_RETRY_INITIAL_MS = 250;
+constexpr DWORD FOCUS_ACTIVATION_RETRY_MAX_MS = 2000;
+static thread_local ULONGLONG focusActivationRetryAtMs = 0;
+static thread_local DWORD focusActivationRetryDelayMs = FOCUS_ACTIVATION_RETRY_INITIAL_MS;
+
+static void ResetFocusActivationRetry()
+{
+    focusActivationRetryAtMs = 0;
+    focusActivationRetryDelayMs = FOCUS_ACTIVATION_RETRY_INITIAL_MS;
+}
 
 /* Data size transfered from Server process */
 static const int ServerDtPipeDataSize = 512;
@@ -512,7 +526,8 @@ bool WritePipeHello(HANDLE hPipeHandle, UINT pipeRole)
             FanyImeProtocol::Capabilities | FanyImeProtocol::CharacterSetShortcut |
                 FanyImeProtocol::CompositionRestore | FanyImeProtocol::CaretStateIndicator |
                 FanyImeProtocol::TrilingualCycle | FanyImeProtocol::InputStateShortcuts |
-                FanyImeProtocol::TemporaryJapaneseLongVowel | FanyImeProtocol::SentenceTranslation);
+                FanyImeProtocol::TemporaryJapaneseLongVowel | FanyImeProtocol::SentenceTranslation |
+                FanyImeProtocol::SentenceAutoCommit | FanyImeProtocol::LongSentenceCommit);
         BOOL ret = WriteFile(hPipeHandle, &hello, sizeof(hello), &bytesWritten, NULL);
         // Never authorize keys from merely writing a hello. An old Server
         // without negotiation times out into the existing raw-input fallback.
@@ -642,6 +657,8 @@ void BindNamedpipeFocusState(const void *owner, bool *focusResetPending, bool *a
                              std::atomic<HANDLE> *workerPipeHandle, std::atomic<UINT> *workerPipeGeneration,
                              std::atomic<FanyImeTemporaryJapanese::Policy> *temporaryJapanesePolicy)
 {
+    if (boundFocusStateOwner != owner)
+        ResetFocusActivationRetry();
     boundFocusStateOwner = owner;
     boundFocusResetPending = focusResetPending;
     boundActivationRequired = activationRequired;
@@ -676,6 +693,7 @@ void UnbindNamedpipeFocusState(const void *owner)
     {
         return;
     }
+    ResetFocusActivationRetry();
     boundFocusStateOwner = nullptr;
     boundFocusResetPending = nullptr;
     boundActivationRequired = nullptr;
@@ -718,6 +736,7 @@ void InvalidateNamedpipeWorkerGeneration()
 
 void RequireNamedpipeFocusActivation()
 {
+    ResetFocusActivationRetry();
     if (boundActivationRequired)
     {
         *boundActivationRequired = true;
@@ -739,6 +758,7 @@ void RequireNamedpipeFocusActivation()
 
 void MarkNamedpipeFocusLost()
 {
+    ResetFocusActivationRetry();
     if (boundFocusResetPending)
     {
         *boundFocusResetPending = true;
@@ -972,6 +992,8 @@ void ResetNamedpipeReplyState()
 {
     pendingReplies.clear();
     unsolicitedReplies.clear();
+    longCommitAssemblers.clear();
+    longCommitTexts.clear();
 }
 
 bool SupportsCharacterSetShortcut()
@@ -1010,10 +1032,31 @@ bool SupportsInputStateShortcuts()
            (negotiatedServerCapabilities & FanyImeProtocol::InputStateShortcuts) != 0;
 }
 
+std::wstring ServerReplyText(const FanyImeNamedpipeDataToTsf &reply)
+{
+    if (reply.msg_type == FanyImeReplyType::CommitExactText)
+    {
+        const auto found = longCommitTexts.find(reply.request_id);
+        if (found != longCommitTexts.end())
+        {
+            std::wstring text = std::move(found->second);
+            longCommitTexts.erase(found);
+            return text;
+        }
+    }
+    return reply.candidate_string;
+}
+
 bool SupportsSentenceTranslation()
 {
     return hPipe && hPipe != INVALID_HANDLE_VALUE &&
            (negotiatedServerCapabilities & FanyImeProtocol::SentenceTranslation) != 0;
+}
+
+bool SupportsSentenceAutoCommit()
+{
+    return hPipe && hPipe != INVALID_HANDLE_VALUE &&
+           (negotiatedServerCapabilities & FanyImeProtocol::SentenceAutoCommit) != 0;
 }
 
 bool IsSentenceTranslationEnabled()
@@ -1588,8 +1631,7 @@ static struct FanyImeNamedpipeDataToTsf *TryReadDataFromServerPipeWithDeadline(u
         {
             DebugTsfKeyLatency(L"reply-read-failed", expectedRequestId, replyWaitTimer.ElapsedMs(), E_FAIL);
             ClosePipeHandleIfValid(hFromServerPipe);
-            pendingReplies.clear();
-            unsolicitedReplies.clear();
+            ResetNamedpipeReplyState();
             RequestNamedpipeReconnect();
             return transportUnavailable();
         }
@@ -1597,8 +1639,7 @@ static struct FanyImeNamedpipeDataToTsf *TryReadDataFromServerPipeWithDeadline(u
         {
             DebugTsfKeyLatency(L"reply-size-invalid", expectedRequestId, replyWaitTimer.ElapsedMs(), E_FAIL);
             ClosePipeHandleIfValid(hFromServerPipe);
-            pendingReplies.clear();
-            unsolicitedReplies.clear();
+            ResetNamedpipeReplyState();
             RequestNamedpipeReconnect();
             return transportUnavailable();
         }
@@ -1606,10 +1647,51 @@ static struct FanyImeNamedpipeDataToTsf *TryReadDataFromServerPipeWithDeadline(u
         {
             DebugTsfKeyLatency(L"reply-frame-invalid", expectedRequestId, replyWaitTimer.ElapsedMs(), E_FAIL);
             ClosePipeHandleIfValid(hFromServerPipe);
-            pendingReplies.clear();
-            unsolicitedReplies.clear();
+            ResetNamedpipeReplyState();
             RequestNamedpipeReconnect();
             return transportUnavailable();
+        }
+
+        if (namedpipeDataFromServer.msg_type == FanyImeReplyType::CommitExactTextFrame)
+        {
+            const auto id = namedpipeDataFromServer.request_id;
+            if ((negotiatedServerCapabilities & FanyImeProtocol::LongSentenceCommit) == 0 ||
+                (longCommitAssemblers.count(id) == 0 && longCommitAssemblers.size() >= MaxPendingReplyCount))
+            {
+                ClosePipeHandleIfValid(hFromServerPipe);
+                ResetNamedpipeReplyState();
+                RequestNamedpipeReconnect();
+                return transportUnavailable();
+            }
+            auto &assembler = longCommitAssemblers[id];
+            const auto result = assembler.Append(namedpipeDataFromServer);
+            if (result == FanyImeLongCommit::Assembler::Result::Invalid)
+            {
+                ClosePipeHandleIfValid(hFromServerPipe);
+                ResetNamedpipeReplyState();
+                RequestNamedpipeReconnect();
+                return transportUnavailable();
+            }
+            if (result == FanyImeLongCommit::Assembler::Result::Pending)
+            {
+                if (notReady && GetTickCount64() >= deadline)
+                {
+                    *notReady = true;
+                    return nullptr;
+                }
+                continue;
+            }
+            longCommitTexts[id] = assembler.text();
+            longCommitAssemblers.erase(id);
+            while (longCommitTexts.size() > MaxPendingReplyCount)
+            {
+                const auto oldest = longCommitTexts.begin()->first;
+                pendingReplies.erase(oldest);
+                longCommitTexts.erase(oldest);
+            }
+            namedpipeDataFromServer = {};
+            namedpipeDataFromServer.msg_type = FanyImeReplyType::CommitExactText;
+            namedpipeDataFromServer.request_id = id;
         }
 
         // A delayed reply from a timed-out key must not be consumed as the
@@ -1914,8 +1996,10 @@ bool FlushNamedpipeImeDeactivation(uint64_t focusToken)
     return true;
 }
 
-bool EnsureNamedpipeFocusSessionActivated()
+bool EnsureNamedpipeFocusSessionActivated(bool waitForAcknowledgement, bool *pending)
 {
+    if (pending)
+        *pending = false;
     if (IsLocalSessionResetPending())
     {
         return false;
@@ -1928,6 +2012,15 @@ bool EnsureNamedpipeFocusSessionActivated()
     if (IsLocalSessionResetPending())
     {
         return false;
+    }
+
+    // A write can succeed before Server reverse-route registration is ready.
+    // Retry only the idempotent activation with the SAME focus token, spaced
+    // out even if UI/control probes run on every key. Never replay typed keys.
+    if (boundActivationRequired && !*boundActivationRequired && !IsExpectedWorkerFocusAcknowledged() &&
+        focusActivationRetryAtMs != 0 && GetTickCount64() >= focusActivationRetryAtMs)
+    {
+        *boundActivationRequired = true;
     }
 
     // A lifecycle write can itself discover a stale Main handle and mark the
@@ -1951,6 +2044,7 @@ bool EnsureNamedpipeFocusSessionActivated()
         {
             if (IsExpectedWorkerFocusAcknowledged())
             {
+                ResetFocusActivationRetry();
                 return true;
             }
             break;
@@ -1972,6 +2066,10 @@ bool EnsureNamedpipeFocusSessionActivated()
         if (tokenStillCurrent && boundActivationRequired)
         {
             *boundActivationRequired = false;
+            focusActivationRetryAtMs = GetTickCount64() + focusActivationRetryDelayMs;
+            focusActivationRetryDelayMs = focusActivationRetryDelayMs < FOCUS_ACTIVATION_RETRY_MAX_MS / 2
+                                              ? focusActivationRetryDelayMs * 2
+                                              : FOCUS_ACTIVATION_RETRY_MAX_MS;
         }
         if ((!boundFocusResetPending || !*boundFocusResetPending) &&
             (!boundActivationRequired || !*boundActivationRequired))
@@ -1985,6 +2083,19 @@ bool EnsureNamedpipeFocusSessionActivated()
     // markers that were buffered before OnKill.
     if (boundWorkerCommitReady)
     {
+        // The window reconnect handlers and FIFO drain must never stall the
+        // host while another Server task delays the exact-token echo. Retain
+        // ownership of queued keys; the worker posts a reconnect when it arrives.
+        if (!waitForAcknowledgement && !IsExpectedWorkerFocusAcknowledged())
+        {
+            // A delayed echo on a healthy pipe is not a transport failure.
+            // Resetting here used to erase the never-sent FIFO after 150 ms,
+            // especially while switching profiles under Server load. Keep the
+            // same token and let the worker wake the owner when it is ready.
+            if (pending)
+                *pending = true;
+            return false;
+        }
         const ULONGLONG deadline = GetTickCount64() + 150;
         for (;;)
         {
@@ -1994,6 +2105,7 @@ bool EnsureNamedpipeFocusSessionActivated()
             }
             if (IsExpectedWorkerFocusAcknowledged())
             {
+                ResetFocusActivationRetry();
                 return true;
             }
             const ULONGLONG now = GetTickCount64();
@@ -2014,7 +2126,10 @@ bool EnsureNamedpipeFocusSessionActivated()
                 Sleep(1);
             }
         }
-        MarkNamedpipeSessionDirty();
+        // This optional bounded wait only ends this probe, not the focus
+        // session. A missing echo alone cannot justify discarding input.
+        if (pending)
+            *pending = true;
     }
     return !boundWorkerCommitReady;
 }
