@@ -40,6 +40,7 @@ class SettingsWindow
     // Drops hover and pressed states before the window is hidden, so the frame kept
     // for the next show does not flash a highlighted caption button.
     void ResetTransientState();
+    void ReleaseIdleResources();
 
   private:
     std::unique_ptr<SettingsWindowImpl> impl_;

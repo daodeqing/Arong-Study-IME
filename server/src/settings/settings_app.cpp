@@ -25,6 +25,7 @@
 #include "window/candidate_skin_layers.h"
 #include "utils/common_utils.h"
 #include "utils/single_instance.h"
+#include "cloud/sentence_translation.h"
 #include "voice-input/voice_providers.h"
 
 #include <boost/json.hpp>
@@ -305,6 +306,13 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
                                   {"name", std::string(preset.name)},
                                   {"prompt", std::string(preset.prompt)}});
     }
+    nlohmann::json ai_prompt_presets = nlohmann::json::array();
+    for (const auto &preset : SentenceTranslation::BuiltinPromptPresets())
+    {
+        ai_prompt_presets.push_back({{"id", std::string(preset.id)},
+                                     {"name", std::string(preset.name)},
+                                     {"prompt", std::string(preset.prompt)}});
+    }
     // 规则位取不门控视图：总开关关闭时复选框仍要展示用户已存的勾选；
     // 总开关本身单独下发。
     const metasequoia::FuzzyPinyinOptions fuzzy_rules = GetConfiguredFuzzyPinyinRuleStates();
@@ -369,6 +377,7 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
             {"floating_toolbar_auto_hide_delay", GetConfiguredFloatingToolbarAutoHideDelay()},
             {"floating_toolbar_shadow", GetConfiguredFloatingToolbarShadow()},
             {"sentence_translation", GetConfiguredSentenceTranslationEnabled()},
+             {"sentence_vocabulary", GetConfiguredSentenceVocabularyEnabled()},
             {"cn_en_mixed_input", GetConfiguredEnglishCandidatesEnabled()},
             {"candidate_translations", GetConfiguredCandidateTranslationsEnabled()},
             {"candidate_translation_show_pos", GetConfiguredCandidateTranslationShowPos()},
@@ -589,6 +598,7 @@ std::wstring BuildConfigMessage(bool refresh_skin_catalog)
           {"statistics",
            {{"enabled", GetConfiguredStatisticsEnabled()}, {"retention", GetConfiguredStatisticsRetention()}}}}}};
     payload["data"]["voice_input"]["polish_presets"] = std::move(polish_presets);
+    payload["data"]["ai_assistant"]["prompt_presets"] = std::move(ai_prompt_presets);
     payload["data"]["helpcode"]["custom_schemas"] = CustomHelpcodeSchemasJson();
     payload["data"]["helpcode"]["custom_directory"] = GetCustomHelpcodeDirectory();
     payload["data"]["input"]["custom_shuangpin_schemas"] = CustomShuangpinSchemasJson();
@@ -793,6 +803,8 @@ bool ApplyConfigUpdate(const json::object &data)
                                                        json::value_to<bool>(data.at("value")));
     if (path == "general.sentence_translation")
         return SetConfiguredSentenceTranslationEnabled(json::value_to<bool>(data.at("value")));
+    if (path == "general.sentence_vocabulary")
+        return SetConfiguredSentenceVocabularyEnabled(json::value_to<bool>(data.at("value")));
     if (path == "general.cn_en_mixed_input")
         return SetConfiguredEnglishCandidatesEnabled(json::value_to<bool>(data.at("value")));
     if (path == "general.candidate_translations")
@@ -1685,6 +1697,8 @@ void HideSettings(HWND hwnd)
     KillTimer(hwnd, kConfigReloadTimer);
     ReleaseMouseCapture(hwnd);
     ShowWindow(hwnd, SW_HIDE);
+    if (g_native)
+        g_native->ReleaseIdleResources();
     if (linger_ms)
         SetTimer(hwnd, kLingerTimer, *linger_ms, nullptr);
 }
@@ -1717,6 +1731,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_pa
     }
     switch (message)
     {
+    case WM_SYSCOMMAND:
+        if ((w_param & 0xFFF0) == SC_MINIMIZE)
+        {
+            HideSettings(hwnd);
+            return 0;
+        }
+        break;
     case kActivateExistingWindow:
         ActivateWindow(hwnd);
         return 0;
