@@ -194,7 +194,8 @@ VisualPtr BuildHelpPage(PageContext &context)
             for (const wchar_t *text : texts)
                 paragraph({{text, {}}}, 8.0f);
         };
-        section(L"快速上手", {L"安装输入法后，可以使用 Win + Space 快捷键切换到阿龍学习输入法。默认是全拼输入法。"});
+        section(L"快速上手", {L"安装输入法后，可以使用 Win + Space 快捷键切换到阿龍学习输入法。默认是全拼输入法。",
+                              L"在设置窗口按 F6 聚焦左侧导航，用方向键选择页面，再按 Enter 或空格打开。"});
         section(L"基本功能",
                 {L"支持全拼、双拼和五笔。可以在设置窗口下的输入功能分区进行切换。全拼和双拼均支持辅助码。辅助码方案目前"
                  L"支持自然码辅助码、蓝天小雨点、首右2."
@@ -202,8 +203,8 @@ VisualPtr BuildHelpPage(PageContext &context)
                  L"文件夹导入。可以在设置的辅助码分区进行辅助码的开关和切换。打字过程中，全拼使用辅助码需要用大写的字母"
                  L"唤起单码和双码辅助。双拼在开启辅助码的状态下默认使用单码辅助，第二个码是大写字母的情况下，则会使用完"
                  L"整双码进行筛选。",
-                 L"语音识别和 AI 联想需要自行填入 API 和 token。内测期间，将默认使用开发者个人的 api 和 "
-                 L"token，仅供测试使用。云联想目前支持谷歌的云接口，请用户注意网络问题，需要时可在下方设置网络代理。",
+                 L"语音识别和 AI 联想可在对应设置中配置服务地址、模型和凭据。云联想支持谷歌的云接口；"
+                 L"需要代理时可在下方设置网络代理。",
                  L"更多功能欢迎自由探索~"});
         auto card = std::make_shared<PaddedSection>(doc, Thickness{28.0f, 24.0f, 28.0f, 26.0f});
         // .default-ime-section { margin-top: 24px } collapses with the 18px below.
