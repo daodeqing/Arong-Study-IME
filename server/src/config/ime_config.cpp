@@ -22,6 +22,7 @@
 #include "engine/core/data_path.h"
 #include "engine/contracts/input_state_shortcuts.h"
 #include "statistics/stats_store.h"
+#include "cloud/sentence_translation.h"
 #include "voice-input/voice_providers.h"
 
 using namespace ime_config_detail;
@@ -140,6 +141,7 @@ bool g_floating_toolbar_auto_hide = false;
 int g_floating_toolbar_auto_hide_delay = kFloatingToolbarAutoHideDelayDefault;
 bool g_floating_toolbar_shadow = true;
 std::atomic_bool g_sentence_translation_enabled{false};
+std::atomic_bool g_sentence_vocabulary_enabled{true};
 bool g_english_candidates_enabled = false;
 bool g_candidate_translations_enabled = false;
 std::atomic_bool g_candidate_translation_show_pos{true};
@@ -599,6 +601,8 @@ bool LoadImeConfig()
         }
         g_sentence_translation_enabled.store(tbl["general"]["sentence_translation"].value_or(false),
                                              std::memory_order_relaxed);
+        g_sentence_vocabulary_enabled.store(tbl["general"]["sentence_vocabulary"].value_or(true),
+                                            std::memory_order_relaxed);
         g_english_candidates_enabled = tbl["general"]["cn_en_mixed_input"].value_or(false);
         g_candidate_translations_enabled = tbl["general"]["candidate_translations"].value_or(false);
         g_candidate_translation_show_pos.store(tbl["general"]["candidate_translation_show_pos"].value_or(true),
@@ -995,10 +999,9 @@ bool LoadImeConfig()
         if (!VoiceInput::IsValidThinkingLevel(g_ai_assistant.thinking))
             g_ai_assistant.thinking = "disabled";
         const std::string legacy_ai_prompt = tbl["ai_assistant"]["prompt"].value_or(g_ai_assistant.prompt);
-        g_ai_assistant.prompt_id = tbl["ai_assistant"]["prompt_id"].value_or(std::string("custom_1"));
-        if (g_ai_assistant.prompt_id != "custom_1" && g_ai_assistant.prompt_id != "custom_2" &&
-            g_ai_assistant.prompt_id != "custom_3")
-            g_ai_assistant.prompt_id = "custom_1";
+        g_ai_assistant.prompt_id = tbl["ai_assistant"]["prompt_id"].value_or(std::string("daily"));
+        if (!SentenceTranslation::IsValidPromptId(g_ai_assistant.prompt_id))
+            g_ai_assistant.prompt_id = "daily";
         g_ai_assistant.prompt_custom_1 = tbl["ai_assistant"]["prompt_custom_1"].value_or(std::string());
         if (g_ai_assistant.prompt_custom_1.empty())
             g_ai_assistant.prompt_custom_1 = legacy_ai_prompt;

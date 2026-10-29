@@ -202,6 +202,8 @@ void ApplyDeferredKeyState(DeferredShadowState &shadow, const _KEYSTROKE_STATE &
             ++shadow.caret;
         }
         break;
+    case FUNCTION_COMMIT_RAW_LETTERS:
+    case FUNCTION_COMMIT_RAW_UPPERCASE:
     case FUNCTION_FINALIZE_TEXTSTORE:
     case FUNCTION_FINALIZE_CANDIDATELIST:
     case FUNCTION_FINALIZE_CANDIDATELISTForVKReturn:
@@ -341,11 +343,12 @@ void CMetasequoiaIME::_ApplyDeferredKeyProjection(const _KEYSTROKE_STATE &keySta
     shadow.caret = _deferredProjectedCaret;
     shadow.candidateActive = _deferredProjectedCandidateActive;
     ApplyDeferredKeyState(shadow, keyState, wch);
-    if (keyState.Function == FUNCTION_CANCEL && !GlobalIme::word_for_creating_word.empty())
+    if ((keyState.Function == FUNCTION_CANCEL && !GlobalIme::word_for_creating_word.empty()) ||
+        (keyState.Function == FUNCTION_SERVER_CANDIDATE_KEY && IsSentenceTranslationEnabled()))
     {
-        // Esc inside a creating word may keep the selected word alive
-        // (input.escape_keeps_selected_word is Server-owned), so the
-        // composition is not necessarily gone.
+        // Esc inside a creating word or a sentence-mode candidate action mutates
+        // Server-owned composition state (including SelectRemainingSentence), so
+        // the next key must re-read the real state.
         shadow.projectionValid = false;
     }
     if (!shadow.projectionValid)
@@ -454,16 +457,34 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
     const bool projectedInputActive = _deferredKeyProjectionValid
                                           ? _deferredProjectedInputLength > 0
                                           : _pCompositionProcessorEngine->GetVirtualKeyLength() > 0;
-    const bool sentenceInput = projectedInputActive || !GlobalIme::word_for_creating_word.empty() ||
-                               (_deferredKeyProjectionValid && _deferredProjectedCandidateActive);
+    const auto sentenceRawLength = _deferredKeyProjectionValid ? _deferredProjectedInputLength
+                                                               : _pCompositionProcessorEngine->GetVirtualKeyLength();
+    const bool sentenceInput = SentenceTranslationKeyPolicy::HasLiveComposition(
+        static_cast<std::uint32_t>(sentenceRawLength), !GlobalIme::word_for_creating_word.empty(),
+        projectedCandidateActive);
     const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
+    if (projectedImeOpen && !_IsKeyboardDisabled() &&
+        SentenceTranslationKeyPolicy::KeepsPinyinChannel(IsSentenceTranslationEnabled(), sentenceInput, *classifiedCode,
+                                                         capturedModifiers, windowsKey,
+                                                         (GetKeyState(VK_CAPITAL) & 0x0001) != 0))
+    {
+        keyState->Category = CATEGORY_COMPOSING;
+        keyState->Function = FUNCTION_INPUT;
+        return true;
+    }
     const bool sentencePunctuation = IsSentenceTranslationEnabled() && sentenceInput && !windowsKey &&
                                      (capturedModifiers & 6u) == 0 && *classifiedWch != 0 &&
                                      std::wstring(L",.!?:;。！？；：()（）").find(*classifiedWch) != std::wstring::npos;
     if (projectedImeOpen && !_IsKeyboardDisabled() &&
-        (SentenceTranslationKeyPolicy::OwnsCommitKey(Global::SentenceTranslationEnabled.load(std::memory_order_relaxed),
-                                                     sentenceInput, *classifiedCode, capturedModifiers, windowsKey) ||
-         sentencePunctuation))
+        (SentenceTranslationKeyPolicy::OwnsCommitKey(IsSentenceTranslationEnabled(), sentenceInput, *classifiedCode,
+                                                     capturedModifiers, windowsKey) ||
+         sentencePunctuation ||
+         SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(IsSentenceTranslationEnabled(), sentenceInput,
+                                                                 *classifiedCode, capturedModifiers, windowsKey,
+                                                                 (GetKeyState(VK_CAPITAL) & 0x0001) != 0) ||
+         SentenceTranslationKeyPolicy::OwnsBufferedEdit(
+             IsSentenceTranslationEnabled(), !GlobalIme::word_for_creating_word.empty(),
+             static_cast<std::uint32_t>(sentenceRawLength), *classifiedCode, capturedModifiers, windowsKey)))
     {
         keyState->Category = CATEGORY_CANDIDATE;
         keyState->Function = FUNCTION_SERVER_CANDIDATE_KEY;
@@ -637,8 +658,9 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
         if (ShouldPassCapsLockAlphabet((GetKeyState(VK_CAPITAL) & 0x0001) != 0, inputInProgress, *classifiedCode,
                                        *classifiedWch))
         {
-            // Match the normal fresh-composition path for CapsLock with or without Shift
-            isInputKey = false;
+            // Preserve FIFO order if CapsLock follows a queued raw commit.
+            // CATEGORY_NONE/FUNCTION_NONE inserts this character through TSF.
+            return true;
         }
     }
 
@@ -809,6 +831,7 @@ bool CMetasequoiaIME::_QueueDeferredPreservedKey(_In_ ITfContext *pContext, REFG
 
 void CMetasequoiaIME::_ClearDeferredKeyDowns()
 {
+    _CancelSentenceTranslationCommit();
     const size_t queuedCount = _deferredKeyDowns.size();
     const bool hadInFlight = _hasDeferredKeyInFlight;
     const uint64_t inFlightToken = _deferredKeyReplayToken;
@@ -1056,13 +1079,24 @@ void CMetasequoiaIME::_DrainOneDeferredKeyDown()
         // composition owns the keystroke stream, so count the key itself.
         _NoteKeyEventIpcFailure();
     }
-    else if (!EnsureNamedpipeFocusSessionActivated())
+    else
     {
-        // Do not strand an eaten key when the Server cannot establish a
-        // focus session. The queued FIFO becomes an isolated local/raw-input
-        // lane until its composition has been finalized.
-        _serverUnavailableFallbackActive = true;
-        _NoteKeyEventIpcFailure();
+        bool activationPending = false;
+        if (!EnsureNamedpipeFocusSessionActivated(false, &activationPending))
+        {
+            if (activationPending)
+            {
+                // Keep the original FIFO entry until the echo or bounded retry.
+                // Pending is not evidence that the Server is unavailable.
+                SetTimer(_msgWndHandle, TIMER_CONNECT_ALL_NAMEDPIPE, CONNECT_NAMEDPIPE_RETRY_INTERVAL_MS, nullptr);
+                return;
+            }
+            // Do not strand an eaten key when the Server cannot establish a
+            // focus session. The queued FIFO becomes an isolated local/raw-input
+            // lane until its composition has been finalized.
+            _serverUnavailableFallbackActive = true;
+            _NoteKeyEventIpcFailure();
+        }
     }
 
     _deferredKeyInFlight = _deferredKeyDowns.front();

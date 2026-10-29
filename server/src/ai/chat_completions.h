@@ -12,7 +12,7 @@ constexpr long kConnectTimeoutMs = 2500;
 constexpr long kDefaultTimeoutMs = 8000;
 
 // POST 一次请求并返回 choices[0].message.content。网络错误、非 2xx、响应超过 1 MiB
-// 或响应结构不对都返回 nullopt。
+// 或响应结构不对都返回 nullopt。显式 finish_reason 非 stop 的不完整响应同样拒绝；缺字段兼容旧接口。
 std::optional<std::string> FetchContent(const std::string &endpoint, const std::string &token,
                                         const std::string &payload, long timeout_ms,
                                         const std::function<bool()> &cancelled = {});

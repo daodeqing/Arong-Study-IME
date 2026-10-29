@@ -1,0 +1,59 @@
+{
+  "method": "Windows Recycle Bin",
+  "items": [
+    {
+      "name": "D:\\LUO\\啊隆输入法\\msime_user.db",
+      "bytes": 73728,
+      "recycled": true
+    },
+    {
+      "name": "D:\\LUO\\啊隆输入法\\msime_user.db-shm",
+      "bytes": 32768,
+      "recycled": true
+    },
+    {
+      "name": "D:\\LUO\\啊隆输入法\\msime_user.db-wal",
+      "bytes": 0,
+      "recycled": true
+    },
+    {
+      "name": "D:\\LUO\\啊隆输入法\\stats.db",
+      "bytes": 4096,
+      "recycled": true
+    },
+    {
+      "name": "D:\\LUO\\啊隆输入法\\stats.db-shm",
+      "bytes": 32768,
+      "recycled": true
+    },
+    {
+      "name": "D:\\LUO\\啊隆输入法\\stats.db-wal",
+      "bytes": 70072,
+      "recycled": true
+    },
+    {
+      "name": "D:\\LUO\\ArongStudyIme",
+      "bytes": 35811928,
+      "recycled": true
+    },
+    {
+      "name": "D:\\LUO\\msime-windows-develop\\msime-windows-develop\\.work-sentence\\install-temp-0.8.7",
+      "bytes": 0,
+      "recycled": true
+    },
+    {
+      "name": "D:\\LUO\\msime-windows-develop\\msime-windows-develop\\installer\\Output\\v0.8.6",
+      "bytes": 90159712,
+      "recycled": true
+    }
+  ],
+  "failures": [],
+  "total_bytes": 126185072,
+  "earlier_tool_cleanup_bytes": 4878275,
+  "preserved": [
+    "installer/Output/v0.8.7",
+    ".work-sentence/preinstall-backup-0.8.6",
+    ".work-sentence/preinstall-backup-0.8.7",
+    ".work-sentence/install-0.8.7.log"
+  ]
+}

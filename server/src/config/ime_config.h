@@ -111,8 +111,8 @@ struct AiAssistantConfig
     int candidate_limit = 3;
     // DeepSeek reasoning effort: disabled | low | high | max. Other providers ignore it.
     std::string thinking = "disabled";
-    // custom_1 | custom_2 | custom_3
-    std::string prompt_id = "custom_1";
+    // daily | casual | academic | creative | custom_1 | custom_2 | custom_3
+    std::string prompt_id = "daily";
     std::string prompt_custom_1;
     std::string prompt_custom_2;
     std::string prompt_custom_3;
@@ -184,6 +184,8 @@ struct TranslationConfig
         std::string endpoint;
         std::string token;
         std::string model;
+        std::string prompt_id;
+        std::string prompt;
     } ai;
 };
 
@@ -489,6 +491,8 @@ bool GetConfiguredFloatingToolbarShadow();
 bool SetConfiguredFloatingToolbarShadow(bool enabled);
 // Optional Chinese sentence composition followed by English translation; off by default.
 bool GetConfiguredSentenceTranslationEnabled();
+bool GetConfiguredSentenceVocabularyEnabled();
+bool SetConfiguredSentenceVocabularyEnabled(bool enabled);
 bool SetConfiguredSentenceTranslationEnabled(bool enabled);
 bool GetConfiguredEnglishCandidatesEnabled();
 bool SetConfiguredEnglishCandidatesEnabled(bool enabled);

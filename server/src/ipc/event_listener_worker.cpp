@@ -827,12 +827,16 @@ void WorkerThread()
             break;
         }
 
+        case TaskType::SentenceTranslationResult:
         case TaskType::RefreshCandidatePage: {
-            BroadcastSentenceTranslationState();
+            DeliverSentenceTranslationIfReady();
+            if (task.type == TaskType::RefreshCandidatePage)
+                BroadcastSentenceTranslationState();
             const auto owner = SnapshotCandidateUiOwner();
             if (owner && IsPipeActivationCurrent(owner.client_id, owner.activation_epoch))
             {
-                SendSentenceTranslationState(owner.client_id, owner.activation_epoch);
+                if (task.type == TaskType::RefreshCandidatePage)
+                    SendSentenceTranslationState(owner.client_id, owner.activation_epoch);
                 if (RefreshSentenceTranslationPreview())
                     break;
             }
@@ -1364,6 +1368,19 @@ void EnqueueRefreshCandidatePageTask()
         std::lock_guard lock(queueMutex);
         Task task;
         task.type = TaskType::RefreshCandidatePage;
+        taskQueue.push(std::move(task));
+    }
+    pipe_queueCv.notify_one();
+}
+
+void EnqueueSentenceTranslationResultTask()
+{
+    if (!pipe_running)
+        return;
+    {
+        std::lock_guard lock(queueMutex);
+        Task task;
+        task.type = TaskType::SentenceTranslationResult;
         taskQueue.push(std::move(task));
     }
     pipe_queueCv.notify_one();

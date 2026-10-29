@@ -18,35 +18,37 @@ Palette MakeDark()
 {
     Palette p;
     p.light = false;
-    p.accent = Hex(0x8E8CD8);
-    p.accentStrong = Hex(0x6B69D6);
-    p.accentSoft = Rgba(142, 140, 216, 0.16f);
-    p.accentSoftBorder = Rgba(142, 140, 216, 0.25f);
-    p.chromeBg = Hex(0x202020);
+    p.accent = Hex(0x74D7C2);
+    p.accentStrong = Hex(0x91E8D6);
+    p.accentSoft = Rgba(116, 215, 194, 0.14f);
+    p.accentSoftBorder = Rgba(116, 215, 194, 0.3f);
+    p.chromeBg = Hex(0x132227);
+    p.railBg = Hex(0x0C191E);
+    p.railText = Hex(0xEFFAF8);
     p.sidebarHover = Rgba(255, 255, 255, 0.08f);
-    p.itemActiveHover = Rgba(255, 255, 255, 0.06f);
+    p.itemActiveHover = Hex(0x244A4C);
     p.text = Hex(0xF3F3F3);
-    p.textSecondary = Hex(0xC8C8C8);
-    p.textMuted = Hex(0xA0A0A0);
-    p.textSubtle = Hex(0x888888);
-    p.sidebarItem = Hex(0xE6E6E6);
+    p.textSecondary = Hex(0xC5D9DA);
+    p.textMuted = Hex(0xA1BBBE);
+    p.textSubtle = Hex(0x92AFB3);
+    p.sidebarItem = Hex(0xBCD3D5);
     p.border = Rgba(255, 255, 255, 0.08f);
     p.borderStrong = Rgba(255, 255, 255, 0.12f);
-    p.cardBg = Rgba(38, 38, 38, 0.5f);
-    p.cardBgSolid = Hex(0x242424);
-    p.surfaceRaised = Hex(0x2D2D2D);
+    p.cardBg = Hex(0x192E34);
+    p.cardBgSolid = Hex(0x192E34);
+    p.surfaceRaised = Hex(0x203B42);
     p.surfaceSunken = Rgba(255, 255, 255, 0.045f);
     p.surfaceSubtle = Rgba(255, 255, 255, 0.035f);
-    p.dropdownBg = Rgba(45, 45, 45, 0.85f);
-    p.dropdownMenuBg = Rgba(50, 50, 54, 0.98f);
+    p.dropdownBg = Hex(0x203B42);
+    p.dropdownMenuBg = Hex(0x203B42);
     p.dropdownMenuBorder = Rgba(255, 255, 255, 0.19f);
     p.dropdownMenuHighlight = Rgba(255, 255, 255, 0.07f);
     p.dropdownItem = Hex(0xEEEEEE);
-    p.dropdownItemHover = Rgba(142, 140, 216, 0.2f);
-    p.controlBg = Rgba(45, 45, 45, 0.8f);
+    p.dropdownItemHover = Hex(0x2D5357);
+    p.controlBg = Hex(0x203B42);
     p.controlBorder = Rgba(255, 255, 255, 0.12f);
-    p.buttonSecondaryBg = Hex(0x3B3B3B);
-    p.buttonSecondaryHover = Hex(0x484848);
+    p.buttonSecondaryBg = Hex(0x2B4850);
+    p.buttonSecondaryHover = Hex(0x365861);
     p.buttonSecondaryText = Hex(0xFFFFFF);
     p.kbdBg = Hex(0x303030);
     p.kbdBorder = Hex(0x505050);
@@ -64,7 +66,7 @@ Palette MakeDark()
     p.tooltipBorder = Rgba(255, 255, 255, 0.12f);
     p.tooltipText = Hex(0xF3F3F3);
     p.toggleOff = Hex(0x555555);
-    p.toggleOn = Hex(0x8E8CD8);
+    p.toggleOn = Hex(0x74D7C2);
     p.skinPreviewStageBg = Rgba(18, 18, 18, 0.13f);
     p.overlayBg = Rgba(0, 0, 0, 0.55f);
     p.toastBg = Hex(0x2B2B2B);
@@ -80,13 +82,13 @@ Palette MakeDark()
     p.scrollbarThumbHover = Rgba(220, 220, 220, 0.45f);
     p.checkboxBorder = Hex(0x8A8886);
     p.checkboxBorderHover = Hex(0xC8C6C4);
-    p.checkboxChecked = Hex(0x8E8CD8, static_cast<float>(0xA7) / 255.0f);
+    p.checkboxChecked = Hex(0x388D80);
     p.radioBorder = Hex(0x616161);
     p.closeHover = Hex(0xC42B1C);
     p.closeActive = Hex(0xA72216);
     // 0 1px 4px rgba(0, 0, 0, 0.25)
     p.cardShadow[0] = {2.0f, 0.25f, 1.0f};
-    p.cardShadowCount = 1;
+    p.cardShadowCount = 0;
     // 0 18px 42px rgba(0, 0, 0, 0.58), 0 5px 14px rgba(0, 0, 0, 0.42)
     p.menuShadow[0] = {21.0f, 0.58f, 18.0f};
     p.menuShadow[1] = {7.0f, 0.42f, 5.0f};
@@ -97,31 +99,33 @@ Palette MakeLight()
 {
     Palette p;
     p.light = true;
-    p.accent = Hex(0x6F6BC7);
-    p.accentStrong = Hex(0x5B57B8);
-    p.accentSoft = Rgba(111, 107, 199, 0.12f);
-    p.accentSoftBorder = Rgba(111, 107, 199, 0.22f);
-    p.chromeBg = Hex(0xF3F3F3);
-    p.sidebarHover = Rgba(0, 0, 0, 0.04f);
-    p.itemActiveHover = Rgba(0, 0, 0, 0.06f);
-    p.text = Hex(0x242424);
-    p.textSecondary = Hex(0x424242);
-    p.textMuted = Hex(0x616161);
-    p.textSubtle = Hex(0x757575);
-    p.sidebarItem = Hex(0x242424);
+    p.accent = Hex(0x0B756B);
+    p.accentStrong = Hex(0x065D55);
+    p.accentSoft = Hex(0xE1F1ED);
+    p.accentSoftBorder = Hex(0xA9D4CA);
+    p.chromeBg = Hex(0xF6FAFA);
+    p.railBg = Hex(0x163D44);
+    p.railText = Hex(0xF2FAF8);
+    p.sidebarHover = Rgba(255, 255, 255, 0.08f);
+    p.itemActiveHover = Hex(0x276068);
+    p.text = Hex(0x203339);
+    p.textSecondary = Hex(0x39545B);
+    p.textMuted = Hex(0x526E75);
+    p.textSubtle = Hex(0x5E777D);
+    p.sidebarItem = Hex(0xCBE0E1);
     p.border = Rgba(0, 0, 0, 0.08f);
     p.borderStrong = Rgba(0, 0, 0, 0.12f);
     p.cardBg = Hex(0xFFFFFF);
     p.cardBgSolid = Hex(0xFFFFFF);
     p.surfaceRaised = Hex(0xFFFFFF);
-    p.surfaceSunken = Hex(0xF5F5F5);
-    p.surfaceSubtle = Hex(0xF7F7F7);
+    p.surfaceSunken = Hex(0xEDF5F4);
+    p.surfaceSubtle = Hex(0xF2F7F7);
     p.dropdownBg = Hex(0xFFFFFF);
     p.dropdownMenuBg = Hex(0xFFFFFF);
     p.dropdownMenuBorder = Rgba(0, 0, 0, 0.17f);
     p.dropdownMenuHighlight = Rgba(255, 255, 255, 0.9f);
     p.dropdownItem = Hex(0x242424);
-    p.dropdownItemHover = Rgba(111, 107, 199, 0.12f);
+    p.dropdownItemHover = Hex(0xE1F1ED);
     p.controlBg = Hex(0xFFFFFF);
     p.controlBorder = Rgba(0, 0, 0, 0.14f);
     p.buttonSecondaryBg = Hex(0xF0F0F0);
@@ -143,7 +147,7 @@ Palette MakeLight()
     p.tooltipBorder = Rgba(0, 0, 0, 0.1f);
     p.tooltipText = Hex(0x242424);
     p.toggleOff = Hex(0xC8C8C8);
-    p.toggleOn = Hex(0x8E8CD8);
+    p.toggleOn = Hex(0x0B756B);
     p.skinPreviewStageBg = Rgba(0, 0, 0, 0.03f);
     p.overlayBg = Rgba(0, 0, 0, 0.35f);
     p.toastBg = Hex(0xFFFFFF);
@@ -159,14 +163,14 @@ Palette MakeLight()
     p.scrollbarThumbHover = Rgba(0, 0, 0, 0.45f);
     p.checkboxBorder = Hex(0x8A8886);
     p.checkboxBorderHover = Hex(0x605E5C);
-    p.checkboxChecked = Hex(0x8E8CD8, static_cast<float>(0xA7) / 255.0f);
+    p.checkboxChecked = Hex(0x0B756B);
     p.radioBorder = Hex(0x616161);
     p.closeHover = Hex(0xC42B1C);
     p.closeActive = Hex(0xA72216);
     // 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06)
     p.cardShadow[0] = {1.0f, 0.04f, 1.0f};
     p.cardShadow[1] = {1.5f, 0.06f, 1.0f};
-    p.cardShadowCount = 2;
+    p.cardShadowCount = 0;
     // 0 18px 38px rgba(30, 30, 40, 0.2), 0 4px 12px rgba(30, 30, 40, 0.12)
     p.menuShadow[0] = {19.0f, 0.2f, 18.0f};
     p.menuShadow[1] = {6.0f, 0.12f, 4.0f};
@@ -288,7 +292,7 @@ bool IsFontInstalled(const std::wstring &family)
 const std::wstring &UiFontFamily()
 {
     static const std::wstring family = [] {
-        for (const wchar_t *candidate : {L"Noto Sans SC", L"Microsoft YaHei", L"Segoe UI Variable", L"Segoe UI"})
+        for (const wchar_t *candidate : {L"Microsoft YaHei UI", L"Segoe UI Variable", L"Microsoft YaHei", L"Segoe UI"})
         {
             if (IsFontInstalled(candidate))
                 return std::wstring(candidate);

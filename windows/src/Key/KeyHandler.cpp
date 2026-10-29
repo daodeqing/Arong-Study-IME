@@ -1,3 +1,4 @@
+#include "SentenceTranslationKeyPolicy.h"
 #include "Private.h"
 #include "Globals.h"
 #include "EditSession.h"
@@ -140,6 +141,7 @@ VOID CMetasequoiaIME::_DeleteCandidateList(BOOL isForce, _In_opt_ ITfContext *pC
 
 HRESULT CMetasequoiaIME::_HandleComplete(TfEditCookie ec, _In_ ITfContext *pContext)
 {
+    _CancelSentenceTranslationCommit();
     g_toggleImeFallbackBuffer.clear();
     // The composition ends here, so the creating-word prefix must not survive
     // into the next one: a leftover word would be prepended to its preedit.
@@ -278,6 +280,22 @@ HRESULT CMetasequoiaIME::_HandleToogleIMEMode(TfEditCookie ec, _In_ ITfContext *
 
     _pCompositionProcessorEngine->ApplyPendingImeModeAfterCompositionCommit(_GetThreadMgr(), _GetClientId());
     return S_OK;
+}
+
+HRESULT CMetasequoiaIME::_HandleCommitRawLetters(TfEditCookie ec, _In_ ITfContext *pContext, bool uppercase)
+{
+    if (!_pCompositionProcessorEngine)
+        return S_OK;
+    const auto buffer = _pCompositionProcessorEngine->GetKeystrokeBuffer();
+    std::wstring raw(buffer.Get(), buffer.GetLength());
+    if (!SentenceTranslationKeyPolicy::CanCommitRawLetters(
+            IsSentenceTranslationEnabled(), raw, !GlobalIme::word_for_creating_word.empty(),
+            Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed)))
+        return S_OK;
+    if (uppercase)
+        for (wchar_t &ch : raw)
+            ch = ch - L'a' + L'A';
+    return _HandleInsertText(ec, pContext, raw);
 }
 
 HRESULT CMetasequoiaIME::_HandleInsertText(TfEditCookie ec, _In_ ITfContext *pContext, const std::wstring &text)
@@ -1537,7 +1555,7 @@ HRESULT CMetasequoiaIME::_HandleCompositionPunctuation(TfEditCookie ec, _In_ ITf
             // as navigation. Never turn such a response into committed text.
             if (receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText)
             {
-                punctuationStr.assign(receivedData->candidate_string);
+                punctuationStr.assign(ServerReplyText(*receivedData));
             }
             else if (receivedData->msg_type != Global::DataFromServerMsgType::Normal)
             {

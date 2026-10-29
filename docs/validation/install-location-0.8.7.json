@@ -1,0 +1,84 @@
+{
+  "registry": {
+    "VersionDir": "ArongStudyIme_v0.8.7",
+    "ServerPath": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+    "DataDir": "D:\\LUO\\啊隆输入法数据",
+    "InstallLocation": "D:\\LUO\\啊隆输入法\\",
+    "DisplayVersion": "0.8.7",
+    "UninstallString": "\"D:\\LUO\\啊隆输入法\\unins000.exe\""
+  },
+  "binary_versions": {
+    "ArongStudyImeServer.exe": "0.8.7.0",
+    "ArongStudyImeSettings.exe": "0.8.7.0",
+    "ArongStudyImeWatchdog.exe": "0.8.7.0"
+  },
+  "config_bytes_preserved": true,
+  "user_dictionary_quick_check": "ok",
+  "data_dir_exists": true,
+  "launch_results": {
+    "ArongStudyImeServer.exe": 42,
+    "ArongStudyImeWatchdog.exe": 42
+  },
+  "running_processes": [
+    {
+      "pid": 8252,
+      "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+      "name": "ArongStudyImeServer.exe"
+    },
+    {
+      "pid": 34948,
+      "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe",
+      "name": "ArongStudyImeWatchdog.exe"
+    }
+  ],
+  "native_host_acceptance": "Notepad/browser/WeChat/QQ manual re-open and typing acceptance not completed",
+  "watchdog_task_points_to_new_path": true,
+  "old_program_directory_unused": true,
+  "remaining_old_data_copies": [
+    {
+      "name": "msime_user.db",
+      "bytes": 73728,
+      "identical_to_data_directory": true
+    },
+    {
+      "name": "msime_user.db-shm",
+      "bytes": 32768,
+      "identical_to_data_directory": true
+    },
+    {
+      "name": "msime_user.db-wal",
+      "bytes": 0,
+      "identical_to_data_directory": true
+    },
+    {
+      "name": "stats.db",
+      "bytes": 4096,
+      "identical_to_data_directory": true
+    },
+    {
+      "name": "stats.db-shm",
+      "bytes": 32768,
+      "identical_to_data_directory": true
+    },
+    {
+      "name": "stats.db-wal",
+      "bytes": 70072,
+      "identical_to_data_directory": true
+    }
+  ],
+  "installed_settings_contains_built_version": true,
+  "source_commit": "be2145da0d95753ca4a116f32fb7a067a83d1574",
+  "ci": {
+    "run_id": 39773506405,
+    "jobs": 11,
+    "conclusion": "success"
+  },
+  "package": {
+    "run_id": 39774446090,
+    "conclusion": "success"
+  },
+  "installation_exit_code": 0,
+  "windows_restart_required": false,
+  "old_program_directory_recycled": true,
+  "remaining_old_data_copies_recycled": true
+}

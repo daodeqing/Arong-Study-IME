@@ -1,4 +1,4 @@
-{ 升级换目录时，旧配置会迁移到新目录。任一目录已有配置，就跳过安装选项。}
+﻿{ 升级换目录时，旧配置会迁移到新目录。任一目录已有配置，就跳过安装选项。}
 function UserConfigExistsBeforeInstall: Boolean;
 begin
   Result := FileExists(UserConfigPath);
@@ -39,6 +39,12 @@ begin
   else if MigratedFileConflicts(OldDir, NewDir, 'custom_translations.txt') then
     Result :=
       '目标数据目录已有内容不同的 custom_translations.txt，不能覆盖原有的自定义翻译。' + #13#10 +
+      '请选择其他数据目录，或先手动合并两份文件。'
+  else if MigratedFileConflicts(OldDir, NewDir, 'ai_providers.json') or
+          MigratedFileConflicts(OldDir, NewDir, 'user_dict.dat') or
+          MigratedFileConflicts(OldDir, NewDir, 'clipboard_history.json') then
+    Result :=
+      '目标数据目录已有内容不同的服务商配置、用户词典或剪贴板历史，不能覆盖。' + #13#10 +
       '请选择其他数据目录，或先手动合并两份文件。';
 end;
 
@@ -54,6 +60,9 @@ procedure DropMigratedConfigCopy(const OldDir, NewDir: String);
 begin
   DropMigratedCopy(OldDir, NewDir, 'config.toml');
   DropMigratedCopy(OldDir, NewDir, 'custom_translations.txt');
+  DropMigratedCopy(OldDir, NewDir, 'ai_providers.json');
+  DropMigratedCopy(OldDir, NewDir, 'user_dict.dat');
+  DropMigratedCopy(OldDir, NewDir, 'clipboard_history.json');
 end;
 
 { 网络页因为旧配置存在而跳过。旧配置没搬过去，新目录就会装上出厂配置，
@@ -79,6 +88,17 @@ begin
       '无法把自定义翻译 custom_translations.txt 从 ' + OldDir + ' 移动到 ' + NewDir + '。' + #13#10 +
       '请确认文件没有被其他程序占用、目标磁盘可写，然后重试安装。' + #13#10 +
       '该文件仍留在 ' + OldDir + '，本次安装没有改动它。';
+end;
+
+function UserStateMigrationFailure(const OldDir, NewDir: String): String;
+begin
+  Result := '';
+  if FileExists(AddBackslash(OldDir) + 'ai_providers.json') or
+     FileExists(AddBackslash(OldDir) + 'user_dict.dat') or
+     FileExists(AddBackslash(OldDir) + 'clipboard_history.json') then
+    Result :=
+      '无法完整迁移服务商配置、用户词典或剪贴板历史。请关闭占用文件的程序后重试。' + #13#10 +
+      '尚未迁移的文件仍留在 ' + OldDir + '，本次安装不会清理该目录。';
 end;
 
 { 只改本次安装新生成的 config.toml。写入失败不中止安装：此时文件已经落盘，

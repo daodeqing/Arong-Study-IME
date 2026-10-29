@@ -49,6 +49,8 @@ class SettingsModel
     void AddConfigListener(ConfigListener listener);
     // Called for every host message of `type` other than configSnapshot.
     void AddMessageListener(const std::string &type, MessageListener listener);
+    void SetListenerScope(size_t scope);
+    void RemoveListenerScope(size_t scope);
 
     // Entry point for messages from the host (the JSON the page would receive).
     void Receive(const std::string &serializedMessage);
@@ -60,8 +62,9 @@ class SettingsModel
     Json config_ = Json::object();
     bool hasConfig_ = false;
     uint64_t nextRequestId_ = 1;
-    std::vector<ConfigListener> configListeners_;
-    std::map<std::string, std::vector<MessageListener>> messageListeners_;
+    size_t listenerScope_ = 0;
+    std::vector<std::pair<size_t, ConfigListener>> configListeners_;
+    std::map<std::string, std::vector<std::pair<size_t, MessageListener>>> messageListeners_;
     bool notifying_ = false;
     bool notifyAgain_ = false;
 };

@@ -1,0 +1,11 @@
+{
+  "version": "0.8.9",
+  "source_commit": "14240d5af4224eba6bae47f81dfd95f55c6bb814",
+  "installation_authorized": true,
+  "phase": "Windows elevation cancelled; installer not launched",
+  "observed_registry_version": "ArongStudyIme_v0.8.8",
+  "installed": false,
+  "fresh_backup": "Private config/provider/legacy dictionary/clipboard files plus consistent sqlite user/stats DB backups created inside repo",
+  "checked_utc": "2026-10-22T17:45:01.750909+00:00",
+  "windows_error": 1223
+}

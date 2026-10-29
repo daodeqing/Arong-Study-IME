@@ -401,8 +401,8 @@ std::string escape_sql_text(std::string text)
 } // namespace
 
 QuanpinDictionary::QuanpinDictionary(std::string db_path, metasequoia::RuntimePaths paths)
-    : cache_(128), series_cache_(128), segmentation_cache_(128), prefix_miss_cache_(128), resolution_cache_(128),
-      lattice_best_path_cache_(64), paths_(std::move(paths)),
+    : cache_(128, kCandidateCacheBudget), series_cache_(128, kCandidateCacheBudget), segmentation_cache_(128),
+      prefix_miss_cache_(128), resolution_cache_(128), lattice_best_path_cache_(64), paths_(std::move(paths)),
       decoder_(paths_.resource(metasequoia::assets::pinyin_model),
                paths_.user(metasequoia::assets::pinyin_user_dictionary)),
       language_model_(&ngram::shared_language_model(paths_.resource(metasequoia::assets::language_model))),

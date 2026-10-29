@@ -46,7 +46,7 @@ int main()
            FanyImeProtocol::TemporaryJapaneseLongVowel) == 0);
     CHECK(FanyImeWorkerReplyType::TemporaryJapanesePolicyChanged == 36);
     CHECK(FanyImeWorkerReplyType::OutputLanguageChanged == 40);
-    CHECK(FanyImeWorkerReplyType::MaxKnown == 41);
+    CHECK(FanyImeWorkerReplyType::MaxKnown == 43);
     for (wchar_t payload = L'0'; payload <= L'3'; ++payload)
     {
         CHECK(FanyImeTemporaryJapanese::IsValidPayload(payload));
@@ -130,7 +130,19 @@ int main()
           0); // old client/new server
     CHECK(FanyImeReplyType::CompositionRestored == 14);
     CHECK(FanyImeReplyType::TrilingualCycle == 15);
-    CHECK(FanyImeReplyType::MaxKnown == FanyImeReplyType::TrilingualCycle);
+    CHECK(FanyImeReplyType::CommitExactTextFrame == 17);
+    CHECK(FanyImeReplyType::MaxKnown == FanyImeReplyType::CommitExactTextFrame);
+    CHECK(FanyImeReplyType::SentenceTranslationPending == 16);
+    CHECK((FanyImeProtocol::SentenceAutoCommit & FanyImeProtocol::LongSentenceCommit) == 0);
+    const auto sentenceCapabilities = FanyImeProtocol::Capabilities | FanyImeProtocol::SentenceTranslation |
+                                      FanyImeProtocol::SentenceAutoCommit | FanyImeProtocol::LongSentenceCommit;
+    const auto sentenceHello = FanyImeProtocol::Hello(7, 23, sentenceCapabilities);
+    const auto oldSentenceServer =
+        FanyImeProtocol::Negotiate(sentenceHello, FanyImeProtocol::Capabilities | FanyImeProtocol::SentenceTranslation |
+                                                      FanyImeProtocol::SentenceAutoCommit);
+    CHECK(oldSentenceServer.accepted);
+    CHECK((oldSentenceServer.capabilities & FanyImeProtocol::SentenceAutoCommit) != 0);
+    CHECK((oldSentenceServer.capabilities & FanyImeProtocol::LongSentenceCommit) == 0);
     CHECK(FanyImeReplyType::TransportUnavailable > FanyImeReplyType::MaxKnown);
 
     const auto cycleCapabilities = FanyImeProtocol::Capabilities | FanyImeProtocol::TrilingualCycle;
@@ -243,7 +255,7 @@ int main()
     CHECK(FanyImeWorkerReplyType::EndHelpcodeTriggersChanged == 37);
     CHECK(FanyImeWorkerReplyType::EnumerationCommaKeysChanged == 38);
     CHECK(FanyImeWorkerReplyType::HorizontalArrowSelectionChanged == 39);
-    CHECK(FanyImeWorkerReplyType::MaxKnown == FanyImeWorkerReplyType::SentenceTranslationChanged);
+    CHECK(FanyImeWorkerReplyType::MaxKnown == FanyImeWorkerReplyType::SentenceTranslationFailed);
     // EnumerationCommaKeysChanged 的载荷：\ 和 / 各一位，两个都没勾按只有 \ 发。
     CHECK(FanyImeEnumerationComma::PayloadFor(true, false) == L'1' &&
           FanyImeEnumerationComma::PayloadFor(false, true) == L'2' &&

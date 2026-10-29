@@ -429,6 +429,11 @@ inline CandidateUiState candidate_ui;
 // presenter and its mouse callbacks) loads a snapshot once and reads only from that copy.
 struct CandidatePageSnapshot
 {
+    std::wstring sentence_source;
+    std::wstring sentence_preview;
+    std::wstring sentence_status;
+    std::wstring sentence_learning_notes;
+    bool sentence_buffer_only = false;
     std::vector<CandidateViewItem> page_views;
     std::vector<std::wstring> page_words;
     std::wstring candidate_string;

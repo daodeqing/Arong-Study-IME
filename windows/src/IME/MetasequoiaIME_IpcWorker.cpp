@@ -254,6 +254,10 @@ bool CMetasequoiaIME::_TakeWorkerCompartmentSwitch(UINT token, _Out_ WorkerCompa
 //----------------------------------------------------------------------------
 void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
 {
+    UINT inputStateSnapshotGeneration = 0;
+    int lastInputMode = -1;
+    int lastOutputLanguageEnglish = -1;
+    int lastSentenceTranslationEnabled = -1;
     const auto notifyDisconnected = [pIME](HANDLE disconnectedPipe, UINT disconnectedGeneration) {
         if (disconnectedGeneration == 0 ||
             pIME->_workerPipeGeneration.load(std::memory_order_acquire) != disconnectedGeneration)
@@ -294,6 +298,16 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
                 return;
             }
             continue;
+        }
+
+        if (inputStateSnapshotGeneration != workerGeneration)
+        {
+            // Every owner needs its own initial synchronization. Process-global
+            // flags may already hold the same value from another TSF thread.
+            inputStateSnapshotGeneration = workerGeneration;
+            lastInputMode = -1;
+            lastOutputLanguageEnglish = -1;
+            lastSentenceTranslationEnabled = -1;
         }
 
         DWORD bytesRead = 0;
@@ -355,7 +369,9 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
             buf.msg_type == Global::DataToTsfWorkerThreadMsgType::CommitCandidateAndContinue ||
             buf.msg_type == Global::DataToTsfWorkerThreadMsgType::InsertText ||
             buf.msg_type == Global::DataToTsfWorkerThreadMsgType::CancelVoiceComposition ||
-            buf.msg_type == Global::DataToTsfWorkerThreadMsgType::UiLessCandidatesChanged)
+            buf.msg_type == Global::DataToTsfWorkerThreadMsgType::UiLessCandidatesChanged ||
+            buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationReady ||
+            buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationFailed)
         {
             bool hasTerminator = false;
             for (const wchar_t ch : buf.data)
@@ -557,12 +573,21 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
             const uint64_t expectedToken = pIME->_expectedWorkerFocusToken.load(std::memory_order_acquire);
             if (expectedToken != 0 && focusToken == expectedToken)
             {
+                const bool alreadyAcknowledged =
+                    pIME->_workerCommitReady.load(std::memory_order_acquire) &&
+                    pIME->_acknowledgedWorkerFocusToken.load(std::memory_order_acquire) == focusToken;
                 pIME->_acknowledgedWorkerFocusToken.store(focusToken, std::memory_order_release);
                 pIME->_workerCommitReady.store(true, std::memory_order_release);
-                // Wake the UI thread waiting in EnsureNamedpipeFocusSessionActivated.
-                if (pIME->_workerAckEvent)
+                // Duplicate ready frames must not turn every key into another
+                // reconnect/status round trip on the host UI thread.
+                if (!alreadyAcknowledged)
                 {
-                    SetEvent(pIME->_workerAckEvent);
+                    if (pIME->_workerAckEvent)
+                    {
+                        SetEvent(pIME->_workerAckEvent);
+                    }
+                    if (pIME->_msgWndHandle)
+                        PostMessage(pIME->_msgWndHandle, WM_IpcReconnect, 0, 0);
                 }
             }
         }
@@ -693,31 +718,63 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::InputModeChanged)
         {
-            Global::JapaneseInputModeEnabled.store(buf.data[0] == L'1', std::memory_order_relaxed);
+            const bool japanese = buf.data[0] == L'1';
+            const bool needsUiUpdate = lastInputMode != static_cast<int>(japanese);
+            lastInputMode = static_cast<int>(japanese);
+            Global::JapaneseInputModeEnabled.store(japanese, std::memory_order_relaxed);
             const HWND ownerWindow = pIME->_msgWndHandle;
-            if (ownerWindow && IsWindow(ownerWindow))
+            if (needsUiUpdate && ownerWindow && IsWindow(ownerWindow))
             {
                 PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 0, 0);
             }
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::OutputLanguageChanged)
         {
-            Global::OutputLanguageEnglish.store(buf.data[0] == L'1', std::memory_order_relaxed);
+            const bool english = buf.data[0] == L'1';
+            const bool needsUiUpdate = lastOutputLanguageEnglish != static_cast<int>(english);
+            const bool changed = lastOutputLanguageEnglish >= 0 && needsUiUpdate;
+            lastOutputLanguageEnglish = static_cast<int>(english);
+            Global::OutputLanguageEnglish.store(english, std::memory_order_relaxed);
             const HWND ownerWindow = pIME->_msgWndHandle;
-            if (ownerWindow && IsWindow(ownerWindow))
+            if (needsUiUpdate && ownerWindow && IsWindow(ownerWindow))
+            {
+                // A repeated status snapshot is not a user output-mode change.
+                // Cancelling here on every echo invalidated in-flight Enter
+                // confirmations even though the selected language never moved.
+                if (changed)
+                    PostMessage(ownerWindow, WM_CancelSentenceTranslationCommit, 0, 0);
                 PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
+            }
+        }
+        else if (buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationReady ||
+                 buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationFailed)
+        {
+            pIME->_PostServerTextDelivery(buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationReady
+                                              ? WM_SentenceTranslationResult
+                                              : WM_SentenceTranslationFailed,
+                                          buf.data);
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::SentenceTranslationChanged)
         {
             if ((buf.data[0] != L'0' && buf.data[0] != L'1') || buf.data[1] != L'\0')
                 continue;
             const bool enabled = buf.data[0] == L'1';
+            const bool needsUiUpdate = lastSentenceTranslationEnabled != static_cast<int>(enabled);
+            lastSentenceTranslationEnabled = static_cast<int>(enabled);
             Global::SentenceTranslationEnabled.store(enabled, std::memory_order_relaxed);
             const HWND ownerWindow = pIME->_msgWndHandle;
-            if (enabled && ownerWindow && IsWindow(ownerWindow))
-                PostMessage(ownerWindow, WM_ApplySentenceTranslation, 0, 0);
             if (ownerWindow && IsWindow(ownerWindow))
-                PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
+            {
+                // Activation may repeat this state after an earlier background
+                // sync could not touch compartments. The owner handler applies
+                // only a real mode change and never echoes an unchanged mode.
+                if (enabled)
+                    PostMessage(ownerWindow, WM_ApplySentenceTranslation, 0, 0);
+                else if (needsUiUpdate)
+                    PostMessage(ownerWindow, WM_CancelSentenceTranslationCommit, 0, 0);
+                if (needsUiUpdate)
+                    PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
+            }
         }
         else if (buf.msg_type == Global::DataToTsfWorkerThreadMsgType::TrilingualCycleChanged)
         {

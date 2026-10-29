@@ -1,0 +1,21 @@
+{
+  "version": "0.8.9",
+  "source_commit": "14240d5af4224eba6bae47f81dfd95f55c6bb814",
+  "ci_run_id": 39820281534,
+  "native_inno_job_id": 119969452544,
+  "native_inno_status": "success",
+  "native_cases": 14,
+  "native_log_summary": [
+    "2026-10-22T17:10:29.3144537Z Installer user-data preservation lists are in sync (17 preserved, 14 migrated)",
+    "2026-10-22T17:10:41.7419433Z Preprocessing{\"production_source_extracted\": true, \"passed\": [\"cleanup-exclusive\", \"cleanup-shared\", \"move-ai_providers.json\", \"same-ai_providers.json\", \"conflict-ai_providers.json\", \"locked-ai_providers.json\", \"move-user_dict.dat\", \"same-user_dict.dat\", \"conflict-user_dict.dat\", \"locked-user_dict.dat\", \"move-clipboard_history.json\", \"same-clipboard_history.json\", \"conflict-clipboard_history.json\", \"locked-clipboard_history.json\"], \"count\": 14}"
+  ],
+  "ci_status": "success",
+  "package_status": "success",
+  "ci_jobs_passed": 11,
+  "previous_passed_source_commit": "df678893775f5b16a9ab285c025196fb83a188be",
+  "previous_passed_ci_run_id": 39818191857,
+  "superseded_package_run_id": 39819055804,
+  "superseded_package_status": "cancelled before release to include requested toolbar control",
+  "package_run_id": 39821189688,
+  "release_url": "https://github.com/daodeqing/Arong-Study-IME/releases/tag/v0.8.9"
+}

@@ -5,7 +5,7 @@
 schema_version = 1
 id = "fluent"
 name = "Fluent 主题"
-description = "当前默认主题"
+description = "双色词典 · 清晰的双语输入与学习层级"
 
 [candidate_window]
 # 候选框里的翻页箭头（默认关闭）：横排在候选右侧、贴着最后一行，竖排在最后一行下方、与序号左对齐
@@ -15,9 +15,9 @@ fit_content = false
 # 横排候选用卷轴展开代替翻页（默认关闭）
 expand_panel = false
 
-corner_radius_dip = 6
-border_width_dip = 1.5
-item_corner_radius_dip = 4
+corner_radius_dip = 12
+border_width_dip = 1
+item_corner_radius_dip = 6
 padding = 5
 item_gap = 2
 item_extra_height = 2
@@ -25,7 +25,7 @@ number_inset = 5
 item_padding_right = 0
 number_scale = 0.8
 number_gap = 1.5
-selected_bar_width = 3
+selected_bar_width = 1
 selected_bar_height_em = 0.85
 selected_bar_inside = false
 justify_rows = false
@@ -37,60 +37,60 @@ preedit_margin_dip = [0, 0, 0, 0]
 item_corners_follow_card = true
 
 [candidate.dark]
-surface = "#202020"
+surface = "#192E34"
 border = "#9b9b9b2e"
 text = "#E9E8E8"
 number = "#e9e8e89d"
-accent = "#6B69D6"
-selected = "#3e3e3eb9"
-hover = "#414141"
+accent = "#74D7C2"
+selected = "#244A4C"
+hover = "#203B42"
 show_selected_bar = true
 # 单词 Notion Purple，与强调色同一色相；词性 Notion Pink。
-translation = "#9A6DD7"
-translation_pos = "#E255A180"
-translation_separator = "#9A6DD773"
+translation = "#A9DCCE"
+translation_pos = "#A1BBBE"
+translation_separator = "#688E92"
 
 [candidate.dark.menu]
-background = "#2D2D2D"
+background = "#192E34"
 border = "#9b9b9b2e"
 text = "#E9E8E8"
-hover = "#414141"
+hover = "#244A4C"
 
 [candidate.light]
 surface = "#FFFFFF"
 border = "rgba(0, 0, 0, 0.12)"
-text = "#1A1A1A"
+text = "#203339"
 number = "rgba(26, 26, 26, 0.55)"
-accent = "#6B69D6"
-selected = "#E8E8E8"
-hover = "#ECECEC"
+accent = "#0B756B"
+selected = "#E1F1ED"
+hover = "#F0F7F5"
 show_selected_bar = true
-translation = "#6940A5"
-translation_pos = "#AD1A7280"
-translation_separator = "#6940A573"
+translation = "#0B756B"
+translation_pos = "#526E75"
+translation_separator = "#809C9C"
 
 [candidate.light.menu]
 background = "#FFFFFF"
 border = "rgba(0, 0, 0, 0.12)"
-text = "#1A1A1A"
-hover = "#ECECEC"
+text = "#203339"
+hover = "#E1F1ED"
 
 [toolbar]
-corner_radius_dip = 8
+corner_radius_dip = 12
 icon_corner_radius_dip = 6
 
 [toolbar.dark]
-background = "#1A1A1A"
+background = "#192E34"
 border = "rgba(255, 255, 255, 0.15)"
 icon = "#FFFFFF"
 hover = "rgba(255, 255, 255, 0.10)"
 divider = "rgba(255, 255, 255, 0.15)"
-handle = "#6B69D6"
+handle = "#74D7C2"
 
 [toolbar.light]
 background = "#FFFFFF"
 border = "rgba(0, 0, 0, 0.12)"
-icon = "#1A1A1A"
+icon = "#203339"
 hover = "rgba(0, 0, 0, 0.08)"
 divider = "rgba(0, 0, 0, 0.12)"
-handle = "#6B69D6"
+handle = "#0B756B"

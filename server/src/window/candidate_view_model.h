@@ -16,6 +16,7 @@ struct CandidateViewItem
     std::string badge;
     std::string translation;
     bool fixed_position = false;
+    std::string learning_notes;
 };
 
 inline std::string EscapeCandidateViewHtml(const std::string &text)
@@ -124,7 +125,7 @@ inline std::string CandidatePageSignature(const std::vector<CandidateViewItem> &
     std::string signature;
     for (const CandidateViewItem &view : views)
     {
-        const std::string html = CandidateViewHtml(view);
+        const std::string html = CandidateViewHtml(view) + "\n" + view.learning_notes;
         signature += std::to_string(html.size());
         signature += ':';
         signature += html;

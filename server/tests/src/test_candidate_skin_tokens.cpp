@@ -61,9 +61,21 @@ CandSkinTokens LegacyTokens(const std::string &baseSkin, bool candLight, bool ho
     }
     if (baseSkin == "fluent")
     {
+        tokens.radius = 12.0f;
+        tokens.borderWidth = 1.0f;
+        tokens.itemRadius = 6.0f;
+        tokens.selectedBarWidth = 1.0f;
         if (horizontalLayout)
             tokens.outerItemRadius = tokens.radius;
-        SetTranslationColors(tokens, candLight ? 0x6940A5 : 0x9A6DD7, candLight ? 0xAD1A72 : 0xE255A1);
+        tokens.accent = ColorFromRgb(candLight ? 0x0B756B : 0x74D7C2);
+        tokens.selected = ColorFromRgb(candLight ? 0xE1F1ED : 0x244A4C);
+        tokens.hover = ColorFromRgb(candLight ? 0xF0F7F5 : 0x203B42);
+        tokens.menuFill = ColorFromRgb(candLight ? 0xFFFFFF : 0x192E34);
+        tokens.menuText = ColorFromRgb(candLight ? 0x203339 : 0xE9E8E8);
+        tokens.menuHover = ColorFromRgb(candLight ? 0xE1F1ED : 0x244A4C);
+        tokens.translation = ColorFromRgb(candLight ? 0x0B756B : 0xA9DCCE);
+        tokens.translationPos = ColorFromRgb(candLight ? 0x526E75 : 0xA1BBBE);
+        tokens.translationSeparator = ColorFromRgb(candLight ? 0x809C9C : 0x688E92);
     }
     else if (baseSkin == "wechat")
     {

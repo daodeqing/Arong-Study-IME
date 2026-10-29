@@ -1,4 +1,4 @@
-; ArongStudyIme — Inno Setup script
+﻿; ArongStudyIme — Inno Setup script
 ; 源文件根目录：本脚本所在目录
 ;
 ; 编译方法：
@@ -52,8 +52,8 @@ AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\ArongStudyIme
 DefaultGroupName={#MyAppName}
-DisableDirPage=yes
-; DisableDirPage=yes 时就绪页默认不显示目标目录，显式打开以便用户确认装到哪。
+DisableDirPage=no
+; 程序目录与数据目录分别选择，并在就绪页同时显示。
 AlwaysShowDirOnReadyPage=yes
 DisableProgramGroupPage=yes
 OutputDir=Output
@@ -68,7 +68,7 @@ UsedUserAreasWarning=no
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayName={#MyAppName}
-UninstallDisplayIcon={commonpf64}\ArongStudyIme\ArongStudyIme.ico
+UninstallDisplayIcon={app}\ArongStudyIme.ico
 VersionInfoVersion={#MyAppVersion}
 
 [Languages]
@@ -78,7 +78,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Dirs]
 Name: "{#MyTsfRoot32}\{code:GetVersionDir}"
 Name: "{#MyTsfRoot64}\{code:GetVersionDir}"
-Name: "{commonpf64}\ArongStudyIme\server"
+Name: "{code:GetAppDir}\server"
 ; 用户数据（词库、配置、皮肤、界面资源）。默认在 LocalAppData，安装时可以改到别的盘，
 ; 选择写进 HKLM 的 DataDir，Server / TSF DLL / 引擎三方都从那里读。
 Name: "{code:GetDataDir}"; Permissions: users-modify
@@ -90,18 +90,18 @@ Name: "{code:GetDataDir}\shuangpin\custom"
 [Files]
 ; 独立安装应用图标，供 Windows“已安装的应用”列表稳定显示。
 Source: "{#MySourceRoot}\ArongStudyIme.ico"; \
-    DestDir: "{commonpf64}\ArongStudyIme"; DestName: "ArongStudyIme.ico"; Flags: ignoreversion
+    DestDir: "{code:GetAppDir}"; DestName: "ArongStudyIme.ico"; Flags: ignoreversion
 
 ; 第三方声明随包安装。词库主体含 rime-ice（GPL-3.0）内容，其许可要求保留署名，
 ; 因此这份文件必须落到用户磁盘上，而不能只存在于源码仓库里。
 Source: "{#MySourceRoot}\THIRD_PARTY_NOTICES.txt"; \
-    DestDir: "{commonpf64}\ArongStudyIme"; Flags: ignoreversion
+    DestDir: "{code:GetAppDir}"; Flags: ignoreversion
 
 ; GPLv3 第 4、6 条要求分发时向接收者提供许可证副本，而 THIRD_PARTY_NOTICES.txt 只是指向
 ; "the LICENSE file"、本身不含 GPL 正文。macOS 与 Linux 的 CMake 安装规则早已随包装入许可证，
 ; Windows 是唯一大规模分发却漏掉这一步的平台。
 Source: "{#MySourceRoot}\LICENSE.txt"; \
-    DestDir: "{commonpf64}\ArongStudyIme"; Flags: ignoreversion
+    DestDir: "{code:GetAppDir}"; Flags: ignoreversion
 
 ; 输入法语言配置（profile）的图标放在固定路径。TSF DLL 每次升级都换版本目录，图标若指向 DLL，
 ; 注册表里的图标路径就跟着变；任务栏恰好在换目录时取不到图标，就改显示「简体」文字并一直沿用到
@@ -134,7 +134,7 @@ Source: "{#MySourceRoot}\tsf_dll\64\*.pdb"; \
     Flags: ignoreversion skipifsourcedoesntexist
 
 Source: "{#MySourceRoot}\server_exe\*"; \
-    DestDir: "{commonpf64}\ArongStudyIme\server"; \
+    DestDir: "{code:GetAppDir}\server"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; 内置皮肤的出厂清单（开关与完整外观）每次安装都整份覆盖：用户技术上能改，但不建议，升级会冲掉改动。
@@ -173,8 +173,8 @@ Source: "{#MySourceRoot}\app_data\config.default.toml"; \
 
 [Icons]
 Name: "{group}\{#MyAppName}"; \
-    Filename: "{commonpf64}\ArongStudyIme\server\{#MySettingsExeName}"; \
-    WorkingDir: "{commonpf64}\ArongStudyIme\server"
+    Filename: "{code:GetAppDir}\server\{#MySettingsExeName}"; \
+    WorkingDir: "{code:GetAppDir}\server"
 Name: "{group}\卸载 {#MyAppName}"; Filename: "{uninstallexe}"
 
 [Registry]
@@ -183,7 +183,7 @@ Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     Flags: uninsdeletevalue
 Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     ValueType: string; ValueName: "ServerPath"; \
-    ValueData: "{commonpf64}\ArongStudyIme\server\{#MyAppExeName}"; \
+    ValueData: "{code:GetAppDir}\server\{#MyAppExeName}"; \
     Flags: uninsdeletevalue
 ; 用户数据目录的唯一权威来源。Server、TSF DLL 和引擎都按
 ; ARONG_STUDY_IME_DATA_DIR → 这个键 → %LOCALAPPDATA%\ArongStudyIme 的顺序解析；
@@ -194,6 +194,11 @@ Root: HKLM; Subkey: "Software\ArongStudyIme\ArongStudyIme"; \
     Flags: uninsdeletevalue
 
 [Code]
+function GetAppDir(Param: String): String;
+begin
+  Result := WizardDirValue;
+end;
+
 const
   { 放在数据目录里，标记「输入法用过这个目录」。}
   DataDirMarkerName = '.ArongStudyIme-data';
@@ -440,14 +445,7 @@ begin
   Result := AddBackslash(GetDataDir('')) + 'config.toml';
 end;
 
-function IsPathInside(const Child, Parent: String): Boolean;
-begin
-  Result :=
-    (CompareText(Child, Parent) = 0) or
-    (CompareText(
-       Copy(AddBackslash(Child), 1, Length(AddBackslash(Parent))),
-       AddBackslash(Parent)) = 0);
-end;
+#include "install_paths.iss"
 
 function DirectoryIsEmpty(const Directory: String): Boolean;
 var
@@ -500,11 +498,12 @@ begin
   { 覆盖安装会清理数据目录里的旧资源，卸载会整个删掉它。
     因此它既不能落在程序目录里，也不能反过来包住系统或用户的关键目录。}
   if
+    InstallationPathsOverlap(GetAppDir(''), Directory) or
     IsPathInside(Directory, ExpandConstant('{commonpf64}\ArongStudyIme')) or
     IsPathInside(Directory, ExpandConstant('{commonpf32}\ArongStudyIme'))
   then
   begin
-    Result := '数据目录不能放在输入法的程序目录里面。';
+    Result := '程序目录与数据目录必须分开，不能相同或互相包含。';
     exit;
   end;
 
@@ -588,19 +587,18 @@ end;
   升级时跳过：那时 config.toml 已经属于用户，安装器不该替他重新决定。}
 procedure InitializeWizard;
 begin
-  { 词库、用户配置、皮肤和界面资源都在这个目录下，整包有几百 MB，
-    所以要让用户能把它放到别的盘。程序本体仍然装在 Program Files：
-    Server 带 uiAccess=true，只有装在受信任目录里这个标志才生效。}
+  { 先选程序目录，再单独选数据目录。Server 带 uiAccess=true，
+    只有签名并安装在受信任目录里，这个标志才生效。}
   DataDirPage := CreateInputDirPage(
-    wpLicense,
+    wpSelectDir,
     '选择数据位置',
     '输入法数据存放在哪里',
-    '请选择输入法数据（词库、配置、皮肤）的存放位置。',
+    '这里仅存放词库、配置和皮肤，不是程序安装目录。请选择与程序目录分开的专用文件夹。',
     True,
     'ArongStudyIme'
   );
   DataDirPage.Add('');
-  DataDirPage.Values[0] := ResolvePreviousDataDir;
+  DataDirPage.Values[0] := GetDataDir('');
   DataDirPage.Buttons[0].OnClick := @DataDirBrowseClick;
 
 #ifndef LightPackage
@@ -638,7 +636,7 @@ begin
     完成页点击 Finish 后，以原用户身份执行 ShellExecute（等同双击）。}
   ShellExecAsOriginalUser(
     '',
-    ExpandConstant('{commonpf64}\ArongStudyIme\server\{#MyAppExeName}'),
+    GetAppDir('') + '\server\{#MyAppExeName}',
     '',
     '',
     SW_SHOWNORMAL,
@@ -647,7 +645,7 @@ begin
   );
   ShellExecAsOriginalUser(
     '',
-    ExpandConstant('{commonpf64}\ArongStudyIme\server\{#MyWatchdogName}'),
+    GetAppDir('') + '\server\{#MyWatchdogName}',
     '',
     '',
     SW_SHOWNORMAL,
@@ -781,6 +779,15 @@ begin
     (CompareText(FileName, 'config.base.toml') = 0);
 end;
 
+function IsUserStateFile(const FileName: String): Boolean;
+begin
+  { 服务商配置、旧式用户词典和剪贴板历史都不能从安装包重建。 }
+  Result :=
+    (CompareText(FileName, 'ai_providers.json') = 0) or
+    (CompareText(FileName, 'user_dict.dat') = 0) or
+    (CompareText(FileName, 'clipboard_history.json') = 0);
+end;
+
 function IsUserTranslationFile(const FileName: String): Boolean;
 begin
   { 候选窗中英翻译的人工覆盖表，由用户手工放在数据目录根下（README「自定义候选窗翻译」一节），
@@ -820,6 +827,7 @@ begin
     IsUserDatabaseFile(FileName) or
     IsUserStatisticsDatabase(FileName) or
     IsUserConfigFile(FileName) or
+    IsUserStateFile(FileName) or
     IsUserTranslationFile(FileName) or
     IsUserSkinDirectory(FileName) or
     IsUserShuangpinDirectory(FileName) or
@@ -863,8 +871,6 @@ begin
     (CompareText(FileName, 'others.db-wal') = 0) or
     (CompareText(FileName, 'others.db-shm') = 0) or
     (CompareText(FileName, 'others.db-journal') = 0) or
-    (CompareText(FileName, 'user_dict.dat') = 0) or
-    (CompareText(FileName, 'clipboard_history.json') = 0) or
     (CompareText(FileName, 'voice_system_audio_mute_state.txt') = 0) or
     (CompareText(FileName, 'config.toml.tmp') = 0) or
     (CompareText(FileName, 'config.base.toml.tmp') = 0) or
@@ -1038,8 +1044,7 @@ var
   ResultCode: Integer;
 begin
   ResultCode := -1;
-  WatchdogPath := ExpandConstant(
-    '{commonpf64}\ArongStudyIme\server\{#MyWatchdogName}');
+  WatchdogPath := GetAppDir('') + '\server\{#MyWatchdogName}';
   { /F replaces the same fixed-name task during an upgrade. /IT keeps the
     task in the interactive user's session; LIMITED avoids an elevated token. }
   Params :=
@@ -1308,8 +1313,7 @@ begin
     exit;
   end;
 
-  ReplayPath := ExpandConstant(
-    '{commonpf64}\ArongStudyIme\server\{#MyReplayName}');
+  ReplayPath := GetAppDir('') + '\server\{#MyReplayName}';
   Log('Starting user dictionary replay.');
   if not Exec(
     ReplayPath,
@@ -1379,7 +1383,8 @@ begin
     '"' + RemoveBackslashUnlessRoot(OldDir) + '" "' + RemoveBackslashUnlessRoot(NewDir) + '" ' +
     'msime_user.db msime_user.db-wal msime_user.db-shm msime_user.db-journal ' +
     'stats.db stats.db-wal stats.db-shm stats.db-journal ' +
-    'config.toml config.base.toml custom_translations.txt /MOVE /R:2 /W:1 /NJH /NJS /NP /NFL /NDL',
+    'config.toml config.base.toml custom_translations.txt ' +
+    'ai_providers.json user_dict.dat clipboard_history.json /MOVE /R:2 /W:1 /NJH /NJS /NP /NFL /NDL',
     '',
     SW_HIDE,
     ewWaitUntilTerminated,
@@ -1456,6 +1461,8 @@ begin
       Result := ConfigMigrationFailure(OldDir, NewDir);
       if Result = '' then
         Result := TranslationMigrationFailure(OldDir, NewDir);
+      if Result = '' then
+        Result := UserStateMigrationFailure(OldDir, NewDir);
     end;
     exit;
   end;
@@ -1641,8 +1648,7 @@ begin
   CleanAppDataExceptUserFiles;
 #endif
   RemoveLegacyWebView2UserData;
-  TryDeleteTree(ExpandConstant(
-    '{commonpf64}\ArongStudyIme\server'));
+  TryDeleteTree(GetAppDir('') + '\server');
   TryDeleteOldVersionDirs(TsfRoot32);
   TryDeleteOldVersionDirs(TsfRoot64);
   { 旧版把 TSF DLL 装在 Program Files 下，升级上来时一并清掉。}
@@ -1715,7 +1721,7 @@ begin
   else if CurUninstallStep = usPostUninstall then
   begin
     TryDeleteTree(ExpandConstant(
-      '{commonpf64}\ArongStudyIme\server'));
+      '{app}\server'));
     { 还被宿主进程加载着的 DLL 删不掉，会留到重启后由用户或下次安装清理。}
     TryDeleteTree(TsfRoot32);
     TryDeleteTree(TsfRoot64);

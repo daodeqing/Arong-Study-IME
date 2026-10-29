@@ -77,6 +77,19 @@ bool SetConfiguredSentenceTranslationEnabled(bool enabled)
     return true;
 }
 
+bool GetConfiguredSentenceVocabularyEnabled()
+{
+    return g_sentence_vocabulary_enabled.load(std::memory_order_relaxed);
+}
+
+bool SetConfiguredSentenceVocabularyEnabled(bool enabled)
+{
+    if (!WriteConfiguredValue("general", "sentence_vocabulary", enabled ? "true" : "false"))
+        return false;
+    g_sentence_vocabulary_enabled.store(enabled, std::memory_order_relaxed);
+    return true;
+}
+
 bool GetConfiguredEnglishCandidatesEnabled()
 {
     return g_english_candidates_enabled;

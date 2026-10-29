@@ -57,8 +57,9 @@ ShuangpinDictionary::ShuangpinDictionary(const ShuangpinProfile &profile, metase
       language_model_(&ngram::shared_language_model(paths_.resource(metasequoia::assets::language_model))),
       neural_keyboard_model_(metasequoia::path_to_utf8(paths_.resource(metasequoia::assets::neural_model_keyboard))),
       helpcodes_(HelpcodeUtils::load_helpcode_keymap(paths_.resources, HelpcodeUtils::selected_helpcode_schema())),
-      _kb_input_sequence(100), _cached_buffer(128), _cached_buffer_sgl(128), _cached_buffer_sgl_reversed(128),
-      _cached_buffer_dbl(128), _cached_buffer_series(128)
+      _kb_input_sequence(100), _cached_buffer(128, kCandidateCacheBudget),
+      _cached_buffer_sgl(128, kCandidateCacheBudget), _cached_buffer_sgl_reversed(128, kCandidateCacheBudget),
+      _cached_buffer_dbl(128, kCandidateCacheBudget), _cached_buffer_series(128, kCandidateCacheBudget)
 {
     // 最多可以输出 64 个汉字，拼音最多可以接受 128 个字符
 

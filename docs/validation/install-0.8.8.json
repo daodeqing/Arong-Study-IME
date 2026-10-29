@@ -1,0 +1,41 @@
+{
+  "version": "0.8.8",
+  "installer_exit_code": 0,
+  "registry": {
+    "VersionDir": "ArongStudyIme_v0.8.8",
+    "ServerPath": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe",
+    "DataDir": "D:\\LUO\\啊隆输入法数据"
+  },
+  "file_versions": {
+    "Server": "0.8.8.0",
+    "Settings": "0.8.8.0",
+    "Watchdog": "0.8.8.0"
+  },
+  "checks": {
+    "config.toml_bytes_preserved": true,
+    "ai_providers.json_bytes_preserved": true,
+    "user_dict.dat_bytes_preserved": true,
+    "sentence_translation_config_preserved": true,
+    "msime_user.db_quick_check": "ok",
+    "stats.db_quick_check": "ok",
+    "watchdog_task_path_correct": true
+  },
+  "processes_at_verification": [
+    {
+      "pid": 14120,
+      "name": "ArongStudyImeServer.exe",
+      "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeServer.exe"
+    },
+    {
+      "pid": 14184,
+      "name": "ArongStudyImeWatchdog.exe",
+      "exe": "D:\\LUO\\啊隆输入法\\server\\ArongStudyImeWatchdog.exe"
+    }
+  ],
+  "restored_from_backup": [
+    "ai_providers.json",
+    "user_dict.dat"
+  ],
+  "upgrade_issue": "Existing installer cleanup omitted provider registry, legacy dictionary and clipboard history from preserved files. First two restored; 628-byte clipboard history not backed up and not recovered. Installer fix pending.",
+  "checked_utc": "2026-10-22T16:46:21.854979+00:00"
+}
