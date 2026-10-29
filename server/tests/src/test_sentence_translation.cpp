@@ -70,6 +70,13 @@ TEST_CASE(sentence_translation_presets_cover_daily_academic_creative_and_custom_
     const auto casual = SentenceTranslation::ResolveConfiguredPrompt(ai);
     REQUIRE(casual.find("use lowercase style") != std::string::npos);
     REQUIRE(casual.find("case of URLs, email addresses, code") != std::string::npos);
+    const AiTranslation::Config casual_config{"local", "http://127.0.0.1:8317/v1/chat/completions", "", "test",
+                                              "casual", casual};
+    const auto casual_request = SentenceTranslation::detail::BuildRequest(casual_config, "Visit Example.com/Case");
+    REQUIRE_EQ(casual_request["messages"][0]["content"].get<std::string>(), casual);
+    REQUIRE_EQ(casual_request["messages"][1]["content"].get<std::string>(), std::string("Visit Example.com/Case"));
+    REQUIRE_EQ(SentenceTranslation::detail::ParseResult("hey, see Example.com/Case"),
+               std::string("hey, see Example.com/Case"));
     ai.prompt_id = "academic";
     REQUIRE(SentenceTranslation::ResolveConfiguredPrompt(ai).find("precise academic English") != std::string::npos);
     ai.prompt_id = "creative";
