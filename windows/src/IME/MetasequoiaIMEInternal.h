@@ -8,7 +8,5 @@
 
 namespace metasequoia_ime_detail
 {
-constexpr UINT CONNECT_NAMEDPIPE_RETRY_INTERVAL_MS = 50;
-
 UINT NextWindowMessageToken();
 } // namespace metasequoia_ime_detail

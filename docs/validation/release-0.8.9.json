@@ -1,0 +1,21 @@
+{
+  "version": "0.8.9",
+  "source_commit": "14240d5af4224eba6bae47f81dfd95f55c6bb814",
+  "release_url": "https://github.com/daodeqing/Arong-Study-IME/releases/tag/v0.8.9",
+  "release_id": 421014741,
+  "draft": false,
+  "prerelease": false,
+  "latest_verified": true,
+  "tag_commit": "14240d5af4224eba6bae47f81dfd95f55c6bb814",
+  "asset": "ArongStudyIme_Setup_v0.8.9.exe",
+  "bytes": 90150416,
+  "sha256": "7a39d26cbe26ded07d9e8b1cb380f3954c2e442e55c323ff7dbb1d28411f5122",
+  "sidecar_verified": true,
+  "github_asset_digest_verified": true,
+  "ci_run_id": 39820281534,
+  "ci_jobs_passed": 11,
+  "package_run_id": 39821189688,
+  "package_status": "success",
+  "checked_utc": "2026-10-22T17:40:20.324309+00:00",
+  "signature": "unsigned; uiAccess unavailable"
+}

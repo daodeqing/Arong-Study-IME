@@ -1,0 +1,71 @@
+{
+  "method": "Windows Recycle Bin",
+  "items": [
+    {
+      "name": ".tmp-backspace-baseline",
+      "bytes": 9002891,
+      "recycled": true
+    },
+    {
+      "name": ".tmp-backspace-server-baseline",
+      "bytes": 302259764,
+      "recycled": true
+    },
+    {
+      "name": ".work-performance-0.8.8/tools",
+      "bytes": 431396969,
+      "recycled": true
+    },
+    {
+      "name": ".work-performance-0.8.8/zig-global-cache",
+      "bytes": 87996400,
+      "recycled": true
+    },
+    {
+      "name": ".work-performance-0.8.8/zig-local-cache",
+      "bytes": 2714532,
+      "recycled": true
+    },
+    {
+      "name": ".work-performance-0.8.8",
+      "bytes": 183267311,
+      "recycled": true
+    },
+    {
+      "name": ".tmp-backspace-tools",
+      "bytes": 3418072,
+      "recycled": true,
+      "restored_for_toolbar_format_then_recycled_again": true
+    },
+    {
+      "name": ".work-sentence/install_authorized.py",
+      "bytes": 1470,
+      "recycled": true
+    },
+    {
+      "name": ".work-sentence/run_installer_direct.py",
+      "bytes": 2498,
+      "recycled": true
+    },
+    {
+      "name": ".work-sentence/native_acceptance.py",
+      "bytes": 7795,
+      "recycled": true
+    },
+    {
+      "name": ".work-toolbar-0.8.9",
+      "bytes": 101,
+      "recycled": true
+    }
+  ],
+  "total_bytes": 1020067803,
+  "remaining_until_post_install": [],
+  "finished_utc": "2026-10-22T17:45:01.921556+00:00",
+  "preserved": [
+    "Reusable native host and CPU sampler",
+    "Sanitized before/after validation reports",
+    "Current installer and SHA256",
+    "Private preinstall config and consistent user DB backups"
+  ],
+  "total_note": "Current distinct payload sizes; reused formatter counted once. Recycle Bin retains the files."
+}

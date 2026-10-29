@@ -95,6 +95,28 @@ void CandidateList::AddItem(Item item)
 
 void CandidateList::SetItems(std::vector<Item> items)
 {
+    const bool unchanged =
+        items.size() == items_.size() &&
+        std::equal(items.begin(), items.end(), items_.begin(), [](const Item &a, const Item &b) {
+            return a.label == b.label && a.text == b.text && a.annotation == b.annotation &&
+                   a.translation == b.translation && a.translationRuns.size() == b.translationRuns.size() &&
+                   std::equal(a.translationRuns.begin(), a.translationRuns.end(), b.translationRuns.begin(),
+                              [](const TextRun &x, const TextRun &y) {
+                                  return x.start == y.start && x.length == y.length && x.role == y.role;
+                              });
+        });
+    if (unchanged)
+    {
+        // Keep the shaped text and measured geometry when a publisher repeats
+        // a page. Interaction reset semantics still match a replaced list.
+        const bool interactionChanged =
+            pressedIndex_ != static_cast<size_t>(-1) || hoveredIndex_ != static_cast<size_t>(-1);
+        pressedIndex_ = static_cast<size_t>(-1);
+        hoveredIndex_ = static_cast<size_t>(-1);
+        if (interactionChanged)
+            InvalidateVisual();
+        return;
+    }
     items_ = std::move(items);
     if (selectedIndex_ >= items_.size())
     {

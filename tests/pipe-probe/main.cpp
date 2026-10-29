@@ -73,6 +73,51 @@ void Require(bool condition, const char *message)
         throw std::runtime_error(message);
 }
 
+unsigned ReadModeRepliesUntilFocusReady(Pipe &workers, std::uint64_t focus_token)
+{
+    unsigned mode_replies = 0;
+    for (unsigned count = 0; count < 64; ++count)
+    {
+        const auto reply = workers.Read<FanyImeNamedpipeDataToTsfWorkerThread>();
+        if (reply.msg_type == FanyImeWorkerReplyType::InputModeChanged)
+            ++mode_replies;
+        if (reply.msg_type == FanyImeWorkerReplyType::FocusSessionReady)
+        {
+            Require(std::wstring(reply.data) == std::to_wstring(focus_token), "Focus token changed");
+            return mode_replies;
+        }
+    }
+    throw std::runtime_error("Compatible client did not reach the active session barrier");
+}
+
+void ProbeStatusSnapshotConvergence(Pipe &main, Pipe &workers, FanyImeNamedpipeData &activation)
+{
+    FanyImeNamedpipeData snapshot{};
+    snapshot.event_type = FanyImePipeEventType::StatusSnapshot;
+    snapshot.client_id = activation.client_id;
+    snapshot.keycode = 1;
+
+    const auto check_snapshot = [&](unsigned expected_mode_replies) {
+        main.Write(snapshot);
+        // Same focus token: this explicit retry is idempotent and supplies an
+        // ordered worker-pipe barrier after the preceding status snapshot.
+        main.Write(activation);
+        Require(ReadModeRepliesUntilFocusReady(workers, activation.request_id) == expected_mode_replies,
+                "Repeated status snapshots amplified full policy replies");
+    };
+    check_snapshot(2); // First snapshot sync plus the explicit activation's sync.
+    check_snapshot(1); // Only the explicit activation sync; an old DLL echo stops.
+    check_snapshot(1);
+
+    // A genuinely new focus session still gets its own first-snapshot sync.
+    ++activation.request_id;
+    main.Write(activation);
+    Require(ReadModeRepliesUntilFocusReady(workers, activation.request_id) == 1,
+            "New focus activation did not synchronize mode exactly once");
+    check_snapshot(2);
+    check_snapshot(1);
+}
+
 void Probe(unsigned sequence, bool legacy, bool incompatible, bool character_set_shortcut = false)
 {
     const auto client = (static_cast<std::uint64_t>(GetCurrentProcessId()) << 32) | sequence;
@@ -90,9 +135,9 @@ void Probe(unsigned sequence, bool legacy, bool incompatible, bool character_set
             "Worker endpoint was not registered");
 
     Pipe main(FANY_IME_NAMED_PIPE);
-    auto hello = FanyImeProtocol::Hello(
-        client, sequence,
-        FanyImeProtocol::Capabilities | (character_set_shortcut ? FanyImeProtocol::CharacterSetShortcut : 0u));
+    auto hello = FanyImeProtocol::Hello(client, sequence,
+                                        FanyImeProtocol::Capabilities |
+                                            (character_set_shortcut ? FanyImeProtocol::CharacterSetShortcut : 0u));
     if (legacy)
     {
         hello = {};
@@ -135,6 +180,7 @@ void Probe(unsigned sequence, bool legacy, bool incompatible, bool character_set
         }
     }
     Require(activated, "Compatible client did not reach the active session barrier");
+    ProbeStatusSnapshotConvergence(main, workers, activation);
     activation.event_type = FanyImePipeEventType::ClientDeactivated;
     main.Write(activation);
 }
@@ -148,7 +194,10 @@ int main()
         Probe(3, false, true);
         Probe(4, false, false); // reconnect after the rejected client
         Probe(5, false, false, true);
-        std::cout << "Real Server: new client, legacy client, version rejection, reconnect and optional shortcut capability passed\n";
+        Probe(1, false, false); // A new registration of the original client must sync again.
+        std::cout
+            << "Real Server: new client, legacy client, version rejection, reconnect, optional shortcut capability "
+               "and bounded status synchronization passed\n";
         return 0;
     }
     catch (const std::exception &error)

@@ -84,7 +84,7 @@ HRESULT CMetasequoiaIME::_HandleCandidateFinalize(TfEditCookie ec, _In_ ITfConte
                 return FANY_S_COMMIT_REPLY_NOT_READY;
             }
             serverMsgType = receivedData->msg_type;
-            serverCandidateString = receivedData->candidate_string;
+            serverCandidateString = ServerReplyText(*receivedData);
         }
 
         if (serverMsgType == Global::DataFromServerMsgType::TransportUnavailable)
@@ -122,12 +122,15 @@ HRESULT CMetasequoiaIME::_HandleCandidateFinalize(TfEditCookie ec, _In_ ITfConte
         }
         /* 处理造词的逻辑 */
         else if (serverMsgType == Global::DataFromServerMsgType::NeedToCreateWord ||
-                 serverMsgType == Global::DataFromServerMsgType::CompositionRestored)
+                 serverMsgType == Global::DataFromServerMsgType::CompositionRestored ||
+                 serverMsgType == FanyImeReplyType::SentenceTranslationPending)
         {
             CreatingWordPayload payload;
             if (ParseCreatingWordPayload(serverCandidateString, payload))
             {
-                (void)_ApplyCreatingWordPayload(ec, pContext, payload);
+                hr = _ApplyCreatingWordPayload(ec, pContext, payload);
+                if (SUCCEEDED(hr) && serverMsgType == FanyImeReplyType::SentenceTranslationPending)
+                    _AcceptSentenceTranslationCommit(requestId);
             }
             return hr;
         }

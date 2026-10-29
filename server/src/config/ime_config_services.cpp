@@ -6,6 +6,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <string>
+#include "cloud/sentence_translation.h"
 #include "voice-input/voice_providers.h"
 
 using namespace ime_config_detail;
@@ -366,7 +367,9 @@ void ime_config_detail::PublishTranslationConfig()
     snapshot->tencent = g_tencent_tmt;
     snapshot->custom = g_custom_translation;
     snapshot->niutrans = g_niutrans;
-    snapshot->ai = {g_ai_assistant.provider, g_ai_assistant.endpoint, g_ai_assistant.token, g_ai_assistant.model};
+    snapshot->ai = {g_ai_assistant.provider,  g_ai_assistant.endpoint,
+                    g_ai_assistant.token,     g_ai_assistant.model,
+                    g_ai_assistant.prompt_id, SentenceTranslation::ResolveConfiguredPrompt(g_ai_assistant)};
     std::lock_guard<std::mutex> lock(g_translation_snapshot_mutex);
     g_translation_snapshot = std::move(snapshot);
 }
@@ -494,7 +497,7 @@ static std::string AiAssistantEffectiveValue(const std::string &key, const std::
 
 static bool ApplyAiAssistantString(const std::string &key, const std::string &value)
 {
-    if (key == "prompt_id" && value != "custom_1" && value != "custom_2" && value != "custom_3")
+    if (key == "prompt_id" && !SentenceTranslation::IsValidPromptId(value))
         return false;
     if (key == "thinking" && !VoiceInput::IsValidThinkingLevel(value))
         return false;

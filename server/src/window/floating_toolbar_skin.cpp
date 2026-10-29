@@ -28,13 +28,13 @@ void ApplyToolbarLayer(FloatingToolbarSkin &skin, const CandidateSkinCatalog::Pa
 FloatingToolbarSkin ResolveFloatingToolbarSkin(const CandidateSkinCatalog::Package &baseLook, bool light)
 {
     // 配色与圆角都来自基底清单的 [toolbar]；清单没写的项（不该发生）退回不透明的中性色。
-    FloatingToolbarSkin skin{CandidateColorFromRgb(light ? 0xFFFFFF : 0x1A1A1A),
+    FloatingToolbarSkin skin{CandidateColorFromRgb(light ? 0xFFFFFF : 0x192E34),
                              light ? D2D1::ColorF(0, 0.12f) : D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.15f),
-                             CandidateColorFromRgb(light ? 0x1A1A1A : 0xFFFFFF),
+                             CandidateColorFromRgb(light ? 0x203339 : 0xFFFFFF),
                              light ? D2D1::ColorF(0, 0.08f) : D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.10f),
                              light ? D2D1::ColorF(0, 0.12f) : D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.15f),
-                             CandidateColorFromRgb(0x6B69D6),
-                             8.0f,
+                             CandidateColorFromRgb(light ? 0x0B756B : 0x74D7C2),
+                             12.0f,
                              6.0f};
     ApplyToolbarLayer(skin, baseLook, light);
     return skin;

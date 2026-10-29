@@ -1,0 +1,25 @@
+{
+  "method": "Windows Recycle Bin",
+  "items": [
+    {
+      "name": ".work-sentence/version-tools",
+      "bytes": 3379150,
+      "recycled": true
+    },
+    {
+      "name": ".work-sentence/pip-cache",
+      "bytes": 1499125,
+      "recycled": true
+    },
+    {
+      "name": ".work-sentence/temp",
+      "bytes": 0,
+      "recycled": true
+    }
+  ],
+  "total_bytes": 4878275,
+  "preserved": [
+    ".work-sentence/preinstall-backup-0.8.6",
+    "installer/Output/v0.8.5"
+  ]
+}

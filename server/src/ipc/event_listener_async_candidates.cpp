@@ -412,7 +412,8 @@ void ApplyMixedCandidates(MixedCandidates::Result result, const std::string &inp
         g_inputSession == nullptr || g_english_input_mode || !CanMergeAsyncCandidates() ||
         (g_inputSession->current_scheme_type() != SchemeType::Quanpin &&
          g_inputSession->current_scheme_type() != SchemeType::Shuangpin) ||
-        g_inputSession->get_pinyin_sequence_with_cases() != input || GlobalIme::composition.creating_word.active)
+        g_inputSession->get_pinyin_sequence_with_cases() != input ||
+        (GlobalIme::composition.creating_word.active && !GetConfiguredSentenceTranslationEnabled()))
     {
         return;
     }

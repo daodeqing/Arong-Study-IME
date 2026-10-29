@@ -96,6 +96,42 @@ target_include_directories(test_reconnect_recovery PRIVATE "${CMAKE_CURRENT_BINA
 target_compile_features(test_reconnect_recovery PRIVATE cxx_std_17)
 add_test(NAME reconnect_recovery COMMAND test_reconnect_recovery)
 
+# Healthy but delayed focus echoes must not reset the unsent first-key FIFO.
+set(focus_activation_ipc_header "${CMAKE_CURRENT_SOURCE_DIR}/../src/IPC/Ipc.h")
+set(focus_activation_ipc_source "${CMAKE_CURRENT_SOURCE_DIR}/../src/IPC/Ipc.cpp")
+set(focus_activation_worker_source "${CMAKE_CURRENT_SOURCE_DIR}/../src/IME/MetasequoiaIME_IpcWorker.cpp")
+set(focus_activation_fixture_generator "${CMAKE_CURRENT_SOURCE_DIR}/generate_focus_activation_fixture.py")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${focus_activation_ipc_header}" "${focus_activation_ipc_source}"
+    "${focus_activation_worker_source}" "${focus_activation_fixture_generator}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/generate_commit_reply_fixture.py")
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}" "${focus_activation_fixture_generator}"
+        "${focus_activation_ipc_header}" "${focus_activation_ipc_source}" "${focus_activation_worker_source}"
+        "${CMAKE_CURRENT_BINARY_DIR}/focus_activation_source.h"
+    COMMAND_ERROR_IS_FATAL ANY)
+add_executable(test_focus_activation_pending focus_activation_pending.cpp)
+target_include_directories(test_focus_activation_pending PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_features(test_focus_activation_pending PRIVATE cxx_std_17)
+add_test(NAME focus_activation_pending COMMAND test_focus_activation_pending)
+
+# Compile the actual worker snapshot branches and owner-thread apply case.
+set(input_state_worker_source "${CMAKE_CURRENT_SOURCE_DIR}/../src/IME/MetasequoiaIME_IpcWorker.cpp")
+set(input_state_window_source "${CMAKE_CURRENT_SOURCE_DIR}/../src/IME/MetasequoiaIME_WindowProc.cpp")
+set(input_state_fixture_generator "${CMAKE_CURRENT_SOURCE_DIR}/generate_input_state_fixture.py")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${input_state_worker_source}" "${input_state_window_source}" "${input_state_fixture_generator}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/generate_commit_reply_fixture.py")
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}" "${input_state_fixture_generator}"
+        "${input_state_worker_source}" "${input_state_window_source}"
+        "${CMAKE_CURRENT_BINARY_DIR}/input_state_source.h"
+    COMMAND_ERROR_IS_FATAL ANY)
+add_executable(test_input_state_idempotency input_state_idempotency.cpp)
+target_include_directories(test_input_state_idempotency PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_features(test_input_state_idempotency PRIVATE cxx_std_17)
+add_test(NAME input_state_idempotency COMMAND test_input_state_idempotency)
+
 # Link the same inline key classifier used by normal and queued TSF paths.
 if(WIN32)
     add_executable(test_temporary_japanese_input temporary_japanese_input.cpp)
@@ -133,3 +169,10 @@ add_test(NAME commit_reply_not_ready COMMAND test_commit_reply_not_ready)
 add_executable(test_sentence_translation_keys sentence_translation_keys.cpp)
 target_compile_features(test_sentence_translation_keys PRIVATE cxx_std_17)
 add_test(NAME sentence_translation_keys COMMAND test_sentence_translation_keys)
+
+add_executable(test_long_sentence_commit long_commit.cpp)
+target_compile_features(test_long_sentence_commit PRIVATE cxx_std_17)
+add_test(NAME long_sentence_commit COMMAND test_long_sentence_commit)
+add_executable(test_sentence_auto_commit sentence_auto_commit.cpp)
+target_compile_features(test_sentence_auto_commit PRIVATE cxx_std_17)
+add_test(NAME sentence_auto_commit COMMAND test_sentence_auto_commit)

@@ -383,7 +383,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         if (Global::g_connected)
         {
             const bool resetPending = pIME->_localSessionResetPending.load(std::memory_order_acquire);
-            const bool activated = !resetPending && EnsureNamedpipeFocusSessionActivated();
+            const bool activated = !resetPending && EnsureNamedpipeFocusSessionActivated(false);
             if (activated)
             {
                 KillTimer(hWnd, TIMER_CONNECT_ALL_NAMEDPIPE);
@@ -400,6 +400,12 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         break;
     }
     case WM_TIMER: {
+        if (wParam == TIMER_SENTENCE_TRANSLATION)
+        {
+            if (!pIME->_sentenceCommit.Current(pIME->_SentenceSession(), GetTickCount64()))
+                pIME->_CancelSentenceTranslationCommit();
+            break;
+        }
         if (wParam == TIMER_COMMIT_REPLY_POLL)
         {
             // A committing key could not settle its reply in the last slice, so
@@ -466,7 +472,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
                 }
             }
 
-            if (EnsureNamedpipeFocusSessionActivated())
+            if (EnsureNamedpipeFocusSessionActivated(false))
             {
                 KillTimer(hWnd, TIMER_CONNECT_ALL_NAMEDPIPE);
                 pIME->_ipcReconnectDelayMs = CONNECT_NAMEDPIPE_RETRY_INTERVAL_MS;
@@ -908,9 +914,10 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         if (IsSentenceTranslationEnabled() &&
             (receivedData->msg_type == Global::DataFromServerMsgType::NeedToCreateWord ||
              receivedData->msg_type == Global::DataFromServerMsgType::CompositionRestored ||
+             receivedData->msg_type == FanyImeReplyType::SentenceTranslationPending ||
              receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText))
         {
-            pIME->_QueuePendingServerCandidate(receivedData->msg_type, receivedData->candidate_string);
+            pIME->_QueuePendingServerCandidate(receivedData->msg_type, ServerReplyText(*receivedData).c_str());
             ITfDocumentMgr *document = nullptr;
             ITfContext *context = nullptr;
             bool dispatched = false;
@@ -934,7 +941,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         else if (receivedData->msg_type == Global::DataFromServerMsgType::CommitExactText)
         {
             pIME->_PostAsyncKeyRequest(WM_AsyncPunctuationCommit, code, wch, request.requestId,
-                                       receivedData->candidate_string, request.focusToken, request.compositionEpoch,
+                                       ServerReplyText(*receivedData), request.focusToken, request.compositionEpoch,
                                        request.deferredReplayToken);
         }
         else if (receivedData->msg_type == Global::DataFromServerMsgType::Normal)
@@ -1035,6 +1042,18 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         SendCurrentImeStatusSnapshot(pIME);
         break;
     }
+    case WM_SentenceTranslationResult:
+        pIME->_ReceiveSentenceTranslationResult(static_cast<UINT>(wParam), false);
+        break;
+    case WM_SentenceTranslationFailed:
+        pIME->_ReceiveSentenceTranslationResult(static_cast<UINT>(wParam), true);
+        break;
+    case WM_TrySentenceTranslationCommit:
+        pIME->_TrySentenceTranslationCommit();
+        break;
+    case WM_CancelSentenceTranslationCommit:
+        pIME->_CancelSentenceTranslationCommit();
+        break;
     case WM_ToggleSentenceOutput: {
         if (!IsSentenceTranslationEnabled() || !pIME->_pThreadMgr)
             break;
@@ -1057,10 +1076,16 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         BOOL hasThreadFocus = FALSE;
         if (IsSentenceTranslationEnabled() && pIME->_pThreadMgr && pIME->_pCompositionProcessorEngine &&
             SUCCEEDED(pIME->_pThreadMgr->IsThreadFocus(&hasThreadFocus)) && hasThreadFocus &&
-            !pIME->_IsKeyboardDisabled())
+            !pIME->_IsKeyboardDisabled() &&
+            !pIME->_pCompositionProcessorEngine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
         {
+            // Repeated state frames must not echo another full status snapshot
+            // when the required Chinese composition mode is already applied.
             pIME->_pCompositionProcessorEngine->SetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
-            SendCurrentImeStatusSnapshot(pIME);
+            // Some hosts reject compartment changes. Do not announce a change
+            // that never took effect and invite another identical apply frame.
+            if (pIME->_pCompositionProcessorEngine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
+                SendCurrentImeStatusSnapshot(pIME);
         }
         break;
     }

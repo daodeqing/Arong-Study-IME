@@ -193,6 +193,14 @@ class CandidateSkinScene
     {
         return preedit_;
     }
+    const std::shared_ptr<msimeui::TextBlock> &SupplementaryText() const
+    {
+        return supplementary_;
+    }
+    const std::shared_ptr<msimeui::TextBlock> &LearningNotes() const
+    {
+        return learningNotes_;
+    }
     const std::shared_ptr<msimeui::CandidateList> &List() const
     {
         return list_;
@@ -243,6 +251,8 @@ class CandidateSkinScene
     std::shared_ptr<msimeui::Container> frame_;
     std::shared_ptr<msimeui::StackPanel> body_;
     std::shared_ptr<msimeui::TextBlock> preedit_;
+    std::shared_ptr<msimeui::TextBlock> supplementary_;
+    std::shared_ptr<msimeui::TextBlock> learningNotes_;
     std::shared_ptr<msimeui::CandidateList> list_;
     std::shared_ptr<msimeui::PagerArrows> pager_;
     std::shared_ptr<CandidateExpandToggle> expandToggle_;

@@ -420,15 +420,16 @@ int CreateCandidateWindow(HINSTANCE hInstance)
     (void)0;
 #endif
 
-    // The hook lives for the whole process; nothing ever unhooks it, so the handle is not kept.
-    SetWinEventHook(                 //
-        EVENT_SYSTEM_FOREGROUND,     //
-        EVENT_OBJECT_LOCATIONCHANGE, //
-        nullptr,                     //
-        WinEventProc,                //
-        0,                           //
-        0,                           //
-        WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
+    // A range from FOREGROUND to LOCATIONCHANGE also subscribes to unrelated
+    // accessibility events. Filtering them in WinEventProc still
+    // marshals every event onto this UI thread and can starve key/candidate work.
+    // Keep the two subscriptions exact and release them on their owning thread.
+    const HWINEVENTHOOK foregroundHook =
+        SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, nullptr, WinEventProc, 0, 0,
+                        WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
+    const HWINEVENTHOOK locationHook =
+        SetWinEventHook(EVENT_OBJECT_LOCATIONCHANGE, EVENT_OBJECT_LOCATIONCHANGE, nullptr, WinEventProc, 0, 0,
+                        WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
@@ -437,6 +438,14 @@ int CreateCandidateWindow(HINSTANCE hInstance)
         DispatchMessage(&msg);
     }
 
+    if (locationHook)
+    {
+        UnhookWinEvent(locationHook);
+    }
+    if (foregroundHook)
+    {
+        UnhookWinEvent(foregroundHook);
+    }
     /* 卸载钩子 */
     UnhookWindowsHookEx(g_hHook);
 

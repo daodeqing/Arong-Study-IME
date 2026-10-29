@@ -4,6 +4,8 @@
 #include <string>
 #include <algorithm>
 #include <cstdint>
+#include <chrono>
+#include <cstdio>
 #include <utility>
 #include "ipc.h"
 #include "ipc/candidate_text_policy.h"
@@ -606,6 +608,46 @@ struct ScopedKeyStage
 
 namespace FanyNamedPipe
 {
+// This diagnostic entry does not initialize pipes, windows or online providers.
+// The caller requires isolated resource/config roots before creating a session.
+int RunBackspaceBenchmark()
+{
+    using Clock = std::chrono::steady_clock;
+    const std::vector<std::string> inputs = {
+        "nihao",
+        "zhongguo",
+        "jintiantianqibucuo",
+        "zhegewentiyinggaizenmejiejue",
+        "womenjintianyiqiqutushuguanxuexizhongwen",
+        "ni'hao'zhong'guo",
+    };
+    std::puts("input,operation,units,engine_ms,candidate_ms,candidates");
+    for (size_t index = 0; index < inputs.size(); ++index)
+    {
+        g_inputSession->reset_state();
+        GlobalIme::composition.clear();
+        const auto measure = [&](UINT key, WCHAR ch, const char *operation) {
+            bool restored = false;
+            const auto start = Clock::now();
+            ApplyCompositionEditKey(key, ch, 0, true, restored);
+            const auto decoded = Clock::now();
+            Global::PinyinString = string_to_wstring(g_inputSession->get_pinyin_sequence_with_cases());
+            PrepareCandidateList(0, 0);
+            const auto end = Clock::now();
+            std::printf(
+                "%zu,%s,%zu,%.6f,%.6f,%zu\n", index, operation, g_inputSession->get_pinyin_sequence_with_cases().size(),
+                std::chrono::duration<double, std::milli>(decoded - start).count(),
+                std::chrono::duration<double, std::milli>(end - decoded).count(), Global::candidate_ui.items.size());
+            std::fflush(stdout);
+        };
+        for (char ch : inputs[index])
+            measure(ch == '\'' ? VK_OEM_7 : static_cast<UINT>(ch - 'a' + 'A'), static_cast<WCHAR>(ch), "type");
+        while (!g_inputSession->get_pinyin_sequence_with_cases().empty())
+            measure(VK_BACK, 0, "backspace");
+    }
+    return 0;
+}
+
 struct ScopedServerKeyLatency
 {
     uint64_t client_id;
@@ -787,6 +829,8 @@ void PublishRestoredCompositionCandidates(uint64_t client_id, uint64_t activatio
         GlobalIme::composition.take_restored_selection_highlight();
     if (GlobalIme::composition.raw_input_with_cases.empty())
     {
+        if (SentenceModeForClient(client_id) && RefreshSentenceTranslationPreview())
+            return;
         HideCandidateWindowAndDropItems();
         return;
     }
@@ -990,6 +1034,7 @@ void HandleToolbarLanguageToggle(bool from_ime_enabled)
 void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t request_id)
 {
     const ScopedServerKeyLatency latency{client_id, activation_epoch, request_id};
+    CancelSentenceConfirmation();
     /* 先清理一下状态 */
     Global::MsgTypeToTsf = Global::DataFromServerMsgType::Normal;
     ScopedKeyStage read_packet{client_id, activation_epoch, request_id, L"handle-read-packet"};
@@ -1077,8 +1122,28 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     // 整句模式的回车不走原有“提交原始拼音”路径，也不依赖候选词典释义开关。
     if (SentenceModeForClient(client_id) && Global::Keycode == VK_RETURN && (Global::ModifiersDown & 0b00000101u) == 0)
     {
-        HandleSentenceConfirmation(client_id, activation_epoch, request_id, (Global::ModifiersDown & 0b00000010u) == 0);
+        const bool ctrl = (Global::ModifiersDown & 0b00000010u) != 0;
+        HandleSentenceConfirmation(client_id, activation_epoch, request_id,
+                                   ClientNegotiatedSentenceAutoCommit(client_id) ? ctrl : !ctrl);
         return;
+    }
+
+    if (SentenceModeForClient(client_id) && Global::Keycode == VK_DELETE &&
+        g_inputSession->get_pinyin_sequence_with_cases().empty() && !GlobalIme::composition.creating_word.word.empty())
+    {
+        HoldSentenceComposition();
+        SendCurrentDataToClient(client_id, activation_epoch, request_id);
+        return;
+    }
+
+    if (SentenceModeForClient(client_id) && Global::Keycode >= 'A' && Global::Keycode <= 'Z' &&
+        (!GlobalIme::composition.creating_word.word.empty() ||
+         (g_inputSession && !g_inputSession->get_pinyin_sequence_with_cases().empty())) &&
+        ((Global::ModifiersDown & 0b00000111u) == 0b00000001u ||
+         ((Global::ModifiersDown & 0b00000111u) == 0 && Global::Wch >= L'A' && Global::Wch <= L'Z')))
+    {
+        if (HandleSentencePunctuation(client_id, activation_epoch, request_id, static_cast<WCHAR>(Global::Keycode)))
+            return;
     }
 
     if (FanyImeIpc::IsTranslationCommitKey(Global::Keycode, Global::ModifiersDown))

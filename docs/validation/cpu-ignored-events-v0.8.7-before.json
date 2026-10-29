@@ -1,0 +1,58 @@
+{
+  "version": "0.8.7",
+  "purpose": "Unrelated WinEvent dispatch stress, not an everyday typing benchmark",
+  "logical_processors": 16,
+  "samples": [
+    {
+      "phase": "idle",
+      "ignored_state_change_events": 0,
+      "wall_seconds": 3.0005036999999675,
+      "processes": [
+        {
+          "name": "ArongStudyImeServer.exe",
+          "cpu_seconds": 0.0,
+          "machine_cpu_percent": 0.0
+        },
+        {
+          "name": "ArongStudyImeSettings.exe",
+          "cpu_seconds": 0.0,
+          "machine_cpu_percent": 0.0
+        }
+      ]
+    },
+    {
+      "phase": "ignored_event_storm",
+      "ignored_state_change_events": 60000,
+      "wall_seconds": 141.23771879999993,
+      "processes": [
+        {
+          "name": "ArongStudyImeServer.exe",
+          "cpu_seconds": 0.46875,
+          "machine_cpu_percent": 0.020742953970734918
+        },
+        {
+          "name": "ArongStudyImeSettings.exe",
+          "cpu_seconds": 0.25,
+          "machine_cpu_percent": 0.011062908784391956
+        }
+      ]
+    },
+    {
+      "phase": "idle_after",
+      "ignored_state_change_events": 0,
+      "wall_seconds": 3.0004174000000603,
+      "processes": [
+        {
+          "name": "ArongStudyImeServer.exe",
+          "cpu_seconds": 0.015625,
+          "machine_cpu_percent": 0.03254755488352988
+        },
+        {
+          "name": "ArongStudyImeSettings.exe",
+          "cpu_seconds": 0.0,
+          "machine_cpu_percent": 0.0
+        }
+      ]
+    }
+  ]
+}

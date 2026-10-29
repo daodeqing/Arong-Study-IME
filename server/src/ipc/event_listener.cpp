@@ -855,6 +855,7 @@ void PushUiLessCandidatesToOwner()
 
 void ClearState()
 {
+    CancelSentenceConfirmation();
     SentenceTranslation::Cancel();
     const auto r_mode_original_session = g_r_mode_original_session;
     ClearSpecialModeTriggers();

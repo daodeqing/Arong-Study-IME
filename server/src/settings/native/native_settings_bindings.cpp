@@ -145,11 +145,15 @@ std::vector<std::shared_ptr<CheckOption>> AtLeastOneChecks(
         const std::string path = items[i].second;
         // The group outlives none of its checks: the page and its controls live as long as
         // the window, so the checks simply share it.
-        std::vector<std::shared_ptr<CheckOption>> *all = checks.get();
-        CheckOption *self = check.get();
-        check->SetOnChanged([checks, all, self, model, path](bool checked) {
+        std::weak_ptr<std::vector<std::shared_ptr<CheckOption>>> weakChecks = checks;
+        std::weak_ptr<CheckOption> weakSelf = check;
+        check->SetOnChanged([weakChecks, weakSelf, model, path](bool checked) {
+            const auto group = weakChecks.lock();
+            const auto self = weakSelf.lock();
+            if (!group || !self)
+                return;
             const bool anyChecked =
-                std::any_of(all->begin(), all->end(), [](const auto &item) { return item->IsChecked(); });
+                std::any_of(group->begin(), group->end(), [](const auto &item) { return item->IsChecked(); });
             if (!anyChecked)
             {
                 self->SetChecked(true);
@@ -164,6 +168,7 @@ std::vector<std::shared_ptr<CheckOption>> AtLeastOneChecks(
         });
         checks->push_back(check);
     }
+    context.OnConfig([checks]() {});
     return *checks;
 }
 

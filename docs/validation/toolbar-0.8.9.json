@@ -1,0 +1,56 @@
+{
+  "version": "0.8.9",
+  "source_commit": "14240d5af4224eba6bae47f81dfd95f55c6bb814",
+  "behavior": [
+    "Rightmost minimize button posts SC_MINIMIZE; compact drag handle and restore chevron remain",
+    "Restore posts SC_RESTORE; repeated requests are idempotent",
+    "Rebuild happens after the button mouse dispatch returns",
+    "Transient minimized flag survives SyncUi, theme and appearance rebuilds; restart defaults to expanded",
+    "No new configuration, background workers or polling timers"
+  ],
+  "dpi_review": {
+    "kind": "Geometry review of existing DIP-based layout; not rendered multi-monitor acceptance",
+    "default_user_scale": 1,
+    "button_dip": 26,
+    "compact_bar_dip": 56.2,
+    "scales": [
+      {
+        "percent": 100,
+        "icon_physical_px": 26,
+        "compact_card_physical_px_ceil": 57
+      },
+      {
+        "percent": 125,
+        "icon_physical_px": 32.5,
+        "compact_card_physical_px_ceil": 71
+      },
+      {
+        "percent": 150,
+        "icon_physical_px": 39.0,
+        "compact_card_physical_px_ceil": 85
+      },
+      {
+        "percent": 200,
+        "icon_physical_px": 52,
+        "compact_card_physical_px_ceil": 113
+      }
+    ],
+    "paths": "RelayoutHost / ClientPixelsToDips / PlaceResizedHost / ClipWindowToVisibleScreens retained",
+    "multi_monitor": "pending physical host acceptance"
+  },
+  "format": "clang-format 18.1.8 passed",
+  "native_click_acceptance": "pending install",
+  "quality_changes": "none; candidate/model/prompt/token capacity unchanged",
+  "ci_run_id": 39820281534,
+  "ci_status": "success",
+  "ci_jobs_passed": 11,
+  "package_status": "success",
+  "package_run_id": 39821189688,
+  "runtime_acceptance_plan": [
+    "Verify v0.8.9 installed Server and correct D-drive program/data roots",
+    "Target toolbar owned by Server, click rightmost minimize button and verify compact size",
+    "Click chevron to restore, retain input composition and test compact state across input-state updates",
+    "No user-authentication or UAC automation; silent installer uses existing authorization"
+  ],
+  "release_url": "https://github.com/daodeqing/Arong-Study-IME/releases/tag/v0.8.9"
+}

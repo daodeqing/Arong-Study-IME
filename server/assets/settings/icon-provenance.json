@@ -1,0 +1,30 @@
+{
+  "origin": "Authored geometric book-and-cursor mark and 24-unit line icons",
+  "generator": "scripts/build-product-icons.py",
+  "stroke": 1.75,
+  "raster_assets": [
+    "server/src/resource/MetasequoiaIME.ico",
+    "server/src/resource/Settings.ico",
+    "server/assets/settings/msime.ico",
+    "windows\\image\\cap-dark.ico",
+    "windows\\image\\cap-light.ico",
+    "windows\\image\\cn-dark.ico",
+    "windows\\image\\cn-light.ico",
+    "windows\\image\\DoubleSingleByteOff.ico",
+    "windows\\image\\DoubleSingleByteOn.ico",
+    "windows\\image\\en-dark.ico",
+    "windows\\image\\en-light.ico",
+    "windows\\image\\FeatherIME.ico",
+    "windows\\image\\ImeModeOff.ico",
+    "windows\\image\\ImeModeOn.ico",
+    "windows\\image\\jp-dark.ico",
+    "windows\\image\\jp-light.ico",
+    "windows\\image\\Metasequoia.ico",
+    "windows\\image\\msime.ico",
+    "windows\\image\\msime_v2.ico",
+    "windows\\image\\PunctuationOff.ico",
+    "windows\\image\\PunctuationOn.ico",
+    "server/assets/settings/msime.png",
+    "server/assets/settings/MetasequoiaIME.png"
+  ]
+}

@@ -97,7 +97,9 @@ enum KEYSTROKE_FUNCTION
     // either moves the highlight or moves the caret and answers with the authoritative caret. Append-only, like
     // every function above.
     FUNCTION_MOVE_LEFT_CANDIDATE,
-    FUNCTION_MOVE_RIGHT_CANDIDATE
+    FUNCTION_MOVE_RIGHT_CANDIDATE,
+    FUNCTION_COMMIT_RAW_LETTERS,
+    FUNCTION_COMMIT_RAW_UPPERCASE,
 };
 
 //---------------------------------------------------------------------

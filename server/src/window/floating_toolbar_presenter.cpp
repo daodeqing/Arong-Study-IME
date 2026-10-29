@@ -12,6 +12,8 @@
 #include "utils/window_utils.h"
 #include "window/small_windows.h"
 #include "window/floating_toolbar_skin.h"
+#include "window/product_icons.h"
+#include "window/ime_windows.h"
 
 #include "msimeui/Controls.h"
 #include "msimeui/DeviceResources.h"
@@ -26,6 +28,7 @@
 #include <dwrite.h>
 #include <filesystem>
 #include <functional>
+#include <cstdio>
 #include <optional>
 #include <string>
 #include <windowsx.h>
@@ -79,6 +82,7 @@ constexpr ToolbarIcon kIconTraditional = {0xE88C, L"繁"};
 constexpr ToolbarIcon kIconEmoji = {0xE76E, L"表"};
 constexpr ToolbarIcon kIconKeyboard = {0xE765, L"键"};
 constexpr ToolbarIcon kIconSettings = {0xE713, L"设"};
+constexpr ToolbarIcon kIconMinimize = {0xE921, L"−"};
 
 float ToolbarUserScale()
 {
@@ -96,6 +100,24 @@ class ToolbarIconButton : public msimeui::Visual
     ToolbarIconButton(wchar_t glyph, std::wstring glyphFamily, std::wstring text, float size)
         : glyph_(glyph), glyphFamily_(std::move(glyphFamily)), text_(std::move(text)), size_(size)
     {
+        switch (glyph_)
+        {
+        case 0xE76E:
+            svg_ = ProductIcons::Emoji;
+            break;
+        case 0xE765:
+            svg_ = ProductIcons::ScreenKeyboard;
+            break;
+        case 0xE713:
+            svg_ = ProductIcons::Settings;
+            break;
+        case 0xE921:
+            svg_ = ProductIcons::Minimize;
+            break;
+        default:
+            glyph_ = 0;
+            break;
+        }
         SetWidth(size_);
         SetHeight(size_);
     }
@@ -149,6 +171,27 @@ class ToolbarIconButton : public msimeui::Visual
             }
         }
 
+        if (svg_)
+        {
+            char color[16];
+            std::snprintf(color, sizeof(color), "#%02x%02x%02x", static_cast<unsigned>(glyphColor_.r * 255.0f),
+                          static_cast<unsigned>(glyphColor_.g * 255.0f), static_cast<unsigned>(glyphColor_.b * 255.0f));
+            std::string markup(svg_);
+            size_t position = 0;
+            while ((position = markup.find("currentColor", position)) != std::string::npos)
+            {
+                markup.replace(position, 12, color);
+                position += 7;
+            }
+            const float extent = size_ * 0.84f;
+            if (auto *bitmap = deviceResources.GetSvgBitmap(markup, {extent, extent}))
+            {
+                const float inset = (size_ - extent) * 0.5f;
+                target->DrawBitmap(bitmap, D2D1::RectF(bounds_.x + inset, bounds_.y + inset, bounds_.x + inset + extent,
+                                                       bounds_.y + inset + extent));
+            }
+            return;
+        }
         IDWriteFactory *factory = deviceResources.GetDWriteFactory();
         ID2D1SolidColorBrush *brush = deviceResources.GetSolidColorBrush(glyphColor_);
         if (!factory || !brush)
@@ -158,8 +201,8 @@ class ToolbarIconButton : public msimeui::Visual
 
         const bool useGlyph = glyph_ != 0 && !glyphFamily_.empty();
         const std::wstring family = useGlyph ? glyphFamily_ : std::wstring(msimeui::UiFontFamily());
-        const float fontSize =
-            size_ * (underline_ ? kToolbarUnderlinedTextFontSizeFactor : kToolbarGlyphFontSizeFactor);
+        const float fontSize = size_ * (underline_ || text_.size() > 1 ? kToolbarUnderlinedTextFontSizeFactor
+                                                                       : kToolbarGlyphFontSizeFactor);
         IDWriteTextFormat *format =
             deviceResources.GetTextFormat(family, fontSize, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_TEXT_ALIGNMENT_CENTER,
                                           DWRITE_PARAGRAPH_ALIGNMENT_CENTER, DWRITE_WORD_WRAPPING_NO_WRAP);
@@ -237,6 +280,7 @@ class ToolbarIconButton : public msimeui::Visual
 
   private:
     wchar_t glyph_ = 0;
+    const char *svg_ = nullptr;
     std::wstring glyphFamily_;
     std::wstring text_;
     float size_ = 24.0f;
@@ -450,92 +494,93 @@ void FloatingToolbarPresenter::RebuildScene()
         return button;
     };
     auto addGlyph = [&](const ToolbarIcon &icon, ToolbarIconButton::ClickHandler click) {
-        const msimeui::IconGlyph resolved = msimeui::ResolveIconGlyph(icon.codepoint);
-        if (!resolved.family)
-        {
-            return addText(icon.fallbackText, false, std::move(click));
-        }
-        auto button = std::make_shared<ToolbarIconButton>(resolved.codepoint, resolved.family, L"", iconSize);
+        auto button = std::make_shared<ToolbarIconButton>(icon.codepoint, L"", icon.fallbackText, iconSize);
         button->SetColors(impl_->glyph, impl_->hover, iconRadius);
         button->SetOnClick(std::move(click));
         icons->AddChild(button);
         return button;
     };
 
-    if (impl_->capsLock == 1)
     {
-        addText(L"A", false, [this]() {
-            if (impl_->englishInputMode == 1)
+        if (impl_->capsLock == 1)
+        {
+            addText(L"A", false, [this]() {
+                if (impl_->englishInputMode == 1)
+                {
+                    FanyNamedPipe::EnqueueExitEnglishInputModeTask();
+                }
+                else
+                {
+                    FanyNamedPipe::EnqueueToolbarLanguageToggleTask(impl_->cnEn == 1);
+                }
+            });
+        }
+        else if (impl_->cnEn != 1)
+        {
+            addGlyph(kIconEn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(false); });
+        }
+        else if (impl_->englishInputMode == 1)
+        {
+            addText(L"En", true, []() { FanyNamedPipe::EnqueueExitEnglishInputModeTask(); });
+        }
+        else if (impl_->japaneseInputMode == 1)
+        {
+            addGlyph(kIconJa, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
+        }
+        else
+        {
+            addGlyph(kIconCn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
+        }
+
+        const FloatingToolbarItemsConfig &items = GetConfiguredFloatingToolbarItems();
+        if (items.fullwidth)
+        {
+            if (impl_->doubleSingleByte == 1)
             {
-                FanyNamedPipe::EnqueueExitEnglishInputModeTask();
+                addGlyph(kIconFullWidth,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToHalfwidth); });
             }
             else
             {
-                FanyNamedPipe::EnqueueToolbarLanguageToggleTask(impl_->cnEn == 1);
+                addGlyph(kIconHalfWidth,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToFullwidth); });
             }
-        });
-    }
-    else if (impl_->cnEn != 1)
-    {
-        addGlyph(kIconEn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(false); });
-    }
-    else if (impl_->englishInputMode == 1)
-    {
-        addText(L"En", true, []() { FanyNamedPipe::EnqueueExitEnglishInputModeTask(); });
-    }
-    else if (impl_->japaneseInputMode == 1)
-    {
-        addGlyph(kIconJa, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
-    }
-    else
-    {
-        addGlyph(kIconCn, []() { FanyNamedPipe::EnqueueToolbarLanguageToggleTask(true); });
-    }
-
-    const FloatingToolbarItemsConfig &items = GetConfiguredFloatingToolbarItems();
-    if (items.fullwidth)
-    {
-        if (impl_->doubleSingleByte == 1)
-        {
-            addGlyph(kIconFullWidth,
-                     []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToHalfwidth); });
         }
-        else
+        if (items.punctuation)
         {
-            addGlyph(kIconHalfWidth,
-                     []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToFullwidth); });
+            if (impl_->punctuation == 1)
+            {
+                addGlyph(kIconPuncCn,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncEn); });
+            }
+            else
+            {
+                addGlyph(kIconPuncEn,
+                         []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncCn); });
+            }
         }
-    }
-    if (items.punctuation)
-    {
-        if (impl_->punctuation == 1)
+        if (items.character_set)
         {
-            addGlyph(kIconPuncCn, []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncEn); });
+            const bool traditional = GetConfiguredCharacterSet() == "traditional";
+            addGlyph(traditional ? kIconTraditional : kIconSimplified, []() {
+                const std::string next = GetConfiguredCharacterSet() == "traditional" ? "simplified" : "traditional";
+                SetConfiguredCharacterSet(next);
+            });
         }
-        else
+        if (items.emoji)
         {
-            addGlyph(kIconPuncEn, []() { SendWorker(Global::DataFromServerMsgTypeToTsfWorkerThread::SwitchToPuncCn); });
+            addGlyph(kIconEmoji, []() { OpenEmojiPanelApplication(); });
         }
-    }
-    if (items.character_set)
-    {
-        const bool traditional = GetConfiguredCharacterSet() == "traditional";
-        addGlyph(traditional ? kIconTraditional : kIconSimplified, []() {
-            const std::string next = GetConfiguredCharacterSet() == "traditional" ? "simplified" : "traditional";
-            SetConfiguredCharacterSet(next);
-        });
-    }
-    if (items.emoji)
-    {
-        addGlyph(kIconEmoji, []() { OpenEmojiPanelApplication(); });
-    }
-    if (items.screen_keyboard)
-    {
-        addGlyph(kIconKeyboard, []() { OpenKeyboardPanelApplication(); });
-    }
-    if (items.settings)
-    {
-        addGlyph(kIconSettings, []() { OpenSettingsApplication(); });
+        if (items.screen_keyboard)
+        {
+            addGlyph(kIconKeyboard, []() { OpenKeyboardPanelApplication(); });
+        }
+        if (items.settings)
+        {
+            addGlyph(kIconSettings, []() { OpenSettingsApplication(); });
+        }
+        // Defer the rebuild until the button's mouse dispatch has returned.
+        addGlyph(kIconMinimize, [this]() { PostMessage(hwnd_, WM_SYSCOMMAND, SC_MINIMIZE, 0); });
     }
 
     row->AddChild(leading);
@@ -811,6 +856,18 @@ bool FloatingToolbarPresenter::HandleMessage(UINT message, WPARAM wParam, LPARAM
     }
     switch (message)
     {
+    case WM_SYSCOMMAND: {
+        const UINT command = static_cast<UINT>(wParam & 0xFFF0);
+        if (command != SC_MINIMIZE && command != SC_RESTORE)
+        {
+            return false;
+        }
+        if (SetConfiguredFloatingToolbarEnabled(command == SC_RESTORE))
+        {
+            ApplyConfiguredFloatingToolbarVisibility(L"toolbar-minimize-restore");
+        }
+        return true;
+    }
     case WM_ERASEBKGND:
         return true;
     case WM_PAINT: {

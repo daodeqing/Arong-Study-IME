@@ -79,6 +79,7 @@ void EnqueueReloadInputSessionTask();
 void EnqueueEnsureInputSessionMatchesConfigTask();
 void EnqueueApplyCandidatePageSizeTask();
 void EnqueueRefreshCandidatePageTask();
+void EnqueueSentenceTranslationResultTask();
 void EnqueueResetInputSessionCacheTask();
 void EnqueueExitEnglishInputModeTask();
 // from_ime_enabled: the clicked toolbar icon showed the IME open (中/日) rather than English.
@@ -87,3 +88,8 @@ void EnqueueToolbarLanguageToggleTask(bool from_ime_enabled);
 // stops their thread. Call after the worker thread has been joined, so nothing posts new writes.
 void ShutdownDictionaryWriter();
 } // namespace FanyNamedPipe
+
+namespace FanyNamedPipe
+{
+int RunBackspaceBenchmark();
+}

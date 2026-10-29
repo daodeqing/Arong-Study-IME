@@ -27,6 +27,7 @@
 #include <chrono>
 #include "../../../engine/contracts/ipc_negotiation.h"
 #include "KeyEventSinkInternal.h"
+#include "SentenceTranslationKeyPolicy.h"
 
 using namespace key_event_sink_detail;
 
@@ -367,8 +368,28 @@ bool CMetasequoiaIME::_MatchModifierReleaseHotkey(WPARAM wParam, _Out_ GUID *hot
     return false;
 }
 
+bool CMetasequoiaIME::_QueueRawLetterCommit(_In_ ITfContext *pContext, bool uppercase)
+{
+    if (!pContext || !_pCompositionProcessorEngine || _IsKeyboardDisabled())
+        return false;
+    const auto buffer = _pCompositionProcessorEngine->GetKeystrokeBuffer();
+    const std::wstring raw =
+        _deferredKeyProjectionValid ? _deferredProjectedRawInput : std::wstring(buffer.Get(), buffer.GetLength());
+    const bool japanese = _deferredKeyProjectionValid
+                              ? _deferredProjectedJapaneseMode
+                              : Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed);
+    if (!SentenceTranslationKeyPolicy::CanCommitRawLetters(IsSentenceTranslationEnabled(), raw,
+                                                           !GlobalIme::word_for_creating_word.empty(), japanese))
+        return false;
+    _KEYSTROKE_STATE state{};
+    state.Category = CATEGORY_COMPOSING;
+    state.Function = uppercase ? FUNCTION_COMMIT_RAW_UPPERCASE : FUNCTION_COMMIT_RAW_LETTERS;
+    return _QueueDeferredKeyDown(pContext, uppercase ? VK_CAPITAL : VK_SHIFT, 0, L'\0', 0, state);
+}
+
 bool CMetasequoiaIME::_QueueInputHotkey(_In_ ITfContext *pContext, REFGUID hotkeyGuid, _Out_ BOOL *pIsEaten)
 {
+    _CancelSentenceTranslationCommit();
     if (pIsEaten == nullptr)
     {
         return false;
@@ -381,6 +402,11 @@ bool CMetasequoiaIME::_QueueInputHotkey(_In_ ITfContext *pContext, REFGUID hotke
 
     if (IsEqualGUID(hotkeyGuid, Global::MetasequoiaIMEGuidImeModePreserveKey) && IsSentenceTranslationEnabled())
     {
+        if (_QueueRawLetterCommit(pContext, false))
+        {
+            *pIsEaten = TRUE;
+            return true;
+        }
         // Sentence translation always needs the Chinese pinyin lane, even if
         // the taskbar's ordinary English button closed it earlier.
         if (_pCompositionProcessorEngine)

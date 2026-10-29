@@ -4,6 +4,7 @@
 #include "MetasequoiaIMEBaseStructure.h"
 #include "Ipc.h"
 #include "DeferredKeyFailurePolicy.h"
+#include "SentenceAutoCommitState.h"
 #include "char_classify.h"
 #include <atomic>
 #include <chrono>
@@ -57,6 +58,10 @@ const DWORD WM_ApplyUiLessCandidates = WM_USER + 31;
 const DWORD WM_ApplyCapsLockEdge = WM_USER + 32;
 const DWORD WM_ApplySentenceTranslation = WM_USER + 33;
 const DWORD WM_ToggleSentenceOutput = WM_USER + 34;
+const DWORD WM_SentenceTranslationResult = WM_USER + 35;
+const DWORD WM_TrySentenceTranslationCommit = WM_USER + 36;
+const DWORD WM_CancelSentenceTranslationCommit = WM_USER + 37;
+const DWORD WM_SentenceTranslationFailed = WM_USER + 38;
 constexpr ULONG_PTR SMART_PUNCTUATION_SENDINPUT_EXTRA_INFO = 0x4D535050u;
 constexpr ULONG_PTR PAIRED_PUNCTUATION_SENDINPUT_EXTRA_INFO = 0x4D535051u;
 // Synthetic input that this tip generates carries a marker meaning "this tip
@@ -136,6 +141,8 @@ constexpr ULONGLONG SMART_PUNCTUATION_REPEAT_INTERVAL_MS = 2000;
 // this means other input has had time to move the caret, and the synthetic
 // Backspace would land on text the user typed since.
 constexpr ULONGLONG SMART_PUNCTUATION_SENDINPUT_TIMEOUT_MS = 500;
+// Shared by the message window and deferred-key activation polling.
+constexpr UINT CONNECT_NAMEDPIPE_RETRY_INTERVAL_MS = 50;
 constexpr UINT_PTR TIMER_CONNECT_ALL_NAMEDPIPE = 1;
 constexpr UINT_PTR TIMER_CONNECT_TO_TSF_NAMEDPIPE = 2;
 constexpr UINT_PTR TIMER_REFRESH_LANG_BAR_THEME = 3;
@@ -152,6 +159,7 @@ constexpr UINT_PTR TIMER_FOCUS_CARET_STATE = 7;
 // below WM_PAINT, so with a timer the host repaints between slices.
 // The id must not collide with the constants above.
 constexpr UINT_PTR TIMER_COMMIT_REPLY_POLL = 8;
+constexpr UINT_PTR TIMER_SENTENCE_TRANSLATION = 9;
 constexpr UINT COMMIT_REPLY_POLL_INTERVAL_MS = 1;
 // Runs after the focus status resend and the reconnect it may trigger, so the
 // Server has activated this client before the badge request arrives.
@@ -289,6 +297,7 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     HRESULT _HandleEscapeCancel(TfEditCookie ec, _In_ ITfContext *pContext, uint64_t requestId);
     HRESULT _HandleToogleIMEMode(TfEditCookie ec, _In_ ITfContext *pContext);
     void _ClearCreatingWordState();
+    HRESULT _HandleCommitRawLetters(TfEditCookie ec, _In_ ITfContext *pContext, bool uppercase);
     HRESULT _HandleInsertText(TfEditCookie ec, _In_ ITfContext *pContext, const std::wstring &text);
     HRESULT _HandleCycleInputMode(TfEditCookie ec, _In_ ITfContext *pContext, const std::wstring &payload);
     HRESULT _HandleCommitCandidateAndContinue(TfEditCookie ec, _In_ ITfContext *pContext, const std::wstring &payload);
@@ -435,6 +444,8 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     uint64_t _CaptureFocusSessionToken() const;
     bool _IsFocusSessionCurrent(uint64_t focusToken, _In_opt_ ITfContext *expectedContext = nullptr) const;
     uint64_t _CaptureCompositionEpoch() const;
+    // Only called on the TSF owner thread, including the final edit-session check.
+    HRESULT _ApplySentenceTranslationCommit(TfEditCookie cookie, ITfContext *context, uint64_t request);
     bool _IsCompositionEpochCurrent(uint64_t compositionEpoch) const;
     bool _IsCompositionCurrent(_In_opt_ ITfComposition *expectedComposition) const;
     static bool _IsSameComObject(_In_opt_ IUnknown *left, _In_opt_ IUnknown *right);
@@ -674,6 +685,7 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     void _TrackModifierHotkeyArming(WPARAM wParam, LPARAM lParam, bool isKeyUp);
     bool _MatchChordInputHotkey(WPARAM wParam, _Out_ GUID *hotkeyGuid) const;
     bool _MatchModifierReleaseHotkey(WPARAM wParam, _Out_ GUID *hotkeyGuid);
+    bool _QueueRawLetterCommit(_In_ ITfContext *pContext, bool uppercase);
     bool _QueueInputHotkey(_In_ ITfContext *pContext, REFGUID hotkeyGuid, _Out_ BOOL *pIsEaten);
 
     // mintty routes composition over the legacy IMM bridge and never offers a
@@ -896,6 +908,14 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
 
     ITfCompartment *_pSIPIMEOnOffCompartment;
     DWORD _dwSIPIMEOnOffCompartmentSinkCookie;
+
+    SentenceAutoCommitState _sentenceCommit;
+    SentenceAutoCommitState::Session _SentenceSession() const;
+    void _CancelSentenceTranslationCommit();
+    void _BeginSentenceTranslationCommit(uint64_t request);
+    void _AcceptSentenceTranslationCommit(uint64_t request);
+    void _ReceiveSentenceTranslationResult(UINT token, bool failed);
+    void _TrySentenceTranslationCommit();
 
     HWND _msgWndHandle;
     HKEY _themeRegKey;

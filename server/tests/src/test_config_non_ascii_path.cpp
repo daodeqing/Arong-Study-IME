@@ -538,6 +538,17 @@ TEST_CASE(ai_provider_configuration_round_trips_without_mixing_credentials)
             REQUIRE_EQ(GetConfiguredAiAssistant().endpoint, defaults.endpoints.at(provider));
             REQUIRE_EQ(GetConfiguredAiAssistant().model, defaults.models.at(provider));
         }
+
+        for (const std::string mode : {"daily", "casual", "academic", "creative", "custom_1", "custom_2", "custom_3"})
+        {
+            REQUIRE(SetConfiguredAiAssistantString("prompt_id", mode));
+            REQUIRE_EQ(GetConfiguredAiAssistant().prompt_id, mode);
+            REQUIRE_EQ(GetConfiguredTranslation()->ai.prompt_id, mode);
+            InitImeConfig();
+            REQUIRE_EQ(GetConfiguredAiAssistant().prompt_id, mode);
+            REQUIRE_EQ(GetConfiguredTranslation()->ai.prompt_id, mode);
+        }
+        REQUIRE(!SetConfiguredAiAssistantString("prompt_id", "invalid_mode"));
     }
     fs::remove_all(unique_root, ec);
 }

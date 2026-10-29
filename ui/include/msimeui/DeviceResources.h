@@ -190,6 +190,7 @@ class DeviceResources
         std::wstring filePath;
         D2D1_SIZE_F size = {};
         Microsoft::WRL::ComPtr<ID2D1Bitmap> bitmap;
+        size_t bytes = 0;
     };
 
     struct AnimatedBitmapEntry
@@ -207,6 +208,7 @@ class DeviceResources
     void TrimAnimatedBitmaps(size_t incoming);
 
     static constexpr size_t kMaxCachedBitmaps = 4;
+    static constexpr size_t kBitmapCacheBudget = 16ULL * 1024 * 1024;
     static constexpr size_t kDefaultAnimatedBitmapBudget = 64ULL * 1024 * 1024;
     static constexpr size_t kMaxRememberedStillImages = 64;
     static constexpr size_t kMaxCachedSvgBitmaps = 96;
@@ -258,6 +260,7 @@ class DeviceResources
     uint64_t frame_ = 0;
     std::vector<TextFormatCacheEntry> textFormatCache_;
     std::vector<BitmapCacheEntry> bitmapCache_;
+    size_t bitmapBytes_ = 0;
     std::vector<SvgCacheEntry> svgCache_;
     std::vector<RectF> clipStack_;
     // Animated images, decoded once per device. Paths found to be still images are

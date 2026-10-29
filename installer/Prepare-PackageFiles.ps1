@@ -242,6 +242,10 @@ if (Test-Path -LiteralPath $targetAssets) {
     Remove-Item -LiteralPath $targetAssets -Recurse -Force
 }
 Copy-DirectoryContents -Source $settingsAssets -Destination $targetSettingsAssets
+$vocabularyAssets = Join-Path $RepoRoot (Join-Path $ServerDirectory 'assets\vocabulary')
+if (Test-Path -LiteralPath $vocabularyAssets) {
+    Copy-DirectoryContents -Source $vocabularyAssets -Destination (Join-Path $targetAssets 'vocabulary')
+}
 
 # 内置皮肤的出厂清单（开关与完整外观，含 canvas 基底）。安装脚本每次都整份覆盖到数据目录的
 # skins\default，用户在那里的改动升级后不保留。
