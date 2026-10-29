@@ -48,15 +48,17 @@ TEST_CASE(sentence_translation_accepts_complete_answers_around_packet_and_total_
 TEST_CASE(sentence_translation_presets_cover_daily_academic_creative_and_custom_slots)
 {
     const auto &presets = SentenceTranslation::BuiltinPromptPresets();
-    REQUIRE_EQ(presets.size(), std::size_t{3});
+    REQUIRE_EQ(presets.size(), std::size_t{4});
     REQUIRE_EQ(std::string(presets[0].id), std::string("daily"));
     REQUIRE_EQ(std::string(presets[0].name), std::string("日常交流"));
-    REQUIRE_EQ(std::string(presets[1].id), std::string("academic"));
-    REQUIRE_EQ(std::string(presets[1].name), std::string("学术科研"));
-    REQUIRE_EQ(std::string(presets[2].id), std::string("creative"));
-    REQUIRE_EQ(std::string(presets[2].name), std::string("写作创作"));
+    REQUIRE_EQ(std::string(presets[1].id), std::string("casual"));
+    REQUIRE_EQ(std::string(presets[1].name), std::string("口语模式"));
+    REQUIRE_EQ(std::string(presets[2].id), std::string("academic"));
+    REQUIRE_EQ(std::string(presets[2].name), std::string("学术科研"));
+    REQUIRE_EQ(std::string(presets[3].id), std::string("creative"));
+    REQUIRE_EQ(std::string(presets[3].name), std::string("写作创作"));
 
-    for (const char *valid : {"daily", "academic", "creative", "custom_1", "custom_2", "custom_3"})
+    for (const char *valid : {"daily", "casual", "academic", "creative", "custom_1", "custom_2", "custom_3"})
         REQUIRE(SentenceTranslation::IsValidPromptId(valid));
     REQUIRE(!SentenceTranslation::IsValidPromptId("unknown"));
 
@@ -64,6 +66,10 @@ TEST_CASE(sentence_translation_presets_cover_daily_academic_creative_and_custom_
     ai.prompt_id = "daily";
     REQUIRE(SentenceTranslation::ResolveConfiguredPrompt(ai).find("natural conversational English") !=
             std::string::npos);
+    ai.prompt_id = "casual";
+    const auto casual = SentenceTranslation::ResolveConfiguredPrompt(ai);
+    REQUIRE(casual.find("use lowercase style") != std::string::npos);
+    REQUIRE(casual.find("case of URLs, email addresses, code") != std::string::npos);
     ai.prompt_id = "academic";
     REQUIRE(SentenceTranslation::ResolveConfiguredPrompt(ai).find("precise academic English") != std::string::npos);
     ai.prompt_id = "creative";

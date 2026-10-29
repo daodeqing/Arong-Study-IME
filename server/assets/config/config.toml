@@ -628,7 +628,7 @@ model_jev = ""
 candidate_limit = 3
 # DeepSeek 思考强度: disabled | low | high | max，仅 DeepSeek 生效。开启后联想明显变慢。
 thinking = "disabled"
-# 整句翻译场景模式与自定义提示词: daily（日常交流）| academic（学术科研）| creative（写作创作）| custom_1 | custom_2 | custom_3
+# 整句翻译场景模式与自定义提示词: daily（日常交流）| casual（口语模式）| academic（学术科研）| creative（写作创作）| custom_1 | custom_2 | custom_3
 prompt_id = "daily"
 prompt = """你是一个中文全拼输入法联想引擎。输入为已经切分好的拼音数组、前文上下文和候选数量。
 

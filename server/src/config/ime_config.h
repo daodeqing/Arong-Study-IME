@@ -111,7 +111,7 @@ struct AiAssistantConfig
     int candidate_limit = 3;
     // DeepSeek reasoning effort: disabled | low | high | max. Other providers ignore it.
     std::string thinking = "disabled";
-    // daily | academic | creative | custom_1 | custom_2 | custom_3
+    // daily | casual | academic | creative | custom_1 | custom_2 | custom_3
     std::string prompt_id = "daily";
     std::string prompt_custom_1;
     std::string prompt_custom_2;
