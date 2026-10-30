@@ -31,8 +31,8 @@ inline bool KeepsPinyinChannel(bool enabled, bool composing, std::uint32_t key, 
 inline bool IsPunctuationCharacter(wchar_t ch)
 {
     return (ch >= L'!' && ch <= L'/') || (ch >= L':' && ch <= L'@') || (ch >= L'[' && ch <= L'`') ||
-           (ch >= L'{' && ch <= L'~') || std::wstring_view(L"。，、！？；：（）【】《》“”‘’「」『』").find(ch) !=
-               std::wstring_view::npos;
+           (ch >= L'{' && ch <= L'~') ||
+           std::wstring_view(L"。，、！？；：（）【】《》“”‘’「」『』").find(ch) != std::wstring_view::npos;
 }
 inline bool OwnsPunctuation(bool enabled, bool hasSentence, std::uint32_t modifiers, bool windowsKeyDown, wchar_t ch)
 {
