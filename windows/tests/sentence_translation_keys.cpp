@@ -47,5 +47,12 @@ int main()
         SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(true, true, 'C', 0, false, false) ||
         SentenceTranslationKeyPolicy::OwnsUppercaseAbbreviation(true, true, 'C', 2, false, false))
         return 20;
+    if (!SentenceTranslationKeyPolicy::OwnsPunctuation(true, true, 1, false, L'>'))
+        return 21;
+    if (!SentenceTranslationKeyPolicy::OwnsPunctuation(true, true, 0, false, L'@'))
+        return 22;
+    if (SentenceTranslationKeyPolicy::OwnsPunctuation(true, true, 2, false, L'.') ||
+        SentenceTranslationKeyPolicy::OwnsPunctuation(true, false, 1, false, L'>'))
+        return 23;
     return 0;
 }

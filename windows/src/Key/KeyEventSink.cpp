@@ -554,8 +554,8 @@ BOOL CMetasequoiaIME::_IsKeyEaten(         //
             }
             return TRUE;
         }
-        const bool sentencePunctuation = sentenceInput && !windowsKey && (shortcutModifiers & 6u) == 0 && wch != 0 &&
-                                         std::wstring(L",.!?:;。！？；：()（）").find(wch) != std::wstring::npos;
+        const bool sentencePunctuation = SentenceTranslationKeyPolicy::OwnsPunctuation(
+            sentenceEnabled, sentenceInput, shortcutModifiers, windowsKey, wch);
         if (SentenceTranslationKeyPolicy::OwnsCommitKey(
                 Global::SentenceTranslationEnabled.load(std::memory_order_relaxed), sentenceInput, *pCodeOut,
                 shortcutModifiers, windowsKey) ||
