@@ -296,9 +296,15 @@ bool CMetasequoiaIME::_MatchChordInputHotkey(WPARAM wParam, _Out_ GUID *hotkeyGu
     }
 
     const UINT code = LOWORD(wParam);
-    const bool shift = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
-    const bool ctrl = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
-    const bool alt = (GetKeyState(VK_MENU) & 0x8000) != 0;
+    // TSF can deliver the key before its thread keyboard snapshot catches up.
+    // The async state is the physical chord at this message; fall back to the
+    // modifier tracker for hosts that update only the TSF state.
+    const auto isModifierDown = [](int virtualKey, USHORT trackedModifier) {
+        return (GetAsyncKeyState(virtualKey) & 0x8000) != 0 || (Global::ModifiersValue & trackedModifier) != 0;
+    };
+    const bool shift = isModifierDown(VK_SHIFT, TF_MOD_SHIFT);
+    const bool ctrl = isModifierDown(VK_CONTROL, TF_MOD_CONTROL);
+    const bool alt = isModifierDown(VK_MENU, TF_MOD_ALT);
     const auto hotkeys = FanyUtils::ReadConfiguredSwitchLanguageHotkeys();
 
     if (code == VK_SPACE && ctrl && alt && !shift && hotkeys.ctrl_alt_space)
@@ -309,7 +315,12 @@ bool CMetasequoiaIME::_MatchChordInputHotkey(WPARAM wParam, _Out_ GUID *hotkeyGu
     const bool win = (GetKeyState(VK_LWIN) & 0x8000) != 0 || (GetKeyState(VK_RWIN) & 0x8000) != 0;
     const unsigned modifiers = (shift ? FanyImeKeyChord::Shift : 0) | (ctrl ? FanyImeKeyChord::Control : 0) |
                                (alt ? FanyImeKeyChord::Alt : 0) | (win ? FanyImeKeyChord::Win : 0);
-    const auto action = hotkeys.input_state.Match(code, modifiers);
+    // Some keyboard layouts report the numpad decimal key as VK_DECIMAL while
+    // the configured Period binding is the main keyboard's VK_OEM_PERIOD.
+    // Treat that alias as the same punctuation key without changing any other
+    // configured binding.
+    const UINT matchedCode = code == VK_DECIMAL ? VK_OEM_PERIOD : code;
+    const auto action = hotkeys.input_state.Match(matchedCode, modifiers);
     if (action == FanyImeInputStateShortcuts::Action::FullWidth)
     {
         *hotkeyGuid = Global::MetasequoiaIMEGuidDoubleSingleBytePreserveKey;

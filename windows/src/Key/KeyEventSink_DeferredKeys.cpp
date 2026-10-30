@@ -559,6 +559,18 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
         shadow.candidateActive = _candidateMode == CANDIDATE_ORIGINAL;
     }
 
+    if (SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(
+            shadow.imeOpen,
+            shadow.inputLength != 0 || shadow.candidateActive || !GlobalIme::word_for_creating_word.empty(),
+            *classifiedCode, capturedModifiers,
+            (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000)))
+    {
+        // Keep the key behind the FIFO prefix, but mark it as application text
+        // (CATEGORY_NONE/FUNCTION_NONE) instead of sending it to the Chinese
+        // composition path.
+        return true;
+    }
+
     // Settings can change while keys wait. Keep the projected English toggle, but
     // always use the latest configured R-mode eligibility.
     shadow.temporaryJapanesePolicy = static_cast<FanyImeTemporaryJapanese::Policy>(
