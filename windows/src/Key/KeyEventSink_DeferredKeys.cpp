@@ -472,9 +472,8 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
         keyState->Function = FUNCTION_INPUT;
         return true;
     }
-    const bool sentencePunctuation = IsSentenceTranslationEnabled() && sentenceInput && !windowsKey &&
-                                     (capturedModifiers & 6u) == 0 && *classifiedWch != 0 &&
-                                     std::wstring(L",.!?:;。！？；：()（）").find(*classifiedWch) != std::wstring::npos;
+    const bool sentencePunctuation = SentenceTranslationKeyPolicy::OwnsPunctuation(
+        IsSentenceTranslationEnabled(), sentenceInput, capturedModifiers, windowsKey, *classifiedWch);
     if (projectedImeOpen && !_IsKeyboardDisabled() &&
         (SentenceTranslationKeyPolicy::OwnsCommitKey(IsSentenceTranslationEnabled(), sentenceInput, *classifiedCode,
                                                      capturedModifiers, windowsKey) ||

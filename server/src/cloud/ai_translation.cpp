@@ -70,7 +70,9 @@ std::string BuildSystemPrompt(const std::string &source, const std::string &targ
            "，目标语言是" + LanguageName(target) +
            "。把每个词条翻译成目标语言，只输出合法 JSON，不要解释或输出 Markdown：\n"
            "{\"translations\":[\"译文\"]}\n"
-           "数组长度和顺序必须与输入完全一致，无法翻译的位置返回空字符串。译文要简短，适合放在输入法候选窗里。";
+           "数组长度和顺序必须与输入完全一致，无法翻译的位置返回空字符串。译文要简短，适合放在输入法候选窗里。"
+           "忠实保留原意、语气、否定、数字、专名、链接、代码和大小写；避免逐字直译、机械表达和受源语言影响的表达（目标"
+           "语言为英语时尤其避免中式英语），使用目标语言里自然、地道的说法。";
 }
 
 // Picks the translated strings out of a Chat Completions content string. A reply that is

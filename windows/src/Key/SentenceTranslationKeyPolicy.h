@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 
 namespace SentenceTranslationKeyPolicy
 {
@@ -26,6 +27,16 @@ inline bool KeepsPinyinChannel(bool enabled, bool composing, std::uint32_t key, 
                                bool windowsKeyDown, bool capsLock = false)
 {
     return enabled && composing && !capsLock && !windowsKeyDown && (modifiers & 7u) == 0u && key >= 'A' && key <= 'Z';
+}
+inline bool IsPunctuationCharacter(wchar_t ch)
+{
+    return (ch >= L'!' && ch <= L'/') || (ch >= L':' && ch <= L'@') || (ch >= L'[' && ch <= L'`') ||
+           (ch >= L'{' && ch <= L'~') ||
+           std::wstring_view(L"。，、！？；：（）【】《》“”‘’「」『』").find(ch) != std::wstring_view::npos;
+}
+inline bool OwnsPunctuation(bool enabled, bool hasSentence, std::uint32_t modifiers, bool windowsKeyDown, wchar_t ch)
+{
+    return enabled && hasSentence && !windowsKeyDown && (modifiers & 6u) == 0u && IsPunctuationCharacter(ch);
 }
 inline bool OwnsUppercaseAbbreviation(bool enabled, bool hasSentence, std::uint32_t key, std::uint32_t modifiers,
                                       bool windowsKeyDown, bool capsLock = false)

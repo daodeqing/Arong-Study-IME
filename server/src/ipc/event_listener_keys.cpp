@@ -48,6 +48,13 @@ char CompositionLetter(UINT keycode, WCHAR wch)
                                                                         : static_cast<char>(keycode + ('a' - 'A'));
 }
 
+bool IsSentencePunctuationCharacter(WCHAR ch)
+{
+    return (ch >= L'!' && ch <= L'/') || (ch >= L':' && ch <= L'@') || (ch >= L'[' && ch <= L'`') ||
+           (ch >= L'{' && ch <= L'~') ||
+           std::wstring(L"。，、！？；：（）【】《》“”‘’「」『』").find(ch) != std::wstring::npos;
+}
+
 // Temporary R-mode policy of the client whose key is being handled. HandleImeKey
 // resolves it once per key; the predicates below run several times per key.
 FanyImeTemporaryJapanese::Policy g_key_temporary_japanese_policy = 0;
@@ -1061,7 +1068,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
     {
         if (namedpipeData.keycode == static_cast<unsigned>(FanyImeInputStateShortcuts::Action::OutputLanguage))
         {
-            if (GetConfiguredSentenceTranslationEnabled())
+            if (GetConfiguredSentenceTranslationEnabled() && !g_english_input_mode)
                 SetEnglishInputMode(false);
             ToggleOutputLanguage(client_id, activation_epoch, Global::Point[0], Global::Point[1]);
             if (SentenceModeForClient(client_id))
@@ -1069,6 +1076,9 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
                 UpdateSentenceTranslationPreview();
                 RefreshSentenceTranslationPreview();
             }
+            else if (g_english_input_mode && g_inputSession &&
+                     !g_inputSession->get_pinyin_sequence_with_cases().empty())
+                RefreshCandidatePageUi(true);
         }
         else
         {
@@ -1323,8 +1333,7 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         GetConfiguredWordToCharacterEnabled() && !is_v_mode_input_key,
         GetConfiguredWordToCharacterKeys() == "minus_equal", is_japanese_long_vowel);
     const bool is_commit_with_highlighted_candidate_punctuation =
-        (SentenceModeForClient(client_id) && Global::Wch != 0 &&
-         std::wstring(L",.!?:;。！？；：()（）").find(Global::Wch) != std::wstring::npos) ||
+        (SentenceModeForClient(client_id) && IsSentencePunctuationCharacter(Global::Wch)) ||
         word_character_direction != 0 ||
         (!is_manual_pinyin_separator && !is_microsoft_shuangpin_ing_key && !is_mid_sentence_helpcode_marker &&
          !is_direct_helpcode_slash && !is_date_time_input_key && !is_v_mode_input_key &&
