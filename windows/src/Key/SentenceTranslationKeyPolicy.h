@@ -6,6 +6,24 @@
 
 namespace SentenceTranslationKeyPolicy
 {
+inline bool IsAsciiLetterKey(std::uint32_t key)
+{
+    return (key >= 'A' && key <= 'Z') || (key >= 'a' && key <= 'z');
+}
+
+// Holding Shift while starting an ASCII word is an explicit English
+// passthrough. It must be checked before the fresh-composition classifier, or
+// the first letter becomes pinyin and the rest of the word is split between
+// the IME and the host application.
+inline bool PassesShiftHeldEnglish(bool imeOpen, bool hasSentence, std::uint32_t key, std::uint32_t modifiers,
+                                   bool windowsKeyDown)
+{
+    constexpr std::uint32_t kShift = 1u;
+    constexpr std::uint32_t kControlAlt = 2u | 4u;
+    return imeOpen && !hasSentence && !windowsKeyDown && (modifiers & kShift) != 0 &&
+           (modifiers & kControlAlt) == 0 && IsAsciiLetterKey(key);
+}
+
 // Values are Win32 virtual keys and the existing IPC Shift/Ctrl/Alt bits.
 // This stays independent of TSF so both key classifiers share the same rule.
 inline bool HasLiveComposition(std::uint32_t rawLength, bool selectedChinese, bool candidates)
@@ -70,3 +88,4 @@ inline bool KeepsComposition(std::uint32_t replyType)
     return replyType == 2u || replyType == 4u || replyType == 14u || replyType == 16u;
 }
 } // namespace SentenceTranslationKeyPolicy
+

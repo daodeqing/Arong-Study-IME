@@ -208,13 +208,20 @@ void RenderFloatingToolbarState()
 bool EnsureSmallWindowsTopmost(const wchar_t *reason)
 {
     smallWindowTopmostRequested = true;
-    if (smallWindowTopmostApplied)
-    {
-        return true;
-    }
     if (!AreSmallWindowPresentersBound())
     {
         return false;
+    }
+
+    // Other topmost windows (for example Windows Search) can enter the band
+    // after our staggered sequence has completed. Reassert the candidate host
+    // on every show so an already-applied gate does not leave it underneath a
+    // newer topmost window. Keep this non-activating and leave the toolbar/menu
+    // ordering to the existing staggered sequence.
+    PinHostTopmost(::global_hwnd);
+    if (smallWindowTopmostApplied)
+    {
+        return true;
     }
     TryApplyPendingLazyTopmost(reason);
     return smallWindowTopmostApplied;
@@ -392,3 +399,4 @@ void SyncMenuFloatingToolbarToggle()
         TrayMenuPresenter::Instance().ApplyTheme();
     }
 }
+

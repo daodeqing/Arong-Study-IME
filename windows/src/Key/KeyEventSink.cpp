@@ -237,11 +237,11 @@ KEYSTROKE_FUNCTION SegmentEditFunction(UINT code, UINT modifiers)
 UINT CaptureIpcModifiers()
 {
     UINT modifiers = 0;
-    if ((GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
+    if ((GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0 || (Global::ModifiersValue & TF_MOD_SHIFT) != 0)
         modifiers |= 0b00000001;
-    if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0)
+    if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 || (Global::ModifiersValue & TF_MOD_CONTROL) != 0)
         modifiers |= 0b00000010;
-    if ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0)
+    if ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0 || (Global::ModifiersValue & TF_MOD_ALT) != 0)
         modifiers |= 0b00000100;
     return modifiers;
 }
@@ -540,9 +540,21 @@ BOOL CMetasequoiaIME::_IsKeyEaten(         //
         const bool sentenceEnabled = IsSentenceTranslationEnabled();
         const auto sentenceRawLength = pCompositionProcessorEngine->GetVirtualKeyLength();
         const bool sentenceInput = sentenceEnabled && SentenceTranslationKeyPolicy::HasLiveComposition(
-                                                          sentenceRawLength, !GlobalIme::word_for_creating_word.empty(),
-                                                          _candidateMode != CANDIDATE_NONE);
+                                                           sentenceRawLength, !GlobalIme::word_for_creating_word.empty(),
+                                                           _candidateMode != CANDIDATE_NONE);
+        const bool inputInProgress =
+            !freshCompositionState &&
+            (_IsComposing() != FALSE || _candidateMode != CANDIDATE_NONE || sentenceRawLength > 0 ||
+             !GlobalIme::word_for_creating_word.empty());
         const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
+        if (SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(isOpen != FALSE, inputInProgress, *pCodeOut,
+                                                                 shortcutModifiers, windowsKey))
+        {
+            // Let the host apply its normal keyboard layout and Shift state.
+            // This is deliberately before fresh-composition classification so
+            // the first letter cannot become pinyin.
+            return isTouchKeyboardSpecialKeys;
+        }
         if (SentenceTranslationKeyPolicy::KeepsPinyinChannel(sentenceEnabled, sentenceInput, *pCodeOut,
                                                              shortcutModifiers, windowsKey,
                                                              (GetKeyState(VK_CAPITAL) & 0x0001) != 0))
@@ -615,10 +627,7 @@ BOOL CMetasequoiaIME::_IsKeyEaten(         //
         const bool isComposing = freshCompositionState ? false : _IsComposing() != FALSE;
         const CANDIDATE_MODE candidateMode = freshCompositionState ? CANDIDATE_NONE : _candidateMode;
         const bool isCapsLockOn = (GetKeyState(VK_CAPITAL) & 0x0001) != 0;
-        const bool isInputInProgress =
-            !freshCompositionState &&
-            (isComposing || (candidateMode != CANDIDATE_NONE) ||
-             (pCompositionProcessorEngine && pCompositionProcessorEngine->GetVirtualKeyLength() > 0));
+        const bool isInputInProgress = inputInProgress;
 
         // CapsLock alphabet keys belong to the application unless input is already in progress
         if (ShouldPassCapsLockAlphabet(isCapsLockOn, isInputInProgress, *pCodeOut, wch))
@@ -1913,3 +1922,4 @@ void CMetasequoiaIME::_UninitKeyEventSink()
 
     pKeystrokeMgr->Release();
 }
+

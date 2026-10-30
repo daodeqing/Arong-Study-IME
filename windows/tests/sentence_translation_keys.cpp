@@ -54,5 +54,17 @@ int main()
     if (SentenceTranslationKeyPolicy::OwnsPunctuation(true, true, 2, false, L'.') ||
         SentenceTranslationKeyPolicy::OwnsPunctuation(true, false, 1, false, L'>'))
         return 23;
+    if (!SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(true, false, 'A', 1, false))
+        return 24;
+    if (!SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(true, false, 'z', 1, false))
+        return 25;
+    if (SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(true, true, 'A', 1, false) ||
+        SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(true, false, 'A', 0, false) ||
+        SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(true, false, 'A', 3, false) ||
+        SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(true, false, 'A', 1, true) ||
+        SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(false, false, 'A', 1, false) ||
+        SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(true, false, '1', 1, false))
+        return 26;
     return 0;
 }
+
