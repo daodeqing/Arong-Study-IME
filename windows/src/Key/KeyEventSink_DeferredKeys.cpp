@@ -560,8 +560,8 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
     }
 
     if (SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(
-            shadow.imeOpen, shadow.inputLength != 0 || shadow.candidateActive ||
-                !GlobalIme::word_for_creating_word.empty(),
+            shadow.imeOpen,
+            shadow.inputLength != 0 || shadow.candidateActive || !GlobalIme::word_for_creating_word.empty(),
             *classifiedCode, capturedModifiers,
             (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000)))
     {

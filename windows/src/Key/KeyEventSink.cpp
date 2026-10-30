@@ -540,12 +540,11 @@ BOOL CMetasequoiaIME::_IsKeyEaten(         //
         const bool sentenceEnabled = IsSentenceTranslationEnabled();
         const auto sentenceRawLength = pCompositionProcessorEngine->GetVirtualKeyLength();
         const bool sentenceInput = sentenceEnabled && SentenceTranslationKeyPolicy::HasLiveComposition(
-                                                           sentenceRawLength, !GlobalIme::word_for_creating_word.empty(),
-                                                           _candidateMode != CANDIDATE_NONE);
+                                                          sentenceRawLength, !GlobalIme::word_for_creating_word.empty(),
+                                                          _candidateMode != CANDIDATE_NONE);
         const bool inputInProgress =
-            !freshCompositionState &&
-            (_IsComposing() != FALSE || _candidateMode != CANDIDATE_NONE || sentenceRawLength > 0 ||
-             !GlobalIme::word_for_creating_word.empty());
+            !freshCompositionState && (_IsComposing() != FALSE || _candidateMode != CANDIDATE_NONE ||
+                                       sentenceRawLength > 0 || !GlobalIme::word_for_creating_word.empty());
         const bool windowsKey = (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
         if (SentenceTranslationKeyPolicy::PassesShiftHeldEnglish(isOpen != FALSE, inputInProgress, *pCodeOut,
                                                                  shortcutModifiers, windowsKey))

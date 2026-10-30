@@ -20,8 +20,8 @@ inline bool PassesShiftHeldEnglish(bool imeOpen, bool hasSentence, std::uint32_t
 {
     constexpr std::uint32_t kShift = 1u;
     constexpr std::uint32_t kControlAlt = 2u | 4u;
-    return imeOpen && !hasSentence && !windowsKeyDown && (modifiers & kShift) != 0 &&
-           (modifiers & kControlAlt) == 0 && IsAsciiLetterKey(key);
+    return imeOpen && !hasSentence && !windowsKeyDown && (modifiers & kShift) != 0 && (modifiers & kControlAlt) == 0 &&
+           IsAsciiLetterKey(key);
 }
 
 // Values are Win32 virtual keys and the existing IPC Shift/Ctrl/Alt bits.

@@ -300,8 +300,7 @@ bool CMetasequoiaIME::_MatchChordInputHotkey(WPARAM wParam, _Out_ GUID *hotkeyGu
     // The async state is the physical chord at this message; fall back to the
     // modifier tracker for hosts that update only the TSF state.
     const auto isModifierDown = [](int virtualKey, USHORT trackedModifier) {
-        return (GetAsyncKeyState(virtualKey) & 0x8000) != 0 ||
-               (Global::ModifiersValue & trackedModifier) != 0;
+        return (GetAsyncKeyState(virtualKey) & 0x8000) != 0 || (Global::ModifiersValue & trackedModifier) != 0;
     };
     const bool shift = isModifierDown(VK_SHIFT, TF_MOD_SHIFT);
     const bool ctrl = isModifierDown(VK_CONTROL, TF_MOD_CONTROL);
