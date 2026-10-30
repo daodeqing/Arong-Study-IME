@@ -1019,9 +1019,9 @@ VisualPtr BuildShortcutPage(PageContext &context)
     // 输入与输出语言快捷键
     {
         auto column = std::make_shared<Column>(0.0f);
-        column->Add(Heading(
-            L"输入与输出语言",
-            L"单按 Shift 切换中文/英文输出；在英文候选模式下可组合成“英文输入、中文输出”。Ctrl 与 Ctrl + Alt + Space 切换输入法状态。Ctrl + Space 由 Windows 管理"));
+        column->Add(Heading(L"输入与输出语言",
+                            L"单按 Shift 切换中文/英文输出；在英文候选模式下可组合成“英文输入、中文输出”。Ctrl 与 Ctrl "
+                            L"+ Alt + Space 切换输入法状态。Ctrl + Space 由 Windows 管理"));
         column->Add(Options({BindCheck(context, L"Shift", "keybindings.switch_language_shift"),
                              BindCheck(context, L"Ctrl", "keybindings.switch_language_ctrl"),
                              BindCheck(context, L"Ctrl + Alt + Space", "keybindings.switch_language_ctrl_alt_space")}));
@@ -1042,8 +1042,8 @@ VisualPtr BuildShortcutPage(PageContext &context)
         state = RecorderState{};
         state.model = model;
         auto column = std::make_shared<Column>(0.0f);
-        column->Add(Heading(L"输入状态切换",
-                            L"支持 Ctrl 或 Ctrl+Shift 组合。英文候选模式仅在中文输入状态生效；配合 Shift 的中文输出可把英文输入翻译成中文，再按一次回到拼音输入"));
+        column->Add(Heading(L"输入状态切换", L"支持 Ctrl 或 Ctrl+Shift 组合。英文候选模式仅在中文输入状态生效；配合 "
+                                             L"Shift 的中文输出可把英文输入翻译成中文，再按一次回到拼音输入"));
         auto list = std::make_shared<Column>(0.0f);
         const std::pair<const char *, const wchar_t *> rows[] = {{"englishCandidatesHotkey", L"切换英文候选模式"},
                                                                  {"fullWidthHotkey", L"全角 / 半角切换"},
