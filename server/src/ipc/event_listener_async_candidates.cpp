@@ -312,8 +312,10 @@ void ApplyEnglishCandidates(std::vector<WordItem> candidates, const std::string 
 
 void ApplyCandidateTranslations(std::vector<EnglishIme::TranslationResult> results, uint64_t generation, bool merge)
 {
-    if (!EnglishIme::IsTranslationCurrent(generation) || !GetConfiguredCandidateTranslationsEnabled() ||
-        IsUiLessMode() || g_candidate_translation_signature.empty() || IsCandidateSubPageActive() ||
+    const bool englishInputChineseOutput = g_english_input_mode && !IsEnglishOutputEnabled();
+    if (!EnglishIme::IsTranslationCurrent(generation) ||
+        (!GetConfiguredCandidateTranslationsEnabled() && !englishInputChineseOutput) || IsUiLessMode() ||
+        g_candidate_translation_signature.empty() || IsCandidateSubPageActive() ||
         (g_inputSession && g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji))
         return;
 

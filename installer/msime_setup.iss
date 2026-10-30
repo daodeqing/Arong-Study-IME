@@ -175,6 +175,9 @@ Source: "{#MySourceRoot}\app_data\config.default.toml"; \
 Name: "{group}\{#MyAppName}"; \
     Filename: "{code:GetAppDir}\server\{#MySettingsExeName}"; \
     WorkingDir: "{code:GetAppDir}\server"
+Name: "{autodesktop}\{#MyAppName}"; \
+    Filename: "{code:GetAppDir}\server\{#MySettingsExeName}"; \
+    WorkingDir: "{code:GetAppDir}\server"
 Name: "{group}\卸载 {#MyAppName}"; Filename: "{uninstallexe}"
 
 [Registry]
