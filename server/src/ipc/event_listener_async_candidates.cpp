@@ -314,8 +314,8 @@ void ApplyCandidateTranslations(std::vector<EnglishIme::TranslationResult> resul
 {
     const bool englishInputChineseOutput = g_english_input_mode && !IsEnglishOutputEnabled();
     if (!EnglishIme::IsTranslationCurrent(generation) ||
-        (!GetConfiguredCandidateTranslationsEnabled() && !englishInputChineseOutput) ||
-        IsUiLessMode() || g_candidate_translation_signature.empty() || IsCandidateSubPageActive() ||
+        (!GetConfiguredCandidateTranslationsEnabled() && !englishInputChineseOutput) || IsUiLessMode() ||
+        g_candidate_translation_signature.empty() || IsCandidateSubPageActive() ||
         (g_inputSession && g_inputSession->current_scheme_type() == SchemeType::JapaneseRomaji))
         return;
 

@@ -51,8 +51,8 @@ char CompositionLetter(UINT keycode, WCHAR wch)
 bool IsSentencePunctuationCharacter(WCHAR ch)
 {
     return (ch >= L'!' && ch <= L'/') || (ch >= L':' && ch <= L'@') || (ch >= L'[' && ch <= L'`') ||
-           (ch >= L'{' && ch <= L'~') || std::wstring(L"。，、！？；：（）【】《》“”‘’「」『』").find(ch) !=
-               std::wstring::npos;
+           (ch >= L'{' && ch <= L'~') ||
+           std::wstring(L"。，、！？；：（）【】《》“”‘’「」『』").find(ch) != std::wstring::npos;
 }
 
 // Temporary R-mode policy of the client whose key is being handled. HandleImeKey

@@ -112,7 +112,8 @@ std::string NormalizeEnglishTranslationKey(std::string value)
     return value;
 }
 
-std::wstring OutputTextForCandidate(const std::string &chinese, CandidateSource source, const std::string &translation_key = {})
+std::wstring OutputTextForCandidate(const std::string &chinese, CandidateSource source,
+                                    const std::string &translation_key = {})
 {
     // 英文输入、中文输出模式复用英文候选的本地/云释义缓存；未就绪时保留英文，绝不丢字。
     if (g_english_input_mode && !IsEnglishOutputEnabled() &&
@@ -515,9 +516,8 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
 #endif
 
                 /* 更新一下被选中的候选项 */
-                Global::candidate_ui.selected_text =
-                    OutputTextForCandidate(GlobalIme::composition.creating_word.word, curWordItem.source,
-                                            curWordItem.pinyin);
+                Global::candidate_ui.selected_text = OutputTextForCandidate(GlobalIme::composition.creating_word.word,
+                                                                            curWordItem.source, curWordItem.pinyin);
 
                 if (creating_word_progress.can_store && !japanese_candidate)
                 {
