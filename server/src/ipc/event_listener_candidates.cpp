@@ -426,7 +426,9 @@ void PrepareCandidateTranslationRequest()
     const auto owner = event_listener_detail::SnapshotCandidateUiOwner();
     const bool sentence_mode = owner && FanyNamedPipe::SentenceModeForClient(owner.client_id);
     // Whole-sentence learning must not launch separate word-gloss requests.
-    const bool enabled = GetConfiguredCandidateTranslationsEnabled() && !IsUiLessMode() && !japanese && !sentence_mode;
+    const bool englishInputChineseOutput = g_english_input_mode && !IsEnglishOutputEnabled();
+    const bool enabled = !IsUiLessMode() && !japanese && !sentence_mode &&
+                         (GetConfiguredCandidateTranslationsEnabled() || englishInputChineseOutput);
     auto &ui = Global::candidate_ui;
     if (IsCandidateSubPageActive())
     {

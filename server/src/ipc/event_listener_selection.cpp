@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <string>
 #include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <cstdint>
 #include "ipc.h"
@@ -104,10 +105,25 @@ void LearnEnglishSlot(const WordItem &selected, size_t absolute_index, uint64_t 
     }
 }
 
-std::wstring OutputTextForCandidate(const std::string &chinese, CandidateSource source)
+std::string NormalizeEnglishTranslationKey(std::string value)
 {
-    // 普通拼音输出保持中文。翻译是显式整句功能，不能再逐词替换或用字母回退冒充译文。
-    (void)source;
+    for (char &ch : value)
+        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+    return value;
+}
+
+std::wstring OutputTextForCandidate(const std::string &chinese, CandidateSource source, const std::string &translation_key = {})
+{
+    // 英文输入、中文输出模式复用英文候选的本地/云释义缓存；未就绪时保留英文，绝不丢字。
+    if (g_english_input_mode && !IsEnglishOutputEnabled() &&
+        (source == CandidateSource::EnglishDictionary || source == CandidateSource::Generated))
+    {
+        const std::string key = NormalizeEnglishTranslationKey(translation_key.empty() ? chinese : translation_key);
+        const EnglishIme::TranslationQuery query{key, EnglishIme::TranslationDirection::EnglishToChinese};
+        const auto found = g_candidate_translation_glosses.find(TranslationIdentity(query));
+        if (found != g_candidate_translation_glosses.end() && !found->second.text.empty())
+            return string_to_wstring(found->second.text);
+    }
     return string_to_wstring(CandidateTextForOutput(chinese));
 }
 } // namespace
@@ -318,7 +334,8 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
             curWordItem.source == CandidateSource::DateTime ||
             (curWordItem.source == CandidateSource::Generated && !japanese_candidate))
         {
-            Global::candidate_ui.selected_text = OutputTextForCandidate(output_source_text, curWordItem.source);
+            Global::candidate_ui.selected_text =
+                OutputTextForCandidate(output_source_text, curWordItem.source, curWordItem.pinyin);
             // 整句候选走的是这条提前返回的捷径，到不了下面 creating_word 的收尾逻辑，
             // 因此造好的词必须在这里落库，否则前缀 + 整句只上屏、学不到。没有前缀时
             // 整句自己就是要落库的那条词：它在词库里没有行，下面的调频改不到它。
@@ -499,7 +516,8 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
 
                 /* 更新一下被选中的候选项 */
                 Global::candidate_ui.selected_text =
-                    OutputTextForCandidate(GlobalIme::composition.creating_word.word, curWordItem.source);
+                    OutputTextForCandidate(GlobalIme::composition.creating_word.word, curWordItem.source,
+                                            curWordItem.pinyin);
 
                 if (creating_word_progress.can_store && !japanese_candidate)
                 {
@@ -544,7 +562,8 @@ void ProcessSelectionKey(UINT keycode, uint64_t client_id, uint64_t activation_e
 
         if (!isNeedCreateWord && !GlobalIme::composition.creating_word.active)
         {
-            Global::candidate_ui.selected_text = OutputTextForCandidate(output_source_text, curWordItem.source);
+            Global::candidate_ui.selected_text =
+                OutputTextForCandidate(output_source_text, curWordItem.source, curWordItem.pinyin);
         }
 
         if (!isNeedCreateWord)
