@@ -453,4 +453,3 @@ bool CMetasequoiaIME::_QueueInputHotkey(_In_ ITfContext *pContext, REFGUID hotke
     }
     return *pIsEaten != FALSE;
 }
-

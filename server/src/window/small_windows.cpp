@@ -399,4 +399,3 @@ void SyncMenuFloatingToolbarToggle()
         TrayMenuPresenter::Instance().ApplyTheme();
     }
 }
-

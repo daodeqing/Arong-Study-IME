@@ -1922,4 +1922,3 @@ void CMetasequoiaIME::_UninitKeyEventSink()
 
     pKeystrokeMgr->Release();
 }
-

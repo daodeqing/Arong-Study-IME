@@ -88,4 +88,3 @@ inline bool KeepsComposition(std::uint32_t replyType)
     return replyType == 2u || replyType == 4u || replyType == 14u || replyType == 16u;
 }
 } // namespace SentenceTranslationKeyPolicy
-

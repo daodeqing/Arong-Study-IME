@@ -1238,4 +1238,3 @@ void CMetasequoiaIME::_DrainOneDeferredKeyDown()
         _CompleteDeferredKeyReplay(replayToken);
     }
 }
-
