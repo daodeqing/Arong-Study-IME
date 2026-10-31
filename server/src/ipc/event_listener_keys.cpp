@@ -55,6 +55,14 @@ bool IsSentencePunctuationCharacter(WCHAR ch)
            std::wstring(L"。，、！？；：（）【】《》“”‘’「」『』").find(ch) != std::wstring::npos;
 }
 
+bool IsSentenceNumericInputKey(uint64_t client_id, UINT keycode, WCHAR wch)
+{
+    return FanyNamedPipe::SentenceModeForClient(client_id) && keycode >= '0' && keycode <= '9' && wch >= L'0' &&
+           wch <= L'9' &&
+           g_inputSession && g_inputSession->get_pinyin_sequence_with_cases().empty() &&
+           !GlobalIme::composition.creating_word.word.empty();
+}
+
 // Temporary R-mode policy of the client whose key is being handled. HandleImeKey
 // resolves it once per key; the predicates below run several times per key.
 FanyImeTemporaryJapanese::Policy g_key_temporary_japanese_policy = 0;
@@ -1333,7 +1341,9 @@ void HandleImeKey(uint64_t client_id, uint64_t activation_epoch, uint64_t reques
         GetConfiguredWordToCharacterEnabled() && !is_v_mode_input_key,
         GetConfiguredWordToCharacterKeys() == "minus_equal", is_japanese_long_vowel);
     const bool is_commit_with_highlighted_candidate_punctuation =
-        (SentenceModeForClient(client_id) && IsSentencePunctuationCharacter(Global::Wch)) ||
+        (SentenceModeForClient(client_id) &&
+         (IsSentencePunctuationCharacter(Global::Wch) ||
+          IsSentenceNumericInputKey(client_id, Global::Keycode, Global::Wch))) ||
         word_character_direction != 0 ||
         (!is_manual_pinyin_separator && !is_microsoft_shuangpin_ing_key && !is_mid_sentence_helpcode_marker &&
          !is_direct_helpcode_slash && !is_date_time_input_key && !is_v_mode_input_key &&
