@@ -71,7 +71,7 @@ inline bool OwnsBufferedEdit(bool enabled, bool selectedChinese, std::uint32_t r
         return false;
     const auto chord = modifiers & 7u;
     return ((key == 0x08u || key == 0x2Eu) && (chord == 0u || chord == 2u)) || (key == 0x1Bu && chord == 0u) ||
-           (key >= '1' && key <= '9' && chord == 0u);
+           (key >= '0' && key <= '9' && chord == 0u);
 }
 inline bool OwnsCommitKey(bool enabled, bool hasSentence, std::uint32_t key, std::uint32_t modifiers,
                           bool windowsKeyDown)
