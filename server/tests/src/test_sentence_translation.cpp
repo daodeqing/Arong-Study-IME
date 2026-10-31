@@ -6,8 +6,7 @@ TEST_CASE(sentence_translation_requests_complete_sentence_instead_of_dictionary_
     const AiTranslation::Config config{"local", "http://127.0.0.1:8317/v1/chat/completions", "", "test"};
     const auto request = SentenceTranslation::detail::BuildRequest(config, "我今天很高兴。");
     REQUIRE_EQ(request["messages"][1]["content"].get<std::string>(), std::string("我今天很高兴。"));
-    REQUIRE(request["messages"][0]["content"].get<std::string>().find("complete Chinese sentence") !=
-            std::string::npos);
+    REQUIRE(request["messages"][0]["content"].get<std::string>().find("complete Chinese source") != std::string::npos);
     REQUIRE_EQ(request["stream"].get<bool>(), false);
     REQUIRE(request["max_tokens"].get<int>() == 2048);
 }
@@ -68,7 +67,7 @@ TEST_CASE(sentence_translation_presets_cover_daily_academic_creative_and_custom_
             std::string::npos);
     ai.prompt_id = "casual";
     const auto casual = SentenceTranslation::ResolveConfiguredPrompt(ai);
-    REQUIRE(casual.find("use lowercase style") != std::string::npos);
+    REQUIRE(casual.find("casual but grammatically correct") != std::string::npos);
     REQUIRE(casual.find("case of URLs, email addresses, code") != std::string::npos);
     const AiTranslation::Config casual_config{
         "local", "http://127.0.0.1:8317/v1/chat/completions", "", "test", "casual", casual};
