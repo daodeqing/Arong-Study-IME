@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cctype>
 #include <cstdint>
+#include <filesystem>
 #include <utility>
 #include "ipc.h"
 #include "ipc/candidate_expansion_policy.h"
@@ -55,6 +56,13 @@ std::string BuildCurrentCandidatePage();
 void PrepareCandidateTranslationRequest();
 
 std::string g_candidate_translation_scope;
+
+const SentenceVocabulary::Dictionary &CandidateVocabulary()
+{
+    static const SentenceVocabulary::Dictionary dictionary(
+        std::filesystem::path(CommonUtils::get_ime_data_path_w()) / L"assets" / L"vocabulary" / L"cet.json");
+    return dictionary;
+}
 
 bool BuildTranslationQuery(const WordItem &item, EnglishIme::TranslationQuery &query)
 {
@@ -318,6 +326,12 @@ std::string BuildCurrentCandidatePage()
                 sentence.source == CandidateTextForOutput(GlobalIme::composition.creating_word.word) &&
                 IsEnglishOutputEnabled() && !IsSensitiveInputField())
                 view.learning_notes = SentenceVocabulary::Format(sentence.vocabulary);
+        }
+        if (GetConfiguredSentenceVocabularyEnabled() && item.source == CandidateSource::EnglishDictionary)
+        {
+            const std::string &lookup_word = item.pinyin.empty() ? item.word : item.pinyin;
+            if (const auto entry = CandidateVocabulary().Lookup(lookup_word))
+                view.learning_notes = SentenceVocabulary::Format(*entry);
         }
         if (show_autocorrect_marker && !item.corrected_from.empty())
         {

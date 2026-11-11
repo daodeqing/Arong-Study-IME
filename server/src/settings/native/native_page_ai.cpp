@@ -790,7 +790,7 @@ struct AiPage : std::enable_shared_from_this<AiPage>
             auto translation = std::make_shared<Column>(12.0f);
             translation->Add(MakeRow(L"拼音整句翻译成英文（可选）", L"默认关闭；关闭时正常选择中文候选上屏",
                                      BindToggle(context, "general.sentence_translation")));
-            translation->Add(MakeRow(L"显示四六级重点词", L"译文下方显示最多五个词的音标、词性和常见义",
+            translation->Add(MakeRow(L"显示四六级重点词", L"英文候选或译文下方显示音标、词性和常见义",
                                      BindToggle(context, "general.sentence_vocabulary")));
             Dropdown::Options modeOptions;
             modeOptions.minWidth = 148.0f;
