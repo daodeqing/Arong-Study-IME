@@ -59,8 +59,8 @@ std::string g_candidate_translation_scope;
 
 const SentenceVocabulary::Dictionary &CandidateVocabulary()
 {
-    static const SentenceVocabulary::Dictionary dictionary(
-        std::filesystem::path(CommonUtils::get_ime_data_path_w()) / L"assets" / L"vocabulary" / L"cet.json");
+    static const SentenceVocabulary::Dictionary dictionary(std::filesystem::path(CommonUtils::get_ime_data_path_w()) /
+                                                           L"assets" / L"vocabulary" / L"cet.json");
     return dictionary;
 }
 
