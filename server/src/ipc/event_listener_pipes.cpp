@@ -25,6 +25,10 @@ using namespace event_listener_detail;
 namespace
 {
 constexpr auto kPipeHelloTimeout = std::chrono::seconds(2);
+// Handshake reads are intentionally non-blocking so shutdown can wake the listener.
+// A 5 ms backoff keeps an idle client from polling at 1 kHz while adding at most
+// a few milliseconds to disconnect detection.
+constexpr auto kPipePollInterval = std::chrono::milliseconds(5);
 
 class ScopedPipeClientHandler
 {
@@ -68,7 +72,7 @@ bool ReadExactPipeMessageUntil(HANDLE pipe, void *destination, DWORD destination
         {
             return false;
         }
-        Sleep(2);
+        Sleep(static_cast<DWORD>(kPipePollInterval.count()));
     }
 
     SetLastError(pipe_running ? ERROR_SEM_TIMEOUT : ERROR_OPERATION_ABORTED);
@@ -1009,7 +1013,7 @@ void AuxPipeEventListenerLoopThread()
                     {
                         break;
                     }
-                    Sleep(1);
+                    Sleep(static_cast<DWORD>(kPipePollInterval.count()));
                 }
             }
             if (!readResult || bytesRead == 0) // Disconnected or error
@@ -1146,7 +1150,7 @@ void TsfDiagnosticPipeEventListenerLoopThread()
                     {
                         break;
                     }
-                    Sleep(1);
+                    Sleep(static_cast<DWORD>(kPipePollInterval.count()));
                 }
             }
 
