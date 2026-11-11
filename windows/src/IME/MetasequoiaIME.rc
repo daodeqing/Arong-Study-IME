@@ -35,7 +35,7 @@ IDI_PUNCTUATION_OFF     ICON                    "..\\..\\image\\PunctuationOff.i
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,8,15,0
+ FILEVERSION 0,8,61,0
  PRODUCTVERSION 0,8,15,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -53,7 +53,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "阿龍"
             VALUE "FileDescription", "阿龍学习输入法"
-            VALUE "FileVersion", "0.8.15.0"
+            VALUE "FileVersion", "0.8.16.0"
             VALUE "InternalName", "ArongStudyImeTsf.dll"
             VALUE "LegalCopyright", "Copyright (C)"
             VALUE "OriginalFilename", "ArongStudyImeTsf.dll"
