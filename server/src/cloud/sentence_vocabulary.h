@@ -4,7 +4,9 @@
 #include <cctype>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -44,6 +46,27 @@ class Dictionary
             entries_.clear();
             forms_.clear();
         }
+    }
+
+    std::optional<Entry> Lookup(std::string_view word) const
+    {
+        std::string normalized;
+        normalized.reserve(word.size());
+        for (const unsigned char ch : word)
+        {
+            if (ch >= 'A' && ch <= 'Z')
+                normalized.push_back(static_cast<char>(ch + ('a' - 'A')));
+            else
+                normalized.push_back(static_cast<char>(ch));
+        }
+        auto found = entries_.find(normalized);
+        if (found != entries_.end())
+            return found->second;
+        const auto form = forms_.find(normalized);
+        if (form == forms_.end())
+            return std::nullopt;
+        found = entries_.find(form->second);
+        return found == entries_.end() ? std::nullopt : std::optional<Entry>(found->second);
     }
 
     std::vector<Entry> Select(const std::string &sentence) const
@@ -94,6 +117,15 @@ class Dictionary
     std::unordered_map<std::string, Entry> entries_;
     std::unordered_map<std::string, std::string> forms_;
 };
+
+inline std::string Format(const Entry &entry)
+{
+    std::string text = entry.word + "  [" + entry.level + "]";
+    if (!entry.phonetic.empty())
+        text += "  /" + entry.phonetic + "/";
+    text += "  " + entry.pos + "  " + entry.gloss;
+    return "四六级重点词 · 常见义\n" + text;
+}
 
 inline std::string Format(const std::vector<Entry> &entries)
 {

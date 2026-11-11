@@ -13,6 +13,11 @@ TEST_CASE(sentence_learning_words_are_local_deduplicated_and_bounded)
         "The environment requires sustainable development. Developed countries improve communication.");
     REQUIRE(!words.empty());
     REQUIRE(words.size() <= 5);
+    const auto lookup = dictionary.Lookup("Environments");
+    REQUIRE(lookup.has_value());
+    REQUIRE_EQ(lookup->word, std::string("environment"));
+    REQUIRE_EQ(lookup->level, std::string("CET4"));
+    REQUIRE(SentenceVocabulary::Format(*lookup).find("环境") != std::string::npos);
     std::unordered_set<std::string> seen;
     for (const auto &word : words)
     {
