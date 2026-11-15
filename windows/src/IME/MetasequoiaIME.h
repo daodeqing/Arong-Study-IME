@@ -62,6 +62,10 @@ const DWORD WM_SentenceTranslationResult = WM_USER + 35;
 const DWORD WM_TrySentenceTranslationCommit = WM_USER + 36;
 const DWORD WM_CancelSentenceTranslationCommit = WM_USER + 37;
 const DWORD WM_SentenceTranslationFailed = WM_USER + 38;
+// Output-language Shift changes are owned by Server, but punctuation is a TSF
+// compartment.  This message applies the requested punctuation on the owner
+// thread after the worker receives the new output-language state.
+const DWORD WM_SyncOutputLanguagePunctuation = WM_USER + 39;
 constexpr ULONG_PTR SMART_PUNCTUATION_SENDINPUT_EXTRA_INFO = 0x4D535050u;
 constexpr ULONG_PTR PAIRED_PUNCTUATION_SENDINPUT_EXTRA_INFO = 0x4D535051u;
 // Synthetic input that this tip generates carries a marker meaning "this tip
@@ -909,6 +913,9 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     ITfCompartment *_pSIPIMEOnOffCompartment;
     DWORD _dwSIPIMEOnOffCompartmentSinkCookie;
 
+    bool _sentencePunctuationKnown = false;
+    bool _sentencePunctuationEnabled = false;
+    bool _sentencePunctuationEnglish = false;
     SentenceAutoCommitState _sentenceCommit;
     SentenceAutoCommitState::Session _SentenceSession() const;
     void _CancelSentenceTranslationCommit();

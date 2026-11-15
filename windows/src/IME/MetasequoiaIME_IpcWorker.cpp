@@ -743,6 +743,8 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
                 // confirmations even though the selected language never moved.
                 if (changed)
                     PostMessage(ownerWindow, WM_CancelSentenceTranslationCommit, 0, 0);
+                if (Global::SentenceTranslationEnabled.load(std::memory_order_relaxed))
+                    PostMessage(ownerWindow, WM_SyncOutputLanguagePunctuation, 0, 0);
                 PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
             }
         }
@@ -771,7 +773,10 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
                 if (enabled)
                     PostMessage(ownerWindow, WM_ApplySentenceTranslation, 0, 0);
                 else if (needsUiUpdate)
+                {
                     PostMessage(ownerWindow, WM_CancelSentenceTranslationCommit, 0, 0);
+                    PostMessage(ownerWindow, WM_SyncOutputLanguagePunctuation, 0, 0);
+                }
                 if (needsUiUpdate)
                     PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
             }

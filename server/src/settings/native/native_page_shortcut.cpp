@@ -1019,9 +1019,11 @@ VisualPtr BuildShortcutPage(PageContext &context)
     // 输入与输出语言快捷键
     {
         auto column = std::make_shared<Column>(0.0f);
-        column->Add(Heading(L"输入与输出语言",
-                            L"单按 Shift 切换中文/英文输出；在英文候选模式下可组合成“英文输入、中文输出”。Ctrl 与 Ctrl "
-                            L"+ Alt + Space 切换输入法状态。Ctrl + Space 由 Windows 管理"));
+        column->Add(Heading(
+            L"输入与输出语言",
+            L"单按 Shift "
+            L"切换中文/英文输出，并同步切换中文/英文标点；在英文候选模式下可组合成“英文输入、中文输出”。Ctrl 与 Ctrl "
+            L"+ Alt + Space 切换输入法状态。Ctrl + Space 由 Windows 管理"));
         column->Add(Options({BindCheck(context, L"Shift", "keybindings.switch_language_shift"),
                              BindCheck(context, L"Ctrl", "keybindings.switch_language_ctrl"),
                              BindCheck(context, L"Ctrl + Alt + Space", "keybindings.switch_language_ctrl_alt_space")}));
