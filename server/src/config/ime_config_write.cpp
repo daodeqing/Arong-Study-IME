@@ -89,13 +89,16 @@ HWND FindImeServerCandidateWindow()
     return FindWindowW(L"ArongStudyIme_windows", nullptr);
 }
 
-bool SendAuxConfigNotification(const wchar_t *message)
+bool SendAuxConfigNotification(const wchar_t *message, bool waitForAcknowledgement = false)
 {
-    HANDLE pipe = CreateFileW(FANY_IME_AUX_NAMED_PIPE, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+    const DWORD access = waitForAcknowledgement ? (GENERIC_READ | GENERIC_WRITE) : GENERIC_WRITE;
+    HANDLE pipe = CreateFileW(FANY_IME_AUX_NAMED_PIPE, access, 0, nullptr, OPEN_EXISTING,
+                              SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION, nullptr);
     if (pipe == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PIPE_BUSY &&
-        WaitNamedPipeW(FANY_IME_AUX_NAMED_PIPE, 200))
+        WaitNamedPipeW(FANY_IME_AUX_NAMED_PIPE, 500))
     {
-        pipe = CreateFileW(FANY_IME_AUX_NAMED_PIPE, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+        pipe = CreateFileW(FANY_IME_AUX_NAMED_PIPE, access, 0, nullptr, OPEN_EXISTING,
+                           SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION, nullptr);
     }
     if (pipe == INVALID_HANDLE_VALUE)
     {
@@ -105,8 +108,37 @@ bool SendAuxConfigNotification(const wchar_t *message)
     DWORD bytesWritten = 0;
     const DWORD byteCount = static_cast<DWORD>(wcslen(message) * sizeof(wchar_t));
     const bool sent = WriteFile(pipe, message, byteCount, &bytesWritten, nullptr) != FALSE && bytesWritten == byteCount;
+    if (!sent || !waitForAcknowledgement)
+    {
+        CloseHandle(pipe);
+        return sent;
+    }
+
+    DWORD pipeMode = PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
+    if (!SetNamedPipeHandleState(pipe, &pipeMode, nullptr, nullptr))
+    {
+        CloseHandle(pipe);
+        return false;
+    }
+
+    bool acknowledged = false;
+    const ULONGLONG deadline = GetTickCount64() + 500;
+    while (GetTickCount64() < deadline)
+    {
+        wchar_t acknowledgement[2] = {};
+        DWORD bytesRead = 0;
+        if (ReadFile(pipe, acknowledgement, sizeof(acknowledgement), &bytesRead, nullptr))
+        {
+            acknowledged =
+                bytesRead == sizeof(acknowledgement) && acknowledgement[0] == L'O' && acknowledgement[1] == L'K';
+            break;
+        }
+        if (GetLastError() != ERROR_NO_DATA)
+            break;
+        Sleep(1);
+    }
     CloseHandle(pipe);
-    return sent;
+    return acknowledged;
 }
 } // namespace
 
@@ -161,5 +193,5 @@ bool NotifyImeServerRestart()
     // No window message carries a restart, so there is no PostMessage fallback
     // here: if the Aux pipe is unavailable the Server is not running anyway, and
     // the caller reports that instead of silently doing nothing.
-    return SendAuxConfigNotification(L"RestartServer");
+    return SendAuxConfigNotification(L"RestartServer", true);
 }

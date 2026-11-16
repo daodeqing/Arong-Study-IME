@@ -1049,6 +1049,14 @@ void AuxPipeEventListenerLoopThread()
                     // Settings runs in its own process, so the restart it offers for
                     // backend changes has to travel the same cross-integrity Aux path
                     // the config notifications use. The Watchdog relaunches us.
+                    constexpr wchar_t acknowledgement[] = {L'O', L'K'};
+                    DWORD bytesWritten = 0;
+                    // Acknowledging before ExitProcess lets the Settings UI report
+                    // that the request reached the running Server instead of
+                    // treating a successful pipe write as a fire-and-forget guess.
+                    // The handle is PIPE_NOWAIT. Never flush here: flushing a
+                    // pipe waits indefinitely for a client that does not read.
+                    WriteFile(listeningPipe, acknowledgement, sizeof(acknowledgement), &bytesWritten, nullptr);
                     RestartServerProcess();
                 }
                 else if (message == L"ConfigChanged" || message == L"InputSchemeChanged" ||

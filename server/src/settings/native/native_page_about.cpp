@@ -509,6 +509,7 @@ VisualPtr BuildAboutPage(PageContext &context)
             button->SetDisabled(true);
             button->SetText(L"重启中…");
             model->Post("restartServer");
+            host->ShowToast(L"正在尝试重启后台进程…", true);
             SetTimer(host->Hwnd(), 0x4E60, 3000, &RestoreRestartButton);
         });
         page.AddSection(MakeRows({
