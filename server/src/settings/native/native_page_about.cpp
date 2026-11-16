@@ -509,7 +509,7 @@ VisualPtr BuildAboutPage(PageContext &context)
             button->SetDisabled(true);
             button->SetText(L"重启中…");
             model->Post("restartServer");
-            host->ShowToast(L"后台进程已收到重启请求，正在重新启动", true);
+            host->ShowToast(L"正在尝试重启后台进程…", true);
             SetTimer(host->Hwnd(), 0x4E60, 3000, &RestoreRestartButton);
         });
         page.AddSection(MakeRows({
@@ -547,3 +547,4 @@ VisualPtr BuildAboutPage(PageContext &context)
     return std::make_shared<OwnerBox>(page.Build(), state);
 }
 } // namespace native_settings
+

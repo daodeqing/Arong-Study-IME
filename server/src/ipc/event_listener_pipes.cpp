@@ -1054,11 +1054,9 @@ void AuxPipeEventListenerLoopThread()
                     // Acknowledging before ExitProcess lets the Settings UI report
                     // that the request reached the running Server instead of
                     // treating a successful pipe write as a fire-and-forget guess.
-                    if (WriteFile(listeningPipe, acknowledgement, sizeof(acknowledgement), &bytesWritten, nullptr) &&
-                        bytesWritten == sizeof(acknowledgement))
-                    {
-                        FlushFileBuffers(listeningPipe);
-                    }
+                    // The handle is PIPE_NOWAIT. Never flush here: flushing a
+                    // pipe waits indefinitely for a client that does not read.
+                    WriteFile(listeningPipe, acknowledgement, sizeof(acknowledgement), &bytesWritten, nullptr);
                     RestartServerProcess();
                 }
                 else if (message == L"ConfigChanged" || message == L"InputSchemeChanged" ||
@@ -1213,3 +1211,4 @@ void TsfDiagnosticPipeEventListenerLoopThread()
     }
 }
 } // namespace FanyNamedPipe
+

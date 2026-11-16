@@ -195,3 +195,4 @@ bool NotifyImeServerRestart()
     // the caller reports that instead of silently doing nothing.
     return SendAuxConfigNotification(L"RestartServer", true);
 }
+

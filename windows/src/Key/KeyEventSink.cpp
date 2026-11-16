@@ -1513,7 +1513,7 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
             {
                 // We are already on the owner thread. Apply before returning
                 // to the queue, then let any queued Server echo reconcile it.
-                SendMessage(_msgWndHandle, WM_SyncOutputLanguagePunctuation, requestedEnglish ? 1 : 0, 1);
+                SendMessage(_msgWndHandle, WM_SyncOutputLanguagePunctuation, requestedEnglish ? 1 : 0, 2);
             }
             DebugTsfIssue47(sendResult == KeyEventSendResult::Sent ? L"output-language-sent"
                                                                    : L"output-language-send-failed",
@@ -1934,3 +1934,4 @@ void CMetasequoiaIME::_UninitKeyEventSink()
 
     pKeystrokeMgr->Release();
 }
+

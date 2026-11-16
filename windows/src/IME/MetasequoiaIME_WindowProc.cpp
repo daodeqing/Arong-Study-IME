@@ -1081,20 +1081,17 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
             break;
         auto *engine = pIME->_pCompositionProcessorEngine;
         const bool enabled = IsSentenceTranslationEnabled();
-        // lParam==1 marks the direct post made by the Shift dispatch. The
-        // worker's state echo uses the same message with lParam==1 after it
-        // has stored the authoritative Server value; older callers keep the
+        // lParam==2 marks the optimistic post made by the Shift dispatch;
+        // lParam==1 is the authoritative worker echo. Older callers keep the
         // zero lParam and use the process-global snapshot.
-        const bool hasExplicitOutput = message == WM_SyncOutputLanguagePunctuation && lParam == 1;
+        const bool optimisticOutput = message == WM_SyncOutputLanguagePunctuation && lParam == 2;
+        const bool authoritativeOutput = message == WM_SyncOutputLanguagePunctuation && lParam == 1;
+        const bool hasExplicitOutput = optimisticOutput || authoritativeOutput;
         const bool english =
             hasExplicitOutput ? wParam != 0 : Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
-        pIME->_deferredProjectedOutputLanguageEnglish = english;
-        if (pIME->_deferredKeyProjectionValid)
-        {
-            pIME->_deferredProjectedPunctuationOpen =
-                Global::ResolveFollowedPunctuationOpen(pIME->_deferredProjectedImeOpen ? TRUE : FALSE, english) !=
-                FALSE;
-        }
+        const bool sentenceStateChanged = !pIME->_sentencePunctuationKnown ||
+                                          pIME->_sentencePunctuationEnabled != enabled ||
+                                          (enabled && pIME->_sentencePunctuationEnglish != english);
         if (enabled && !engine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
         {
             engine->SetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
@@ -1105,8 +1102,17 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         // State echoes must preserve Ctrl+. and must not cancel Enter. Keep
         // this latch per owner, after the focus check: a background snapshot
         // cannot consume the focused owner's first punctuation synchronization.
-        if (!pIME->_sentencePunctuationKnown || pIME->_sentencePunctuationEnabled != enabled ||
-            (enabled && pIME->_sentencePunctuationEnglish != english))
+        if (optimisticOutput || sentenceStateChanged)
+        {
+            pIME->_deferredProjectedOutputLanguageEnglish = english;
+            if (pIME->_deferredKeyProjectionValid)
+            {
+                pIME->_deferredProjectedPunctuationOpen =
+                    Global::ResolveFollowedPunctuationOpen(pIME->_deferredProjectedImeOpen ? TRUE : FALSE, english) !=
+                    FALSE;
+            }
+        }
+        if (optimisticOutput || sentenceStateChanged)
         {
             if (enabled || pIME->_sentencePunctuationEnabled)
             {
@@ -1170,3 +1176,4 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
     }
     return 0;
 }
+

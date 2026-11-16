@@ -1046,3 +1046,4 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     // Support the search integration
     ITfFnSearchCandidateProvider *_pITfFnSearchCandidateProvider;
 };
+
