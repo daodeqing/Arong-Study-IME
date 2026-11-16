@@ -770,6 +770,8 @@ STDAPI_(ULONG) CMetasequoiaIME::Release()
 STDAPI CMetasequoiaIME::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tfClientId, DWORD dwFlags)
 {
     _sentencePunctuationKnown = false;
+    _optimisticOutputLanguagePending = false;
+    _optimisticOutputLanguageEnglish = false;
     _pThreadMgr = pThreadMgr;
     _pThreadMgr->AddRef();
 

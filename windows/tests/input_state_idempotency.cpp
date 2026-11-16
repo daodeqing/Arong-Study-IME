@@ -25,10 +25,14 @@ namespace Global
 std::atomic<bool> JapaneseInputModeEnabled{false};
 std::atomic<bool> OutputLanguageEnglish{true};
 std::atomic<bool> SentenceTranslationEnabled{true};
+inline BOOL ResolveFollowedPunctuationOpen(BOOL imeOpen, bool englishOutput)
+{
+    return FollowedPunctuationOpen(imeOpen != FALSE, false, SentenceTranslationEnabled.load(), englishOutput);
+}
+
 inline BOOL ResolveFollowedPunctuationOpen(BOOL imeOpen)
 {
-    return FollowedPunctuationOpen(imeOpen != FALSE, false, SentenceTranslationEnabled.load(),
-                                   OutputLanguageEnglish.load());
+    return ResolveFollowedPunctuationOpen(imeOpen, OutputLanguageEnglish.load());
 }
 } // namespace Global
 
@@ -84,6 +88,12 @@ class CMetasequoiaIME
     bool _sentencePunctuationKnown = false;
     bool _sentencePunctuationEnabled = false;
     bool _sentencePunctuationEnglish = false;
+    bool _optimisticOutputLanguagePending = false;
+    bool _optimisticOutputLanguageEnglish = false;
+    bool _deferredProjectedImeOpen = false;
+    bool _deferredKeyProjectionValid = false;
+    bool _deferredProjectedOutputLanguageEnglish = false;
+    bool _deferredProjectedPunctuationOpen = false;
 
     ThreadManager *_GetThreadMgr()
     {
@@ -120,7 +130,18 @@ class WorkerSnapshots
 
 namespace
 {
-std::deque<int> messages;
+struct PendingMessage
+{
+    int message;
+    int wParam;
+    int lParam;
+
+    PendingMessage(int message, int wParam = 0, int lParam = 0) : message(message), wParam(wParam), lParam(lParam)
+    {
+    }
+};
+
+std::deque<PendingMessage> messages;
 int statusSnapshots = 0;
 int refreshes = 0;
 int cancellations = 0;
@@ -131,9 +152,9 @@ bool IsWindow(HWND window)
     return window != 0;
 }
 
-void PostMessage(HWND, int message, int, int)
+void PostMessage(HWND, int message, int wParam, int lParam)
 {
-    messages.push_back(message);
+    messages.emplace_back(message, wParam, lParam);
 }
 
 bool IsSentenceTranslationEnabled()
@@ -146,7 +167,7 @@ void SendCurrentImeStatusSnapshot(CMetasequoiaIME *)
     ++statusSnapshots;
     // Deliberately emulate an older Server that answers every status snapshot
     // with all input-state frames. The DLL must stop that feedback by itself.
-    messages.push_back(STATUS_SNAPSHOT_ECHO);
+    messages.emplace_back(STATUS_SNAPSHOT_ECHO);
 }
 
 Frame Value(bool value)
@@ -164,10 +185,11 @@ bool PumpMessages(CMetasequoiaIME &service, WorkerSnapshots &worker)
     int remaining = 10000;
     while (!messages.empty() && --remaining > 0)
     {
-        const int message = messages.front();
+        const PendingMessage pending = messages.front();
         messages.pop_front();
+        const int message = pending.message;
         if (message == WM_ApplySentenceTranslation)
-            ApplySentenceTranslation(&service);
+            ApplySentenceTranslation(&service, pending.message, pending.wParam, pending.lParam);
         else if (message == WM_CancelSentenceTranslationCommit)
         {
             ++cancellations;
@@ -176,7 +198,7 @@ bool PumpMessages(CMetasequoiaIME &service, WorkerSnapshots &worker)
         else if (message == WM_RefreshLanguageBarTheme)
             ++refreshes;
         else if (message == WM_SyncOutputLanguagePunctuation)
-            ApplySentenceTranslation(&service);
+            ApplySentenceTranslation(&service, pending.message, pending.wParam, pending.lParam);
         else if (message == STATUS_SNAPSHOT_ECHO)
         {
             worker.InputMode(&service, Value(false));
@@ -210,6 +232,18 @@ int main()
     CHECK(PumpMessages(service, worker));
     CHECK(service.engine.imeOpen && !service.engine.punctuationOpen && service.engine.setModeCalls == 1);
     CHECK(statusSnapshots >= 1 && cancellations == 0);
+
+    // An optimistic Shift projection must be corrected when the authoritative
+    // Server echo arrives with the opposite language.
+    service.engine.punctuationOpen = TRUE;
+    service._deferredKeyProjectionValid = true;
+    service._deferredProjectedImeOpen = true;
+    service._optimisticOutputLanguagePending = true;
+    service._optimisticOutputLanguageEnglish = true;
+    ApplySentenceTranslation(&service, WM_SyncOutputLanguagePunctuation, 1, 2);
+    CHECK(!service.engine.punctuationOpen && service._optimisticOutputLanguagePending);
+    ApplySentenceTranslation(&service, WM_SyncOutputLanguagePunctuation, 0, 1);
+    CHECK(service.engine.punctuationOpen && !service._optimisticOutputLanguagePending);
 
     worker.OutputLanguage(&service, Value(false));
     CHECK(PumpMessages(service, worker));

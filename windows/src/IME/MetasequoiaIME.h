@@ -636,6 +636,8 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
         GUID preservedKey = {};
         uint64_t focusGeneration = 0;
         ULONGLONG queuedAtMs = 0;
+        bool projectedOutputLanguageKnown = false;
+        bool projectedOutputLanguageEnglish = false;
     };
     enum class KeyDownDispatchResult
     {
@@ -916,6 +918,8 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     bool _sentencePunctuationKnown = false;
     bool _sentencePunctuationEnabled = false;
     bool _sentencePunctuationEnglish = false;
+    bool _optimisticOutputLanguagePending = false;
+    bool _optimisticOutputLanguageEnglish = false;
     SentenceAutoCommitState _sentenceCommit;
     SentenceAutoCommitState::Session _SentenceSession() const;
     void _CancelSentenceTranslationCommit();
@@ -994,6 +998,7 @@ class CMetasequoiaIME : public ITfTextInputProcessorEx,
     bool _deferredKeyProjectionValid;
     bool _deferredProjectedImeOpen;
     bool _deferredProjectedJapaneseMode;
+    bool _deferredProjectedOutputLanguageEnglish;
     std::atomic<FanyImeTemporaryJapanese::Policy> _temporaryJapanesePolicy{0};
     FanyImeTemporaryJapanese::Policy _deferredProjectedTemporaryJapanesePolicy = 0;
     bool _deferredProjectedPunctuationOpen;
