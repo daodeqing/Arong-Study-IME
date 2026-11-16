@@ -355,4 +355,3 @@ inline thread_local bool SensitiveInputField = false;
 inline thread_local bool g_connected = false;
 
 } // namespace Global
-

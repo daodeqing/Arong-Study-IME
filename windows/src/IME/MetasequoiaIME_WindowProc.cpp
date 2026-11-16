@@ -1176,4 +1176,3 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
     }
     return 0;
 }
-

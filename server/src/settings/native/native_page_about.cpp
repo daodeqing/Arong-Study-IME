@@ -547,4 +547,3 @@ VisualPtr BuildAboutPage(PageContext &context)
     return std::make_shared<OwnerBox>(page.Build(), state);
 }
 } // namespace native_settings
-

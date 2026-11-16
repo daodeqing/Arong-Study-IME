@@ -829,4 +829,3 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
         }
     }
 }
-
