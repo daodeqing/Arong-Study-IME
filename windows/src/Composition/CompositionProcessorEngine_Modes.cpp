@@ -406,10 +406,7 @@ void CCompositionProcessorEngine::ReleaseConfiguredImeModeDefense()
 void CCompositionProcessorEngine::SyncPunctuationWithImeMode(_In_ ITfThreadMgr *pThreadMgr, TfClientId tfClientId,
                                                              BOOL isOpen)
 {
-    SetPunctuationMode(pThreadMgr, tfClientId,
-                       FollowedPunctuationOpen(isOpen != FALSE, Global::CapsLockEnabled.load(std::memory_order_relaxed))
-                           ? TRUE
-                           : FALSE);
+    SetPunctuationMode(pThreadMgr, tfClientId, Global::ResolveFollowedPunctuationOpen(isOpen));
 }
 
 void CCompositionProcessorEngine::SyncPunctuationWithCapsLock(_In_ ITfThreadMgr *pThreadMgr, TfClientId tfClientId,
@@ -422,8 +419,11 @@ void CCompositionProcessorEngine::SyncPunctuationWithCapsLock(_In_ ITfThreadMgr 
     _capsLockPunctuationKnown = true;
     _capsLockPunctuationApplied = capsLockEnabled;
     SetPunctuationMode(pThreadMgr, tfClientId,
-                       FollowedPunctuationOpen(GetIMEMode(pThreadMgr, tfClientId) != FALSE, capsLockEnabled) ? TRUE
-                                                                                                             : FALSE);
+                       FollowedPunctuationOpen(GetIMEMode(pThreadMgr, tfClientId) != FALSE, capsLockEnabled,
+                                               IsSentenceTranslationEnabled(),
+                                               Global::OutputLanguageEnglish.load(std::memory_order_relaxed))
+                           ? TRUE
+                           : FALSE);
 }
 
 void CCompositionProcessorEngine::ApplyPendingImeModeAfterCompositionCommit(_In_ ITfThreadMgr *pThreadMgr,

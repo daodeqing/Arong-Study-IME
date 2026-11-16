@@ -1,3 +1,4 @@
+#include "../src/Key/CapsLockPunctuationPolicy.h"
 #include <atomic>
 #include <cstdint>
 #include <deque>
@@ -11,6 +12,7 @@ constexpr BOOL FALSE = 0;
 constexpr int WM_RefreshLanguageBarTheme = 1;
 constexpr int WM_CancelSentenceTranslationCommit = 2;
 constexpr int WM_ApplySentenceTranslation = 3;
+constexpr int WM_SyncOutputLanguagePunctuation = 5;
 constexpr int STATUS_SNAPSHOT_ECHO = 4;
 
 bool SUCCEEDED(int result)
@@ -23,6 +25,11 @@ namespace Global
 std::atomic<bool> JapaneseInputModeEnabled{false};
 std::atomic<bool> OutputLanguageEnglish{true};
 std::atomic<bool> SentenceTranslationEnabled{true};
+inline BOOL ResolveFollowedPunctuationOpen(BOOL imeOpen)
+{
+    return FollowedPunctuationOpen(imeOpen != FALSE, false, SentenceTranslationEnabled.load(),
+                                   OutputLanguageEnglish.load());
+}
 } // namespace Global
 
 struct ThreadManager
@@ -38,6 +45,7 @@ struct ThreadManager
 struct CompositionEngine
 {
     BOOL imeOpen = FALSE;
+    BOOL punctuationOpen = TRUE;
     int setModeCalls = 0;
     bool acceptModeChange = true;
     BOOL GetIMEMode(ThreadManager *, int)
@@ -50,6 +58,18 @@ struct CompositionEngine
         if (acceptModeChange)
             imeOpen = open;
     }
+    BOOL GetPunctuationMode(ThreadManager *, int)
+    {
+        return punctuationOpen;
+    }
+    void SetPunctuationMode(ThreadManager *, int, BOOL open)
+    {
+        punctuationOpen = open;
+    }
+    void SyncPunctuationWithImeMode(ThreadManager *, int, BOOL open)
+    {
+        punctuationOpen = open;
+    }
 };
 
 class CMetasequoiaIME
@@ -61,6 +81,9 @@ class CMetasequoiaIME
     ThreadManager *_pThreadMgr = &manager;
     CompositionEngine *_pCompositionProcessorEngine = &engine;
     bool disabled = false;
+    bool _sentencePunctuationKnown = false;
+    bool _sentencePunctuationEnabled = false;
+    bool _sentencePunctuationEnglish = false;
 
     ThreadManager *_GetThreadMgr()
     {
@@ -152,11 +175,13 @@ bool PumpMessages(CMetasequoiaIME &service, WorkerSnapshots &worker)
         }
         else if (message == WM_RefreshLanguageBarTheme)
             ++refreshes;
+        else if (message == WM_SyncOutputLanguagePunctuation)
+            ApplySentenceTranslation(&service);
         else if (message == STATUS_SNAPSHOT_ECHO)
         {
             worker.InputMode(&service, Value(false));
-            worker.OutputLanguage(&service, Value(true));
-            worker.SentenceTranslation(&service, Value(true));
+            worker.OutputLanguage(&service, Value(Global::OutputLanguageEnglish.load()));
+            worker.SentenceTranslation(&service, Value(Global::SentenceTranslationEnabled.load()));
         }
     }
     return messages.empty();
@@ -183,13 +208,22 @@ int main()
     CHECK(Global::SentenceTranslationEnabled.load());
     worker.SentenceTranslation(&service, Value(true));
     CHECK(PumpMessages(service, worker));
-    CHECK(service.engine.imeOpen && service.engine.setModeCalls == 1);
-    CHECK(statusSnapshots == 1 && cancellations == 0);
+    CHECK(service.engine.imeOpen && !service.engine.punctuationOpen && service.engine.setModeCalls == 1);
+    CHECK(statusSnapshots >= 1 && cancellations == 0);
+
+    worker.OutputLanguage(&service, Value(false));
+    CHECK(PumpMessages(service, worker));
+    CHECK(service.engine.punctuationOpen);
+    worker.OutputLanguage(&service, Value(true));
+    CHECK(PumpMessages(service, worker));
+    CHECK(!service.engine.punctuationOpen);
 
     // Repeated enabled snapshots may validate the owner mode, but cannot write
     // the compartment or emit more status snapshots once it already matches.
+    cancellations = 0;
     confirmationPending = true;
     const int oldRefreshes = refreshes;
+    const int oldStatusSnapshots = statusSnapshots;
     for (int repeat = 0; repeat < 1000; ++repeat)
     {
         worker.InputMode(&service, Value(false));
@@ -198,7 +232,14 @@ int main()
     }
     CHECK(PumpMessages(service, worker));
     CHECK(confirmationPending && cancellations == 0);
-    CHECK(statusSnapshots == 1 && service.engine.setModeCalls == 1 && refreshes == oldRefreshes);
+    CHECK(statusSnapshots == oldStatusSnapshots && service.engine.setModeCalls == 1 && refreshes == oldRefreshes);
+
+    // A manual punctuation toggle survives repeated status snapshots. Only
+    // an actual output-language change applies the following rule again.
+    service.engine.punctuationOpen = TRUE;
+    worker.SentenceTranslation(&service, Value(true));
+    CHECK(PumpMessages(service, worker));
+    CHECK(service.engine.punctuationOpen);
 
     // Only a real output-language edge cancels confirmation.
     worker.OutputLanguage(&service, Value(false));
@@ -220,6 +261,7 @@ int main()
     // activation snapshot must still apply, although its boolean is unchanged.
     CMetasequoiaIME background;
     WorkerSnapshots backgroundWorker;
+    const int statusBeforeBackground = statusSnapshots;
     backgroundWorker.ResetGeneration(1);
     background.manager.focused = FALSE;
     backgroundWorker.SentenceTranslation(&background, Value(true));
@@ -229,7 +271,8 @@ int main()
     backgroundWorker.SentenceTranslation(&background, Value(true));
     CHECK(PumpMessages(background, backgroundWorker));
     CHECK(background.engine.imeOpen && background.engine.setModeCalls == 1);
-    CHECK(statusSnapshots == 2);
+    CHECK(background.engine.punctuationOpen);
+    CHECK(statusSnapshots == statusBeforeBackground + 1);
 
     // A host may reject the compartment write. Do not publish a false change
     // that an older Server would answer with another identical apply request.
@@ -240,16 +283,17 @@ int main()
     rejectingWorker.SentenceTranslation(&rejecting, Value(true));
     CHECK(PumpMessages(rejecting, rejectingWorker));
     CHECK(!rejecting.engine.imeOpen && rejecting.engine.setModeCalls == 1);
-    CHECK(statusSnapshots == 2);
+    CHECK(statusSnapshots == statusBeforeBackground + 1);
 
     // Disabled state cancels once, while repeated disabled snapshots stay inert.
     worker.SentenceTranslation(&service, Value(false));
     CHECK(PumpMessages(service, worker));
+    CHECK(service.engine.punctuationOpen == service.engine.imeOpen);
     const int disabledCancellations = cancellations;
     for (int repeat = 0; repeat < 1000; ++repeat)
         worker.SentenceTranslation(&service, Value(false));
     CHECK(PumpMessages(service, worker));
-    CHECK(cancellations == disabledCancellations && statusSnapshots == 2);
+    CHECK(cancellations == disabledCancellations && statusSnapshots == statusBeforeBackground + 1);
 
     std::cout << "Input-state echoes terminate and unchanged language preserves confirmation\n";
     return 0;

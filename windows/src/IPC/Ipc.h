@@ -326,8 +326,12 @@ inline std::atomic_bool CapsLockEnabled{false};
 // The punctuation the mode-following paths select; a configured lock still wins.
 inline BOOL ResolveFollowedPunctuationOpen(BOOL imeOpen)
 {
-    return ResolvePunctuationOpen(
-        FollowedPunctuationOpen(imeOpen != FALSE, CapsLockEnabled.load(std::memory_order_relaxed)) ? TRUE : FALSE);
+    return ResolvePunctuationOpen(FollowedPunctuationOpen(imeOpen != FALSE,
+                                                          CapsLockEnabled.load(std::memory_order_relaxed),
+                                                          SentenceTranslationEnabled.load(std::memory_order_relaxed),
+                                                          OutputLanguageEnglish.load(std::memory_order_relaxed))
+                                      ? TRUE
+                                      : FALSE);
 }
 inline std::atomic_bool TsfDiagnosticLogEnabled{false};
 // Default off, like the persisted setting: until the Server sends the switch on

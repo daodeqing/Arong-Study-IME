@@ -1071,21 +1071,39 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
         }
         break;
     }
+    case WM_SyncOutputLanguagePunctuation:
     case WM_ApplySentenceTranslation: {
-        // COM compartment changes belong to the focused TSF owner thread.
+        // COM compartments are only accessed on the focused TSF owner thread.
         BOOL hasThreadFocus = FALSE;
-        if (IsSentenceTranslationEnabled() && pIME->_pThreadMgr && pIME->_pCompositionProcessorEngine &&
-            SUCCEEDED(pIME->_pThreadMgr->IsThreadFocus(&hasThreadFocus)) && hasThreadFocus &&
-            !pIME->_IsKeyboardDisabled() &&
-            !pIME->_pCompositionProcessorEngine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
+        if (!pIME->_pThreadMgr || !pIME->_pCompositionProcessorEngine ||
+            !SUCCEEDED(pIME->_pThreadMgr->IsThreadFocus(&hasThreadFocus)) || !hasThreadFocus ||
+            pIME->_IsKeyboardDisabled())
+            break;
+        auto *engine = pIME->_pCompositionProcessorEngine;
+        const bool enabled = IsSentenceTranslationEnabled();
+        const bool english = Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
+        if (enabled && !engine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
         {
-            // Repeated state frames must not echo another full status snapshot
-            // when the required Chinese composition mode is already applied.
-            pIME->_pCompositionProcessorEngine->SetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
-            // Some hosts reject compartment changes. Do not announce a change
-            // that never took effect and invite another identical apply frame.
-            if (pIME->_pCompositionProcessorEngine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
+            engine->SetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
+            // Do not echo a rejected compartment write back to Server.
+            if (engine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
                 SendCurrentImeStatusSnapshot(pIME);
+        }
+        // State echoes must preserve Ctrl+. and must not cancel Enter. Keep
+        // this latch per owner, after the focus check: a background snapshot
+        // cannot consume the focused owner's first punctuation synchronization.
+        if (!pIME->_sentencePunctuationKnown || pIME->_sentencePunctuationEnabled != enabled ||
+            (enabled && pIME->_sentencePunctuationEnglish != english))
+        {
+            if (enabled || pIME->_sentencePunctuationEnabled)
+            {
+                const BOOL imeOpen = engine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId());
+                engine->SetPunctuationMode(pIME->_GetThreadMgr(), pIME->_GetClientId(),
+                                           Global::ResolveFollowedPunctuationOpen(imeOpen));
+            }
+            pIME->_sentencePunctuationKnown = true;
+            pIME->_sentencePunctuationEnabled = enabled;
+            pIME->_sentencePunctuationEnglish = english;
         }
         break;
     }
