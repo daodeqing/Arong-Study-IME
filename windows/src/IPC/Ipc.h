@@ -324,14 +324,21 @@ inline std::atomic_bool TrilingualCycleEnabled{false};
 inline std::atomic_bool CapsLockEnabled{false};
 
 // The punctuation the mode-following paths select; a configured lock still wins.
+// The explicit output-language overload is used for the small window between a
+// successful Shift request and the Server's authoritative state echo. Keeping
+// the requested language in the message avoids a visible one-key lag without
+// changing the process-global state before the Server accepts the request.
+inline BOOL ResolveFollowedPunctuationOpen(BOOL imeOpen, bool englishOutput)
+{
+    return ResolvePunctuationOpen(
+        FollowedPunctuationOpen(imeOpen != FALSE, CapsLockEnabled.load(std::memory_order_relaxed),
+                                SentenceTranslationEnabled.load(std::memory_order_relaxed), englishOutput)
+            ? TRUE
+            : FALSE);
+}
 inline BOOL ResolveFollowedPunctuationOpen(BOOL imeOpen)
 {
-    return ResolvePunctuationOpen(FollowedPunctuationOpen(imeOpen != FALSE,
-                                                          CapsLockEnabled.load(std::memory_order_relaxed),
-                                                          SentenceTranslationEnabled.load(std::memory_order_relaxed),
-                                                          OutputLanguageEnglish.load(std::memory_order_relaxed))
-                                      ? TRUE
-                                      : FALSE);
+    return ResolveFollowedPunctuationOpen(imeOpen, OutputLanguageEnglish.load(std::memory_order_relaxed));
 }
 inline std::atomic_bool TsfDiagnosticLogEnabled{false};
 // Default off, like the persisted setting: until the Server sends the switch on

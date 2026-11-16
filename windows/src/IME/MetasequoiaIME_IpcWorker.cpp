@@ -744,7 +744,7 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
                 if (changed)
                     PostMessage(ownerWindow, WM_CancelSentenceTranslationCommit, 0, 0);
                 if (Global::SentenceTranslationEnabled.load(std::memory_order_relaxed))
-                    PostMessage(ownerWindow, WM_SyncOutputLanguagePunctuation, 0, 0);
+                    PostMessage(ownerWindow, WM_SyncOutputLanguagePunctuation, english ? 1 : 0, 1);
                 PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
             }
         }

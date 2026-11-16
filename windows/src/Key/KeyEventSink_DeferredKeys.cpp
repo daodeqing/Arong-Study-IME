@@ -44,6 +44,7 @@ struct DeferredShadowState
 {
     bool imeOpen = false;
     bool japaneseMode = false;
+    bool outputLanguageEnglish = false;
     FanyImeTemporaryJapanese::Policy temporaryJapanesePolicy = 0;
     bool punctuationOpen = false;
     bool doubleSingleByteOpen = false;
@@ -169,6 +170,14 @@ void ApplyDeferredKeyState(DeferredShadowState &shadow, const _KEYSTROKE_STATE &
         clearComposition();
         break;
     }
+    case FUNCTION_TOGGLE_OUTPUT_LANGUAGE:
+        // Shift's output-language request is asynchronous. Project the
+        // punctuation side immediately so a comma/period queued behind Shift
+        // is classified with the requested language instead of the old one.
+        shadow.outputLanguageEnglish = !shadow.outputLanguageEnglish;
+        shadow.punctuationOpen =
+            Global::ResolveFollowedPunctuationOpen(shadow.imeOpen, shadow.outputLanguageEnglish) != FALSE;
+        break;
     case FUNCTION_TOGGLE_ENGLISH_CANDIDATES:
         shadow.temporaryJapanesePolicy = FanyImeTemporaryJapanese::ToggleEnglish(shadow.temporaryJapanesePolicy);
         clearComposition();
@@ -296,6 +305,7 @@ void CMetasequoiaIME::_EnsureDeferredKeyProjection()
     _deferredProjectedImeOpen = _pCompositionProcessorEngine && _pThreadMgr &&
                                 _pCompositionProcessorEngine->GetIMEMode(_pThreadMgr, _tfClientId) != FALSE;
     _deferredProjectedJapaneseMode = Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed);
+    _deferredProjectedOutputLanguageEnglish = Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
     _deferredProjectedTemporaryJapanesePolicy = GetTemporaryJapanesePolicy();
     _deferredProjectedPunctuationOpen =
         _pCompositionProcessorEngine && _pThreadMgr &&
@@ -335,6 +345,7 @@ void CMetasequoiaIME::_ApplyDeferredKeyProjection(const _KEYSTROKE_STATE &keySta
     DeferredShadowState shadow;
     shadow.imeOpen = _deferredProjectedImeOpen;
     shadow.japaneseMode = _deferredProjectedJapaneseMode;
+    shadow.outputLanguageEnglish = _deferredProjectedOutputLanguageEnglish;
     shadow.temporaryJapanesePolicy = _deferredProjectedTemporaryJapanesePolicy;
     shadow.punctuationOpen = _deferredProjectedPunctuationOpen;
     shadow.doubleSingleByteOpen = _deferredProjectedDoubleSingleByteOpen;
@@ -367,6 +378,7 @@ void CMetasequoiaIME::_ApplyDeferredKeyProjection(const _KEYSTROKE_STATE &keySta
     }
     _deferredProjectedImeOpen = shadow.imeOpen;
     _deferredProjectedJapaneseMode = shadow.japaneseMode;
+    _deferredProjectedOutputLanguageEnglish = shadow.outputLanguageEnglish;
     _deferredProjectedTemporaryJapanesePolicy = shadow.temporaryJapanesePolicy;
     _deferredProjectedPunctuationOpen = shadow.punctuationOpen;
     _deferredProjectedInputLength = shadow.inputLength;
@@ -397,7 +409,9 @@ void CMetasequoiaIME::_ApplyDeferredPreservedKeyProjection(REFGUID preservedKey)
     case CCompositionProcessorEngine::PreservedKeyAction::ToggleImeMode:
         FanyUtils::RefreshPunctuationLockFromConfig();
         _deferredProjectedImeOpen = !_deferredProjectedImeOpen;
-        _deferredProjectedPunctuationOpen = Global::ResolveFollowedPunctuationOpen(_deferredProjectedImeOpen) != FALSE;
+        _deferredProjectedPunctuationOpen =
+            Global::ResolveFollowedPunctuationOpen(_deferredProjectedImeOpen,
+                                                   _deferredProjectedOutputLanguageEnglish) != FALSE;
         _deferredProjectedInputLength = 0;
         _deferredProjectedRawInput.clear();
         _deferredProjectedCaret = 0;
@@ -531,6 +545,7 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
     {
         shadow.imeOpen = _deferredProjectedImeOpen;
         shadow.japaneseMode = _deferredProjectedJapaneseMode;
+        shadow.outputLanguageEnglish = _deferredProjectedOutputLanguageEnglish;
         shadow.temporaryJapanesePolicy = _deferredProjectedTemporaryJapanesePolicy;
         shadow.punctuationOpen = _deferredProjectedPunctuationOpen;
         shadow.doubleSingleByteOpen = _deferredProjectedDoubleSingleByteOpen;
@@ -543,6 +558,7 @@ bool CMetasequoiaIME::_ClassifyDeferredKeyDown(_In_ ITfContext *pContext, WPARAM
     {
         shadow.imeOpen = _pCompositionProcessorEngine->GetIMEMode(_pThreadMgr, _tfClientId) != FALSE;
         shadow.japaneseMode = Global::JapaneseInputModeEnabled.load(std::memory_order_relaxed);
+        shadow.outputLanguageEnglish = Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
         shadow.temporaryJapanesePolicy = GetTemporaryJapanesePolicy();
         shadow.punctuationOpen = _pCompositionProcessorEngine->GetPunctuationMode(_pThreadMgr, _tfClientId) != FALSE;
         shadow.doubleSingleByteOpen =
@@ -887,6 +903,7 @@ void CMetasequoiaIME::_ClearDeferredKeyDowns()
     _deferredKeyProjectionValid = false;
     _deferredProjectedImeOpen = false;
     _deferredProjectedJapaneseMode = false;
+    _deferredProjectedOutputLanguageEnglish = false;
     _deferredProjectedTemporaryJapanesePolicy = 0;
     _deferredProjectedPunctuationOpen = false;
     _deferredProjectedDoubleSingleByteOpen = false;

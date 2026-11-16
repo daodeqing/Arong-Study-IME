@@ -1081,7 +1081,20 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
             break;
         auto *engine = pIME->_pCompositionProcessorEngine;
         const bool enabled = IsSentenceTranslationEnabled();
-        const bool english = Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
+        // lParam==1 marks the direct post made by the Shift dispatch. The
+        // worker's state echo uses the same message with lParam==1 after it
+        // has stored the authoritative Server value; older callers keep the
+        // zero lParam and use the process-global snapshot.
+        const bool hasExplicitOutput = message == WM_SyncOutputLanguagePunctuation && lParam == 1;
+        const bool english =
+            hasExplicitOutput ? wParam != 0 : Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
+        pIME->_deferredProjectedOutputLanguageEnglish = english;
+        if (pIME->_deferredKeyProjectionValid)
+        {
+            pIME->_deferredProjectedPunctuationOpen =
+                Global::ResolveFollowedPunctuationOpen(pIME->_deferredProjectedImeOpen ? TRUE : FALSE, english) !=
+                FALSE;
+        }
         if (enabled && !engine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId()))
         {
             engine->SetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId(), TRUE);
@@ -1099,7 +1112,7 @@ LRESULT CALLBACK CMetasequoiaIME_WindowProc(HWND hWnd, UINT message, WPARAM wPar
             {
                 const BOOL imeOpen = engine->GetIMEMode(pIME->_GetThreadMgr(), pIME->_GetClientId());
                 engine->SetPunctuationMode(pIME->_GetThreadMgr(), pIME->_GetClientId(),
-                                           Global::ResolveFollowedPunctuationOpen(imeOpen));
+                                           Global::ResolveFollowedPunctuationOpen(imeOpen, english));
             }
             pIME->_sentencePunctuationKnown = true;
             pIME->_sentencePunctuationEnabled = enabled;

@@ -408,7 +408,8 @@ void CMetasequoiaIME::_ApplyCapsLockKeyDownSideEffects(bool capsLockEnabled)
         // it classify against the punctuation the edge selects.
         FanyUtils::RefreshPunctuationLockFromConfig();
         _deferredProjectedPunctuationOpen =
-            Global::ResolveFollowedPunctuationOpen(_deferredProjectedImeOpen ? TRUE : FALSE) != FALSE;
+            Global::ResolveFollowedPunctuationOpen(_deferredProjectedImeOpen ? TRUE : FALSE,
+                                                   _deferredProjectedOutputLanguageEnglish) != FALSE;
     }
     if (_pCompositionProcessorEngine)
     {
@@ -1499,9 +1500,21 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
             outputLanguageAction   ? static_cast<unsigned>(FanyImeInputStateShortcuts::Action::OutputLanguage)
             : sendInputStateAction ? static_cast<unsigned>(FanyImeInputStateShortcuts::Action::EnglishCandidates)
                                    : 0;
+        const bool requestedEnglish = !Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
         const KeyEventSendResult sendResult = SendKeyEventToUIProcess(&requestId, inputStateAction);
         if (outputLanguageAction)
         {
+            // Apply the punctuation side of Shift immediately on the TSF
+            // owner thread. The Server's OutputLanguageChanged echo remains
+            // authoritative and corrects this projection if another client
+            // changed the output language while the request was in flight.
+            if (sendResult == KeyEventSendResult::Sent && IsSentenceTranslationEnabled() && _msgWndHandle &&
+                IsWindow(_msgWndHandle))
+            {
+                // We are already on the owner thread. Apply before returning
+                // to the queue, then let any queued Server echo reconcile it.
+                SendMessage(_msgWndHandle, WM_SyncOutputLanguagePunctuation, requestedEnglish ? 1 : 0, 1);
+            }
             DebugTsfIssue47(sendResult == KeyEventSendResult::Sent ? L"output-language-sent"
                                                                    : L"output-language-send-failed",
                             requestId, code, wch, KeystrokeState.Category, KeystrokeState.Function, 1, _IsComposing(),
