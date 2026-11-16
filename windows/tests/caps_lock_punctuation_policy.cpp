@@ -21,6 +21,22 @@ int main()
         }
     }
 
+    // Shift changes output language without closing the pinyin channel in
+    // sentence translation. Cover both directions with and without Caps Lock.
+    for (unsigned state = 0; state < 16; ++state)
+    {
+        const bool imeOpen = (state & 8) != 0;
+        const bool capsLock = (state & 4) != 0;
+        const bool sentenceTranslation = (state & 2) != 0;
+        const bool englishOutput = (state & 1) != 0;
+        const bool expected = imeOpen && !capsLock && (!sentenceTranslation || !englishOutput);
+        if (FollowedPunctuationOpen(imeOpen, capsLock, sentenceTranslation, englishOutput) != expected)
+        {
+            std::fprintf(stderr, "FAIL output-language punctuation state=%u\n", state);
+            ++failures;
+        }
+    }
+
     // Bits are known, last applied, Caps Lock. The first report always syncs; afterwards
     // only a changed Caps Lock state does, so a repeated report keeps a manual toggle.
     constexpr bool expectedResync[8] = {true, true, true, true, false, true, true, false};

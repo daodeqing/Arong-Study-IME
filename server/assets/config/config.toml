@@ -425,7 +425,7 @@ autocorrect_marker = true
 # 快捷键
 #
 [keybindings]
-# Shift 切换中文/英文输出；Ctrl+Space 由 Windows 管理输入法切换
+  # Shift 切换中文/英文输出，并同步切换中英文标点；Ctrl+Space 由 Windows 管理输入法切换
 switch_language_shift = true
 switch_language_ctrl = false
 switch_language_ctrl_alt_space = true

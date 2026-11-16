@@ -3,9 +3,10 @@
 // Punctuation follows the effective input language, and Caps Lock makes letters English, so the
 // mode-following paths select English punctuation while it is on. A manual punctuation toggle
 // does not go through this rule: the user can still pick Chinese punctuation under Caps Lock.
-inline bool FollowedPunctuationOpen(bool imeOpen, bool capsLockEnabled)
+inline bool FollowedPunctuationOpen(bool imeOpen, bool capsLockEnabled, bool sentenceTranslation = false,
+                                    bool englishOutput = false)
 {
-    return imeOpen && !capsLockEnabled;
+    return imeOpen && !capsLockEnabled && !(sentenceTranslation && englishOutput);
 }
 
 // Caps Lock re-syncs punctuation only on a real edge. The key sink and the Server broadcast both
