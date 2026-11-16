@@ -736,7 +736,7 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
             lastOutputLanguageEnglish = static_cast<int>(english);
             Global::OutputLanguageEnglish.store(english, std::memory_order_relaxed);
             const HWND ownerWindow = pIME->_msgWndHandle;
-            if (needsUiUpdate && ownerWindow && IsWindow(ownerWindow))
+            if (ownerWindow && IsWindow(ownerWindow))
             {
                 // A repeated status snapshot is not a user output-mode change.
                 // Cancelling here on every echo invalidated in-flight Enter
@@ -745,7 +745,8 @@ void CMetasequoiaIME::IpcWorkerThread(CMetasequoiaIME *pIME)
                     PostMessage(ownerWindow, WM_CancelSentenceTranslationCommit, 0, 0);
                 if (Global::SentenceTranslationEnabled.load(std::memory_order_relaxed))
                     PostMessage(ownerWindow, WM_SyncOutputLanguagePunctuation, english ? 1 : 0, 1);
-                PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
+                if (needsUiUpdate)
+                    PostMessage(ownerWindow, WM_RefreshLanguageBarTheme, 1, 0);
             }
         }
         else if (buf.msg_type == FanyImeWorkerReplyType::SentenceTranslationReady ||

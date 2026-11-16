@@ -37,7 +37,8 @@ def generate(worker_source, window_source, output):
     _, apply_body = find_body(window, "case WM_ApplySentenceTranslation:")
     # The extracted case ends with break, which exits this single-shot scope.
     fixture += (
-        "void ApplySentenceTranslation(CMetasequoiaIME *pIME)\n{\ndo\n"
+        "void ApplySentenceTranslation(CMetasequoiaIME *pIME, int message = WM_ApplySentenceTranslation, "
+        "int wParam = 0, int lParam = 0)\n{\ndo\n"
         + apply_body + "\nwhile (false);\n}\n"
     )
     Path(output).write_text(fixture, encoding="utf-8")

@@ -1430,6 +1430,10 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
         const bool outputLanguageAction = KeystrokeState.Function == FUNCTION_TOGGLE_OUTPUT_LANGUAGE;
         if (outputLanguageAction && !SupportsInputStateShortcuts())
         {
+            if (deferredReplayToken != 0)
+            {
+                _FailDeferredKey(deferredReplayToken, DeferredKeyFailureReason::ProjectionInvalidated);
+            }
             return KeyDownDispatchResult::Complete;
         }
         const bool sendInputStateAction =
@@ -1500,16 +1504,34 @@ CMetasequoiaIME::KeyDownDispatchResult CMetasequoiaIME::_DispatchKeyDown(
             outputLanguageAction   ? static_cast<unsigned>(FanyImeInputStateShortcuts::Action::OutputLanguage)
             : sendInputStateAction ? static_cast<unsigned>(FanyImeInputStateShortcuts::Action::EnglishCandidates)
                                    : 0;
-        const bool requestedEnglish = !Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
+        bool requestedEnglish = !Global::OutputLanguageEnglish.load(std::memory_order_relaxed);
+        if (outputLanguageAction && deferredReplayToken != 0 && _hasDeferredKeyInFlight &&
+            _deferredKeyReplayToken == deferredReplayToken && _deferredKeyInFlight.projectedOutputLanguageKnown)
+        {
+            requestedEnglish = _deferredKeyInFlight.projectedOutputLanguageEnglish;
+        }
         const KeyEventSendResult sendResult = SendKeyEventToUIProcess(&requestId, inputStateAction);
         if (outputLanguageAction)
         {
+            if (sendResult != KeyEventSendResult::Sent)
+            {
+                if (deferredReplayToken != 0)
+                {
+                    _FailDeferredKey(deferredReplayToken, DeferredKeyFailureReason::TransportBroken);
+                    return KeyDownDispatchResult::Complete;
+                }
+                return KeyDownDispatchResult::TransportFailed;
+            }
+            if (IsSentenceTranslationEnabled())
+            {
+                _optimisticOutputLanguagePending = true;
+                _optimisticOutputLanguageEnglish = requestedEnglish;
+            }
             // Apply the punctuation side of Shift immediately on the TSF
             // owner thread. The Server's OutputLanguageChanged echo remains
             // authoritative and corrects this projection if another client
             // changed the output language while the request was in flight.
-            if (sendResult == KeyEventSendResult::Sent && IsSentenceTranslationEnabled() && _msgWndHandle &&
-                IsWindow(_msgWndHandle))
+            if (IsSentenceTranslationEnabled() && _msgWndHandle && IsWindow(_msgWndHandle))
             {
                 // We are already on the owner thread. Apply before returning
                 // to the queue, then let any queued Server echo reconcile it.
